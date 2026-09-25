@@ -1,0 +1,15 @@
+name = "ZetaSeven"
+version = "0.1.0"
+keywords = ["math"]
+defaultTargets = ["ZetaSeven"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.34.1"
+
+[[lean_lib]]
+name = "ZetaSeven"
