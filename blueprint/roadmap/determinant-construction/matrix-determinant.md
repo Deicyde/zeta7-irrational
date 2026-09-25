@@ -1,6 +1,8 @@
 ---
 declaration: def
 origin: cited
+statement: formalized
+lean: ZetaSeven.Dtail ZetaSeven.Rnum ZetaSeven.polyPart ZetaSeven.resCoeff ZetaSeven.poleCoeffs ZetaSeven.Gentry ZetaSeven.Gmat ZetaSeven.DeltaK ZetaSeven.SK ZetaSeven.FK
 ---
 
 # Matrix and determinant
