@@ -15,6 +15,29 @@ The chapter's contract is the real bound: positivity of F_K(zeta(7))
 with `log F_K(zeta(7)) <= U K^2 + O(K log K)` for `U = 44/25`, the
 analytic half of the final exponent.
 
+## Comparison measure
+
+- [External field](external-field.md) — the field and potential notation.
+- [Comparison measure](comparison-measure.md) — the sixteen arcsine components.
+- [Elementary enclosures](elementary-enclosures.md) — rigorous Taylor bounds.
+- [Potential inequality](potential-inequality.md) — the interval certificate.
+- [Energy and norm constant](energy-computation.md) — the energy evaluation and U.
+
+## Energy bound
+
+- [Zero-mass logarithmic energy](zero-mass-energy.md) — nonpositive energy at mass zero.
+- [Configuration energy bound](configuration-bound.md) — the general configuration estimate.
+
+## Scaling and assembly
+
+- [Andreief scaling](andreief-scaling.md) — from determinant to energy integral.
+- [Real bound](real-bound.md) — positivity and the analytic upper bound.
+
+## Background
+
+- [Andreief identity](andreief-identity.md) — the moment-determinant identity.
+- [Stirling factorial estimate](stirling-estimate.md) — the factorial growth bound.
+
 ## Sources
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):

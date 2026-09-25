@@ -12,6 +12,11 @@ coefficient-height estimate are not part of this chapter: they need
 the relative matrix norm estimate and are planned as a later milestone
 once the main irrationality result is formalized.
 
+## Main results
+
+- [Main polynomial estimates](main-estimates.md) — integrality, degree, positivity, decay.
+- [Zeta 7 is irrational](main-theorem.md) — the terminal contradiction.
+
 ## Sources
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):

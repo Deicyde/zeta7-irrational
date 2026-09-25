@@ -16,6 +16,22 @@ G_K(zeta(7)) a positive definite Gram matrix and hence forces
 Q_K,M(zeta(7)) > 0. The chapter's contract is the main-estimates
 statement: integrality, degree, positivity, and the two decay bounds.
 
+## Definitions
+
+- [Functional mu](functional-mu.md) — parameters and the functional.
+- [Matrix and determinant](matrix-determinant.md) — the matrix and its normalizations.
+
+## Main results
+
+- [Degree lemma](degree-lemma.md) — exact degree and leading coefficient.
+- [Positive integral representation](positive-integral-representation.md) — the weight and Gram positivity.
+
+## Background
+
+- [Vandermonde determinant](vandermonde-det.md) — upstream matrix identity.
+- [Euler formula for even zeta values](euler-even-zeta.md) — even moments.
+- [Hermite integral for Hurwitz zeta](hermite-hurwitz.md) — pole evaluation.
+
 ## Sources
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):

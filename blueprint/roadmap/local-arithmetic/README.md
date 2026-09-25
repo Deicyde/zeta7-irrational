@@ -14,6 +14,26 @@ outer-range estimate that isolates the residue terms from a polynomial
 correction via a rank lemma. Together they feed the normalization
 factor of the next chapter.
 
+## Local functional
+
+- [Tau pullback identity](tau-pullback.md) — the auxiliary functional and pullback.
+- [Reflection and difference identities](reflection-difference.md) — the two functional identities.
+- [P-adic completion](completion.md) — extension to the Tate algebra.
+- [Distribution formula](distribution-formula.md) — averaging over residue classes.
+
+## Estimates
+
+- [Small-prime estimate](small-prime-estimate.md) — the crude global bound and integer-valued basis.
+- [Inner range estimate](inner-estimate.md) — determinant valuations in the inner range.
+- [Rank lemma](rank-lemma.md) — determinant bound under a low-rank correction.
+- [Outer range estimate](outer-estimate.md) — determinant valuations in the outer range.
+
+## Background
+
+- [Von Staudt-Clausen theorem](von-staudt-clausen.md) — upstream Bernoulli denominators.
+- [Bernoulli multiplication formula](bernoulli-multiplication.md) — distribution over residue classes.
+- [Integer-valued polynomial estimates](integer-valued-estimates.md) — predecessor-adapted bounds.
+
 ## Sources
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):

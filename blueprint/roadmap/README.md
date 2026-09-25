@@ -20,3 +20,5 @@ bounds their analytic size, and assembles the contradiction.
 
 The [coverage contract](../coverage/README.md) records which source
 areas these chapters dispose of and what is deferred or out of scope.
+Each chapter page lists its pull-request-sized formalization units
+with their dependency edges.

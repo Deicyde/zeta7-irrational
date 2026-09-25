@@ -68,8 +68,12 @@ aid and must not replace source inspection.
 
 ## Open source questions
 
-1. Which decay constant to formalize for `M = 200`: the proved v1
-   `-17600` or the abstract's `-19000` pending the author's v2 fix.
+1. DECIDED: formalize `-19000` for `M = 200`. The v1 proof text
+   derives only `1600(A200 + U) < -17600` (and states `-17000`),
+   so `-19000` needs `A200 + U < -95/8`, proved by exact rational
+   arithmetic from the integral tables. The exact values
+   (`A200 ~ -13.7528`, `U = 44/25`) leave margin `~0.118`, so the
+   certificate is expected to close; see the `final-margins` node.
 2. The Fauzan zeta(5) predecessor [5] is cited for the architecture but
    has not been inspected; confirm no hidden lemma is imported from it.
 3. Background identities (Hermite/Hurwitz integral, von Staudt-Clausen,
