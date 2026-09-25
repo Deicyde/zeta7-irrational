@@ -1,10 +1,5 @@
 # Sources
 
-No sources recorded yet.
-
-<!-- AUTHORING NOTES — these comments are not published.
-
-     One page per reference. Each page maps stable source locators to the
-     roadmap articles that depend on them, so every statement can be traced
-     back to the passage it came from.
--->
+- [Zeta 7 preprint source map](zeta7-preprint.md) — adopted source:
+  Anand's preprint v1 (Zenodo 22920911) with stable locators for every
+  roadmap target.

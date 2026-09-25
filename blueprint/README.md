@@ -10,6 +10,10 @@ irrationality measure.
 - [Coverage](coverage/README.md) — what counts as done, and what is out of
   scope.
 
+The roadmap currently has five coarse chapters, from the determinant
+construction through the irrationality assembly; fine decomposition
+into pull-request-sized nodes comes next.
+
 <!-- Reference material goes in sources/. It is vault material rather than a
      chapter, so the site does not publish it: a statement's "## Sources" list
      links to the file in the repository instead. -->

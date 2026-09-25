@@ -1,29 +1,25 @@
 # Coverage contract
 
+The rows below span the v1 preprint (Zenodo 22920911): the
+construction, the arithmetic and analytic estimates, the assembly, the
+background identities those estimates cite, the deferred approximation
+bound, and the predecessor material excluded from scope.
+
 | Area | Coverage | Evidence |
 | --- | --- | --- |
-| Zeta 7 preprint (Zenodo 22920911) | `MAPPED` | Roadmap has not yet decomposed the preprint into chapters; this row stays MAPPED until Roadmap links the covering articles. |
+| Determinant construction (Section 2) | `DECOMPOSED` | [Determinant construction chapter](../roadmap/determinant-construction/README.md) covers the functional, degree, and positivity |
+| Local p-adic estimates (Sections 3-4) | `DECOMPOSED` | [Local arithmetic chapter](../roadmap/local-arithmetic/README.md) covers completion, distribution, and both range estimates |
+| Normalization and prime sum (Section 5, exact integrals) | `DECOMPOSED` | [Normalization chapter](../roadmap/normalization-prime-sum/README.md) covers integrality, limiting integrals, and the prime-sum bound |
+| Real determinant bound (Section 6, comparison measure) | `DECOMPOSED` | [Real bound chapter](../roadmap/real-bound/README.md) covers the energy comparison and the analytic bound |
+| Main irrationality assembly (Theorems 1.1-1.2) | `DECOMPOSED` | [Irrationality proof chapter](../roadmap/irrationality-proof/README.md) covers the decay estimates and the contradiction |
+| Background identities cited by the estimates | `MAPPED` | Mathlib audit pending: check Hermite/Hurwitz, von Staudt-Clausen, Bernoulli multiplication, and Andreief upstream before planning bridging lemmas |
+| Approximation bound and coefficient height (Corollary 1.3) | `DEFERRED` | Later milestone after the main irrationality result; needs the relative matrix norm estimate of Proposition B.1 |
+| Fauzan zeta(5) predecessor and survey material | `OUT` | Cited for architecture only; not a formalization target |
 
-<!-- AUTHORING NOTES — these comments are not published.
+## Completion rule
 
-     Keep one row per source area. Use MAPPED while an area still needs roadmap
-     articles, DECOMPOSED only with links to existing roadmap articles, DEFERRED
-     with a concrete later milestone, or OUT with a reason for exclusion.
-
-     Only the visible table above is the contract. A table written inside these
-     notes, or inside a fenced or indented block, is ignored rather than trusted.
-     Keep notes below the table: a comment between rows ends the table for every
-     renderer, so rows under it would not be published. Leave a blank line above
-     the table too, since a paragraph running into the header publishes no table.
-
-     Evidence must say something a reader can act on, judged on what it renders
-     as rather than on the Markdown source. A bare TODO, a lone code span, an
-     empty link such as [ ](notes.md), text a browser hides, and a marker such as
-     "TBD - pick a milestone" are rejected. A status word that opens a real
-     sentence is fine. Every link in a DECOMPOSED cell must resolve, fragments
-     included.
-
-     Reaching a terminal disposition on every row means no row is still MAPPED.
-     It does not mean the rows cover the source exhaustively; that judgement is
-     yours, so choose areas that genuinely span what the project claims.
--->
+The coarse milestone is complete when every chapter above is
+fine-decomposed into pull-request-sized nodes and no row remains
+`MAPPED`. Terminal disposition of every row means the contract is
+closed, not that the source is exhaustively covered or any node is
+proved.

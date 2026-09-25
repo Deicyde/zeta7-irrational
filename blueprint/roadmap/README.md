@@ -1,28 +1,22 @@
 # Zeta 7 is Irrational roadmap
 
-No chapters yet.
+Integer Hankel-determinant polynomials that stay positive but decay
+super-exponentially at zeta(7) force zeta(7) to be irrational. The book
+builds those polynomials, controls their denominators prime by prime,
+bounds their analytic size, and assembles the contradiction.
 
-<!-- AUTHORING NOTES — these comments are not published.
+## Chapters
 
-     Replace the line above with a short statement of the goal, then link each
-     chapter below in reading order. This page is the book's preface and table
-     of contents; keep it short.
+1. [Determinant construction](determinant-construction/README.md) —
+   the functional, the matrix, degree, and positivity.
+2. [Local arithmetic estimates](local-arithmetic/README.md) — p-adic
+   determinant valuations in the inner and outer ranges.
+3. [Normalization and the prime sum](normalization-prime-sum/README.md) —
+   integrality and the arithmetic growth bound.
+4. [Real determinant bound](real-bound/README.md) — logarithmic-energy
+   comparison and the analytic bound.
+5. [Irrationality proof](irrationality-proof/README.md) — assembly of
+   the main theorems.
 
-     A chapter is a DIRECTORY holding a README.md. That README.md *is* the
-     chapter: it carries the narrative prose, and the formalizable statements
-     beside it are placed into that prose where they are first used.
-
-         roadmap/
-           README.md              <- this page
-           first-chapter/
-             README.md            <- the chapter, with its exposition
-             some-definition.md   <- a formalizable leaf
-             main-result.md
-
-     A chapter directory WITHOUT a README.md is not a chapter. Its pages
-     collapse to the top level and the published book has no structure. Write
-     the chapter as `<chapter>/README.md`, never as a sibling file beside the
-     directory, then run `autoform check`.
-
-     Add a `## Chapters` heading once there is more than one chapter to list.
--->
+The [coverage contract](../coverage/README.md) records which source
+areas these chapters dispose of and what is deferred or out of scope.
