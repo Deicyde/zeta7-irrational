@@ -1,6 +1,9 @@
 ---
 declaration: lemma
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.rank_lemma
 ---
 
 # Rank lemma

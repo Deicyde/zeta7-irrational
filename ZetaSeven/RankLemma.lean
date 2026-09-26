@@ -13,6 +13,7 @@ import Mathlib.Data.Nat.Cast.Order.Ring
 import Mathlib.GroupTheory.Perm.Sign
 import Mathlib.LinearAlgebra.Matrix.Defs
 import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
+import Mathlib.LinearAlgebra.Matrix.Nonsingular
 import Mathlib.LinearAlgebra.Matrix.Rank
 import Mathlib.Logic.Equiv.Basic
 import Mathlib.Logic.Equiv.Defs
@@ -352,35 +353,19 @@ theorem fiber_right_inv (S R : Finset (Fin h)) (hR : R.card = S.card)
   · apply Equiv.ext
     intro a
     show ((fiberToFun S R hR (fiberInvFun S R hR (ρ₁, ρ₂))).1) a = ρ₁ a
-    have hA : ((fiberToFun S R hR (fiberInvFun S R hR (ρ₁, ρ₂))).1)
-        = (((finIso S).toEquiv.trans (fiberSubEquiv S R
-          (Equiv.subtypeCongr
-            ((finIso S).toEquiv.symm.trans (ρ₁.trans (finIsoOf R S hR).toEquiv))
-            (((complEquiv S).symm.trans ((finIsoCompl S).toEquiv.symm.trans
-              (ρ₂.trans (finIsoComplOf R S hR).toEquiv))).trans (complEquiv R)))
-          ((fiberInvFun S R hR (ρ₁, ρ₂)).2))).trans
-          (finIsoOf R S hR).toEquiv.symm) := rfl
-    rw [hA]
-    simp only [Equiv.trans_apply, fiberSubEquiv_apply]
-    rw [subtypeCongr_apply_of_pos _ _ ((finIso S).toEquiv a).2]
-    simp only [Equiv.trans_apply, subtype_mk_coe, Equiv.symm_apply_apply,
+    dsimp only [fiberToFun, fiberInvFun]
+    simp only [Equiv.trans_apply, fiberSubEquiv_apply,
+      subtypeCongr_apply_of_pos _ _ ((finIso S).toEquiv a).2,
+      Equiv.trans_apply, subtype_mk_coe, Equiv.symm_apply_apply,
       Equiv.apply_symm_apply, subtype_coe_mk]
   · apply Equiv.ext
     intro b
     show ((fiberToFun S R hR (fiberInvFun S R hR (ρ₁, ρ₂))).2) b = ρ₂ b
-    have hB : ((fiberToFun S R hR (fiberInvFun S R hR (ρ₁, ρ₂))).2)
-        = (((finIsoCompl S).toEquiv.trans (fiberSubEquivCompl S R
-          (Equiv.subtypeCongr
-            ((finIso S).toEquiv.symm.trans (ρ₁.trans (finIsoOf R S hR).toEquiv))
-            (((complEquiv S).symm.trans ((finIsoCompl S).toEquiv.symm.trans
-              (ρ₂.trans (finIsoComplOf R S hR).toEquiv))).trans (complEquiv R)))
-          ((fiberInvFun S R hR (ρ₁, ρ₂)).2))).trans
-          (finIsoComplOf R S hR).toEquiv.symm) := rfl
-    rw [hB]
-    simp only [Equiv.trans_apply, fiberSubEquivCompl_apply]
-    rw [subtypeCongr_apply_of_neg _ _
-      (Finset.mem_compl.mp ((finIsoCompl S).toEquiv b).2)]
-    simp only [Equiv.trans_apply, complEquiv_symm_apply, subtype_coe_mk,
+    dsimp only [fiberToFun, fiberInvFun]
+    simp only [Equiv.trans_apply, fiberSubEquivCompl_apply,
+      subtypeCongr_apply_of_neg _ _
+        (Finset.mem_compl.mp ((finIsoCompl S).toEquiv b).2),
+      Equiv.trans_apply, complEquiv_symm_apply, subtype_coe_mk,
       subtype_mk_coe, Equiv.symm_apply_apply, Equiv.apply_symm_apply, coe_complEquiv]
 
 /-- The fiber over `(S, R)` is equivalent to a pair of permutations. -/
@@ -449,7 +434,7 @@ theorem val_two_prod {ι : Type*} [DecidableEq ι] (s : Finset ι) (f : ι → �
       (Finset.sum_nonpos (fun i hi => hnonpos i (Finset.mem_insert_of_mem hi)))
 
 /-- The sign factor in the Leibniz sum is a unit, hence has valuation zero. -/
-theorem val_sign (σ : Equiv.Perm (Fin h)) :
+theorem val_sign {n : Type*} [Fintype n] [DecidableEq n] (σ : Equiv.Perm n) :
     padicValRat p (((Equiv.Perm.sign σ : ℤˣ) : ℤ) : ℚ) = 0 := by
   obtain h | h := Int.units_eq_one_or (Equiv.Perm.sign σ)
   · rw [h]
@@ -492,8 +477,6 @@ theorem det_leibniz (M : Matrix (Fin h) (Fin h) ℚ) :
   rw [← Matrix.det_transpose, Matrix.det_apply']
   refine Finset.sum_congr rfl fun σ _ => ?_
   congr 1
-  refine Finset.prod_congr rfl fun i _ => ?_
-  simp only [Matrix.transpose_apply]
 
 /-- Expanding a product of sums over `univ` as a sum over subsets. -/
 theorem prod_add_univ (f g : Fin h → ℚ) :
@@ -556,12 +539,6 @@ instance fiberPropDecidable (S R : Finset (Fin h)) :
     DecidablePred (FiberProp S R) := fun σ => by
   show Decidable (∀ i, σ i ∈ R ↔ i ∈ S)
   apply Fintype.decidableForallFintype
-  intro i
-  by_cases hR : σ i ∈ R <;> by_cases hS : i ∈ S
-  · exact isTrue (by simp [hR, hS])
-  · exact isFalse (by simp [hR, hS])
-  · exact isFalse (by simp [hR, hS])
-  · exact isTrue (by simp [hR, hS])
 
 theorem map_image_eq_iff_fiber (S R : Finset (Fin h)) (σ : Equiv.Perm (Fin h)) :
     S.map σ.toEmbedding = R ↔ FiberProp S R σ := by
@@ -692,7 +669,8 @@ theorem fiberSum_eq_reindex (A B : Matrix (Fin h) (Fin h) ℚ)
     rw [Finset.mem_filter]
     simp only [Finset.mem_univ, true_and]
     exact map_image_eq_iff_fiber S R σ
-  have hsub := Finset.sum_subtype _ hmem (fiberTerm A B S)
+  have hsub := Finset.sum_subtype (F := Subtype.fintype (FiberProp S R)) _ hmem
+    (fiberTerm A B S)
   calc fiberSum A B S R
       = ∑ x : { σ : Equiv.Perm (Fin h) // FiberProp S R σ },
         fiberTerm A B S x.1 := hsub
@@ -716,12 +694,14 @@ theorem submatrixDet_eq_leibniz (M : Matrix (Fin h) (Fin h) ℚ) {k : ℕ}
     (r c : Fin k → Fin h) :
     submatrixDet M r c = ∑ ρ : Equiv.Perm (Fin k),
       (((Equiv.Perm.sign ρ : ℤˣ) : ℤ) : ℚ) * ∏ a, M (r a) (c (ρ a)) := by
-  unfold submatrixDet
-  rw [← Matrix.det_transpose, Matrix.det_apply']
-  refine Finset.sum_congr rfl fun ρ _ => ?_
-  congr 1
-  refine Finset.prod_congr rfl fun a _ => ?_
-  simp only [Matrix.transpose_apply]
+  have hleib : ∀ N : Matrix (Fin k) (Fin k) ℚ,
+      N.det = ∑ ρ : Equiv.Perm (Fin k),
+        (((Equiv.Perm.sign ρ : ℤˣ) : ℤ) : ℚ) * ∏ a, N a (ρ a) := by
+    intro N
+    rw [← Matrix.det_transpose, Matrix.det_apply']
+    refine Finset.sum_congr rfl fun ρ _ => ?_
+    congr 1
+  exact hleib _
 
 /-- The shuffle sign: sign of the order-preserving base permutation. -/
 noncomputable def shufflePairSign (S R : Finset (Fin h))
@@ -809,35 +789,299 @@ theorem fiberSum_eq_minors (A B : Matrix (Fin h) (Fin h) ℚ)
       = shufflePairSign S R hR
         * ((submatrixDet B (finEmb S) (finEmbOf R S hR))
           * (submatrixDet A (finEmbCompl S) (finEmbComplOf R S hR))) := by
-  rw [fiberSum_eq_reindex A B S R hR]
-  have hterm : ∀ ρ ∈ (Finset.univ :
-      Finset (Equiv.Perm (Fin S.card) × Equiv.Perm (Fin (h - S.card)))),
-      (((Equiv.Perm.sign (((fiberEquiv S R hR).symm ρ).1) : ℤˣ) : ℤ) : ℚ)
-        * (((∏ a, B (finEmb S a) (finEmbOf R S hR (ρ.1 a))))
-          * (∏ b, A (finEmbCompl S b) (finEmbComplOf R S hR (ρ.2 b))))
-      = shufflePairSign S R hR
-        * (((((Equiv.Perm.sign ρ.1 : ℤˣ) : ℤ) : ℚ)
-            * (∏ a, B (finEmb S a) (finEmbOf R S hR (ρ.1 a))))
-          * (((((Equiv.Perm.sign ρ.2 : ℤˣ) : ℤ) : ℚ)
-            * (∏ b, A (finEmbCompl S b) (finEmbComplOf R S hR (ρ.2 b))))) := by
-    intro ρ _
-    rw [fiberSign_decomp S R hR ρ]
+  rw [fiberSum_eq_reindex A B S R hR,
+    submatrixDet_eq_leibniz B (finEmb S) (finEmbOf R S hR),
+    submatrixDet_eq_leibniz A (finEmbCompl S) (finEmbComplOf R S hR)]
+  rw [Fintype.sum_mul_sum _ _]
+  simp only [Finset.mul_sum]
+  conv_lhs => rw [Fintype.sum_prod_type _]
+  refine Finset.sum_congr rfl fun ρ₁ _ => Finset.sum_congr rfl fun ρ₂ _ => ?_
+  rw [fiberSign_decomp S R hR (ρ₁, ρ₂)]
+  dsimp only []
+  ring
+
+/-! ## Valuation bounds for minors -/
+
+/-- The shuffle sign has valuation zero. -/
+theorem val_shuffle (S R : Finset (Fin h)) (hR : R.card = S.card) :
+    padicValRat p (shufflePairSign S R hR) = 0 := by
+  unfold shufflePairSign
+  exact val_sign _
+
+/-- A minor of a scalar multiple: the scalar factors out with multiplicity `k`. -/
+theorem submatrixDet_smul {k : ℕ} (t : ℚ) (L : Matrix (Fin h) (Fin h) ℚ)
+    (r s : Fin k → Fin h) :
+    submatrixDet (t • L) r s = t ^ k * submatrixDet L r s := by
+  rw [submatrixDet_eq_leibniz, submatrixDet_eq_leibniz, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun ρ _ => ?_
+  simp only [Matrix.smul_apply, smul_eq_mul]
+  rw [Finset.prod_mul_distrib, Finset.prod_const, Finset.card_univ,
+    Fintype.card_fin]
+  ring
+
+/-- Doubled valuation bound for powers of `p⁻¹`. -/
+theorem val_two_pow_pinv (k : ℕ) :
+    (-2 * (k : ℤ)) ≤ 2 * padicValRat p (((p : ℚ)⁻¹) ^ k) := by
+  have h : padicValRat p (((p : ℚ)⁻¹) ^ k) = -(k : ℤ) := by
+    rw [padicValRat.pow, val_pinv]
     ring
-  rw [Finset.sum_congr rfl hterm, ← Finset.mul_sum]
-  congr 1
-  have hsplit : (∑ ρ : Equiv.Perm (Fin S.card) × Equiv.Perm (Fin (h - S.card)),
-        (((((Equiv.Perm.sign ρ.1 : ℤˣ) : ℤ) : ℚ)
-            * (∏ a, B (finEmb S a) (finEmbOf R S hR (ρ.1 a))))
-          * (((((Equiv.Perm.sign ρ.2 : ℤˣ) : ℤ) : ℚ)
-            * (∏ b, A (finEmbCompl S b) (finEmbComplOf R S hR (ρ.2 b))))))
-      = (∑ ρ₁ : Equiv.Perm (Fin S.card),
-          ((((Equiv.Perm.sign ρ₁ : ℤˣ) : ℤ) : ℚ)
-            * (∏ a, B (finEmb S a) (finEmbOf R S hR (ρ₁ a)))))
-        * (∑ ρ₂ : Equiv.Perm (Fin (h - S.card)),
-          ((((Equiv.Perm.sign ρ₂ : ℤˣ) : ℤ) : ℚ)
-            * (∏ b, A (finEmbCompl S b) (finEmbComplOf R S hR (ρ₂ b))))) :=
-    (Fintype.sum_prod_type _).trans (Fintype.sum_mul_sum _ _).symm
-  rw [hsplit, ← submatrixDet_eq_leibniz B (finEmb S) (finEmbOf R S hR),
-    ← submatrixDet_eq_leibniz A (finEmbCompl S) (finEmbComplOf R S hR)]
+  rw [h]
+  linarith
+
+/-- Doubled valuation bound for the determinant of an integral matrix. -/
+theorem val_two_det_integral {k : ℕ} (M : Matrix (Fin k) (Fin k) ℚ)
+    (hM : ∀ a b, 0 ≤ padicValRat p (M a b)) :
+    (0 : ℤ) ≤ 2 * padicValRat p (M.det) := by
+  by_cases hdet : M.det = 0
+  · rw [hdet, padicValRat.zero]
+    norm_num
+  · have hne : (∑ σ : Equiv.Perm (Fin k),
+        ((((Equiv.Perm.sign σ : ℤˣ) : ℤ) : ℚ) * ∏ i, M (σ i) i)) ≠ 0 := by
+      have h := hdet
+      rwa [Matrix.det_apply'] at h
+    rw [Matrix.det_apply']
+    refine val_two_sum _ _ _ (fun σ _ => ?_) hne
+    have h1 : (0 : ℤ) ≤ 2 * padicValRat p ((((Equiv.Perm.sign σ : ℤˣ) : ℤ) : ℚ)) := by
+      rw [val_sign σ]
+      norm_num
+    have h2 : (0 : ℤ) ≤ 2 * padicValRat p (∏ i, M (σ i) i) := by
+      have h := val_two_prod Finset.univ (fun i => M (σ i) i) (fun _ => (0 : ℤ))
+        (fun a _ => by have := hM (σ a) a; linarith) (fun a _ => le_refl (0 : ℤ))
+      simpa [Finset.sum_const_zero] using h
+    have hmul := val_two_mul h1 h2 (le_refl (0 : ℤ)) (le_refl (0 : ℤ))
+    simpa using hmul
+
+/-- Doubled valuation bound for a minor of `A` in terms of weights. -/
+theorem val_two_det_weighted {k : ℕ} (w : Fin h → ℤ) (A : Matrix (Fin h) (Fin h) ℚ)
+    (hw0 : ∀ i, w i ≤ 0)
+    (hA : ∀ i j, w i + w j ≤ 2 * padicValRat p (A i j))
+    (r s : Fin k → Fin h) :
+    ∑ a, (w (r a) + w (s a)) ≤ 2 * padicValRat p (submatrixDet A r s) := by
+  by_cases hdet : submatrixDet A r s = 0
+  · rw [hdet, padicValRat.zero]
+    have hnonpos : ∀ a : Fin k, w (r a) + w (s a) ≤ 0 := fun a => by
+      have e1 := hw0 (r a)
+      have e2 := hw0 (s a)
+      linarith
+    have hle := Finset.sum_nonpos (fun a (_ : a ∈ Finset.univ) => hnonpos a)
+    simpa using hle
+  · have hne : (∑ ρ : Equiv.Perm (Fin k),
+        ((((Equiv.Perm.sign ρ : ℤˣ) : ℤ) : ℚ) * ∏ a, A (r a) (s (ρ a)))) ≠ 0 := by
+      have h := hdet
+      rwa [submatrixDet_eq_leibniz] at h
+    rw [submatrixDet_eq_leibniz]
+    refine val_two_sum _ _ _ (fun ρ _ => ?_) hne
+    have hprod : ∑ a, (w (r a) + w (s (ρ a)))
+        ≤ 2 * padicValRat p (∏ a, A (r a) (s (ρ a))) :=
+      val_two_prod Finset.univ (fun a => A (r a) (s (ρ a)))
+        (fun a => w (r a) + w (s (ρ a)))
+        (fun a _ => hA (r a) (s (ρ a)))
+        (fun a _ => by have e1 := hw0 (r a); have e2 := hw0 (s (ρ a)); linarith)
+    have hre : ∑ a, (w (r a) + w (s (ρ a))) = ∑ a, (w (r a) + w (s a)) := by
+      rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
+      congr 1
+      exact Equiv.sum_comp ρ (fun a => w (s a))
+    have hprod' : ∑ a, (w (r a) + w (s a))
+        ≤ 2 * padicValRat p (∏ a, A (r a) (s (ρ a))) := by
+      rw [← hre]
+      exact hprod
+    have hW0 : ∑ a, (w (r a) + w (s a)) ≤ 0 :=
+      Finset.sum_nonpos (fun a _ => by
+        have e1 := hw0 (r a); have e2 := hw0 (s a); linarith)
+    have hsign : (0 : ℤ) ≤ 2 * padicValRat p ((((Equiv.Perm.sign ρ : ℤˣ) : ℤ) : ℚ)) := by
+      rw [val_sign ρ]
+      norm_num
+    have hmul := val_two_mul hsign hprod' (le_refl (0 : ℤ)) hW0
+    simpa using hmul
+
+/-- A minor of `L` larger than the rank vanishes. -/
+theorem submatrixDet_L_eq_zero {k r : ℕ} (L : Matrix (Fin h) (Fin h) ℚ)
+    (hr : Matrix.rank L ≤ r) (hk : r < k)
+    (rr s : Fin k → Fin h) :
+    submatrixDet L rr s = 0 := by
+  have hmat : L.submatrix rr s = (fun a₁ a₂ => L (rr a₁) (s a₂)) := by
+    ext i j
+    rfl
+  by_contra hne
+  unfold submatrixDet at hne
+  rw [← hmat] at hne
+  have hrank := Matrix.rank_of_det_ne_zero hne
+  rw [Fintype.card_fin] at hrank
+  have hle := Matrix.rank_submatrix_le L rr s
+  omega
+
+/-- A weight sum over any set is bounded via the zero-weight count. -/
+theorem sum_weights_le (w : Fin h → ℤ) {z : ℕ}
+    (hw0 : ∀ i, w i ≤ 0)
+    (hz : (Finset.univ.filter (fun i => w i = 0)).card = z)
+    (S : Finset (Fin h)) :
+    ∑ i ∈ S, w i ≤ -(S.card : ℤ) + (z : ℤ) := by
+  have hpoint : ∀ i ∈ S, w i ≤ (if w i = 0 then (0 : ℤ) else -1) := by
+    intro i _
+    by_cases h0 : w i = 0
+    · simp [h0]
+    · simp only [h0]
+      have e := hw0 i
+      omega
+  have h2 := Finset.sum_le_sum hpoint
+  have hsplit := Finset.sum_filter_add_sum_filter_not S (fun i => w i = 0)
+    (fun i => if w i = 0 then (0 : ℤ) else -1)
+  have hA : ∑ x ∈ S.filter (fun i => w i = 0),
+      (if w x = 0 then (0 : ℤ) else -1) = 0 := by
+    apply Finset.sum_eq_zero
+    intro x hx
+    simp [(Finset.mem_filter.mp hx).2]
+  have hB : ∑ x ∈ S.filter (fun i => ¬ w i = 0),
+      (if w x = 0 then (0 : ℤ) else -1)
+      = -((S.filter (fun i => ¬ w i = 0)).card : ℤ) := by
+    have hterm : ∀ x ∈ S.filter (fun i => ¬ w i = 0),
+        (if w x = 0 then (0 : ℤ) else -1) = -1 :=
+      fun x hx => by simp [(Finset.mem_filter.mp hx).2]
+    rw [Finset.sum_congr rfl hterm, Finset.sum_const, nsmul_eq_mul]
+    ring
+  have hcard2 : (S.filter (fun i => w i = 0)).card
+      + (S.filter (fun i => ¬ w i = 0)).card = S.card :=
+    Finset.card_filter_add_card_filter_not (s := S) (fun i => w i = 0)
+  have hcard : (S.filter (fun i => w i = 0)).card ≤ z := by
+    rw [← hz]
+    apply Finset.card_le_card
+    intro x hx
+    rw [Finset.mem_filter] at hx ⊢
+    exact ⟨Finset.mem_univ x, hx.2⟩
+  simp only [hA, hB] at hsplit
+  omega
+
+/-! ## Per-term bound and main theorem -/
+
+/-- Doubled valuation bound for each complementary-minor term. -/
+theorem fiberSum_val_bound {r z : ℕ} (w : Fin h → ℤ) (A L : Matrix (Fin h) (Fin h) ℚ)
+    (hw0 : ∀ i, w i ≤ 0)
+    (hz : (Finset.univ.filter (fun i => w i = 0)).card = z)
+    (hA : ∀ i j, w i + w j ≤ 2 * padicValRat p (A i j))
+    (hL : ∀ i j, 0 ≤ padicValRat p (L i j))
+    (hr : Matrix.rank L ≤ r)
+    (S R : Finset (Fin h)) :
+    2 * (∑ i, w i) - 2 * ↑(min r z)
+      ≤ 2 * padicValRat p (fiberSum A ((p : ℚ)⁻¹ • L) S R) := by
+  have hsum0 : ∑ i, w i ≤ 0 := Finset.sum_nonpos fun i _ => hw0 i
+  have hmin0 : (0 : ℤ) ≤ ((min r z : ℕ) : ℤ) := Nat.cast_nonneg _
+  have hC0 : 2 * (∑ i, w i) - 2 * ↑(min r z) ≤ 0 := by linarith
+  by_cases hR : R.card = S.card
+  · rw [fiberSum_eq_minors A _ S R hR]
+    by_cases hk : S.card ≤ r
+    · have hsh : (0 : ℤ) ≤ 2 * padicValRat p (shufflePairSign S R hR) := by
+        rw [val_shuffle S R hR]
+        norm_num
+      have hcard0 : (0 : ℤ) ≤ (S.card : ℤ) := Nat.cast_nonneg _
+      have hB : (-2 * (S.card : ℤ))
+          ≤ 2 * padicValRat p
+            (submatrixDet ((p : ℚ)⁻¹ • L) (finEmb S) (finEmbOf R S hR)) := by
+        rw [submatrixDet_smul]
+        have hpow : (-2 * (S.card : ℤ))
+            ≤ 2 * padicValRat p (((p : ℚ)⁻¹) ^ S.card) :=
+          val_two_pow_pinv (S.card)
+        have hdet0 : (0 : ℤ) ≤ 2 * padicValRat p
+            (submatrixDet L (finEmb S) (finEmbOf R S hR)) :=
+          val_two_det_integral _ (fun a b => hL _ _)
+        have hmul := val_two_mul hpow hdet0 (by linarith) (le_refl (0 : ℤ))
+        simpa using hmul
+      have hAmin : ∑ b, (w (finEmbCompl S b) + w (finEmbComplOf R S hR b))
+          ≤ 2 * padicValRat p
+            (submatrixDet A (finEmbCompl S) (finEmbComplOf R S hR)) :=
+        val_two_det_weighted w A hw0 hA _ _
+      have hW : ∑ b, (w (finEmbCompl S b) + w (finEmbComplOf R S hR b))
+          = ∑ i ∈ Sᶜ, w i + ∑ j ∈ Rᶜ, w j := by
+        rw [Finset.sum_add_distrib]
+        congr 1
+        · exact sum_orderEmbOfFin (compl_card_fin S) w
+        · have hk2 : (Rᶜ).card = h - S.card := by rw [compl_card_fin R, hR]
+          exact sum_orderEmbOfFin hk2 w
+      have hAmin' : ∑ i ∈ Sᶜ, w i + ∑ j ∈ Rᶜ, w j
+          ≤ 2 * padicValRat p
+            (submatrixDet A (finEmbCompl S) (finEmbComplOf R S hR)) := by
+        rw [← hW]
+        exact hAmin
+      have hW0 : ∑ i ∈ Sᶜ, w i + ∑ j ∈ Rᶜ, w j ≤ 0 := by
+        rw [← hW]
+        exact Finset.sum_nonpos (fun b _ => by
+          have e1 := hw0 (finEmbCompl S b)
+          have e2 := hw0 (finEmbComplOf R S hR b)
+          linarith)
+      have hBA : (-2 * (S.card : ℤ)) + (∑ i ∈ Sᶜ, w i + ∑ j ∈ Rᶜ, w j)
+          ≤ 2 * padicValRat p
+            (submatrixDet ((p : ℚ)⁻¹ • L) (finEmb S) (finEmbOf R S hR)
+              * submatrixDet A (finEmbCompl S) (finEmbComplOf R S hR)) :=
+        val_two_mul hB hAmin' (by linarith) hW0
+      have htot := val_two_mul hsh hBA (le_refl (0 : ℤ)) (by linarith)
+      have hSc : ∑ i ∈ Sᶜ, w i = ∑ i, w i - ∑ i ∈ S, w i := by
+        have h := Finset.sum_compl_add_sum S w
+        linarith
+      have hRc : ∑ j ∈ Rᶜ, w j = ∑ j, w j - ∑ j ∈ R, w j := by
+        have h := Finset.sum_compl_add_sum R w
+        linarith
+      have hfin : 2 * (∑ i, w i) - 2 * ↑(min r z)
+          ≤ 0 + (-2 * (S.card : ℤ) + (∑ i ∈ Sᶜ, w i + ∑ j ∈ Rᶜ, w j)) := by
+        have hS0 : ∑ i ∈ S, w i ≤ 0 := Finset.sum_nonpos fun i _ => hw0 i
+        have hR0 : ∑ j ∈ R, w j ≤ 0 := Finset.sum_nonpos fun j _ => hw0 j
+        have hWS := sum_weights_le w hw0 hz S
+        have hWR := sum_weights_le w hw0 hz R
+        have hRcard : (R.card : ℤ) = (S.card : ℤ) := by rw [hR]
+        have hcardr : (S.card : ℤ) ≤ (r : ℤ) := by exact_mod_cast hk
+        rcases le_total r z with hrz | hrz
+        · have hmin : min r z = r := Nat.min_eq_left hrz
+          rw [hmin]
+          linarith [hSc, hRc, hS0, hR0, hcardr]
+        · have hmin : min r z = z := Nat.min_eq_right hrz
+          rw [hmin]
+          linarith [hSc, hRc, hWS, hWR, hRcard]
+      linarith [hfin, htot]
+    · have hkr : r < S.card := lt_of_not_ge hk
+      have hB0 : submatrixDet ((p : ℚ)⁻¹ • L) (finEmb S) (finEmbOf R S hR) = 0 := by
+        rw [submatrixDet_smul]
+        have hL0 := submatrixDet_L_eq_zero L hr hkr (finEmb S) (finEmbOf R S hR)
+        rw [hL0, mul_zero]
+      rw [hB0, zero_mul, mul_zero, padicValRat.zero]
+      linarith [hC0]
+  · rw [fiberSum_eq_zero_of_cards_ne A _ S R hR, padicValRat.zero]
+    linarith [hC0]
+
+/-! ## Main theorem: Lemma 4.5 (rank lemma) -/
+
+/-- Lemma 4.5 (rank lemma), doubled integer weights formulation:
+`∑ w i - min r z ≤ v_p (det (A + p⁻¹ L))`. -/
+theorem rank_lemma {r z : ℕ}
+    (w : Fin h → ℤ) (A L : Matrix (Fin h) (Fin h) ℚ)
+    (hw0 : ∀ i, w i ≤ 0)
+    (hz : (Finset.univ.filter (fun i => w i = 0)).card = z)
+    (hA : ∀ i j, w i + w j ≤ 2 * padicValRat p (A i j))
+    (hL : ∀ i j, 0 ≤ padicValRat p (L i j))
+    (hr : Matrix.rank L ≤ r) :
+    ∑ i, w i - ↑(min r z) ≤ padicValRat p ((A + (p : ℚ)⁻¹ • L).det) := by
+  have hsum0 : ∑ i, w i ≤ 0 := Finset.sum_nonpos fun i _ => hw0 i
+  have hmin0 : (0 : ℤ) ≤ ((min r z : ℕ) : ℤ) := Nat.cast_nonneg _
+  have hC0 : 2 * (∑ i, w i) - 2 * ↑(min r z) ≤ 0 := by linarith
+  have hterm := fiberSum_val_bound w A L hw0 hz hA hL hr
+  have hinner : ∀ S ∈ (Finset.univ : Finset (Finset (Fin h))),
+      2 * (∑ i, w i) - 2 * ↑(min r z)
+        ≤ 2 * padicValRat p (∑ R, fiberSum A ((p : ℚ)⁻¹ • L) S R) := by
+    intro S _
+    by_cases h0 : (∑ R, fiberSum A ((p : ℚ)⁻¹ • L) S R) = 0
+    · rw [h0, padicValRat.zero]
+      linarith [hC0]
+    · exact val_two_sum _ _ _ (fun R _ => hterm S R) h0
+  have houter : 2 * (∑ i, w i) - 2 * ↑(min r z)
+      ≤ 2 * padicValRat p (∑ S, ∑ R, fiberSum A ((p : ℚ)⁻¹ • L) S R) := by
+    by_cases h0 : (∑ S, ∑ R, fiberSum A ((p : ℚ)⁻¹ • L) S R) = 0
+    · rw [h0, padicValRat.zero]
+      linarith [hC0]
+    · exact val_two_sum _ _ _ hinner h0
+  have hdet : (A + (p : ℚ)⁻¹ • L).det
+      = ∑ S, ∑ R, fiberSum A ((p : ℚ)⁻¹ • L) S R :=
+    det_eq_sum_fiberSum A _
+  by_cases h0 : (A + (p : ℚ)⁻¹ • L).det = 0
+  · rw [h0, padicValRat.zero]
+    linarith [hsum0, hmin0]
+  · rw [hdet]
+    linarith [houter]
 
 end ZetaSeven
