@@ -1,6 +1,9 @@
 ---
 declaration: theorem
 origin: background
+statement: formalized
+proof: formalized
+lean: ZetaSeven.bernoulli_mul ZetaSeven.bernoulli_mul_zpow
 ---
 
 # Bernoulli multiplication formula
