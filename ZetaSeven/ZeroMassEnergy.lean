@@ -977,13 +977,11 @@ theorem tendsto_logTrunc_seq {r : ℝ} (hr : 0 < r) :
 
 /-! ## Layer 5: truncated energy via Fubini (mass-zero step) -/
 
-/-- Per-pair truncated energy identity. -/
-theorem pair_truncEnergy_eq (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFiniteMeasure ρ]
-    {a b : ℝ} (ha : 0 < a) (hab : a < b) :
-    ∫ p, logTrunc a b ‖p.1 - p.2‖ ∂(μ.prod ρ)
-      = (1/2) * ∫ s in Set.Ioo a b,
-          (Real.exp (-s) * (μ Set.univ).toReal * (ρ Set.univ).toReal - gaussJ μ ρ s) / s
-          ∂volume := by
+/-- Joint integrability of the truncated kernel (bounded on a finite product). -/
+theorem integrable_truncKernel (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFiniteMeasure ρ]
+    {a b : ℝ} (ha : 0 < a) :
+    Integrable (fun q : (ℂ × ℂ) × ℝ => logTruncIntegrand ‖q.1.1 - q.1.2‖ q.2)
+      ((μ.prod ρ).prod (volume.restrict (Set.Ioo a b))) := by
   have hprod : (μ.prod ρ).prod (volume.restrict (Set.Ioo a b))
       = ((μ.prod ρ).prod volume).restrict (Set.univ ×ˢ Set.Ioo a b) := by
     rw [← Measure.prod_restrict, Measure.restrict_univ]
@@ -1040,48 +1038,54 @@ theorem pair_truncEnergy_eq (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFinite
       _ = (2/a)*a := (div_mul_cancel₀ 2 ha0).symm
       _ ≤ (2/a)*q.2 :=
           mul_le_mul_of_nonneg_left h2.1.le (div_nonneg (by norm_num) ha.le)
-  have hInt : Integrable
-      (fun q : (ℂ × ℂ) × ℝ => logTruncIntegrand ‖q.1.1 - q.1.2‖ q.2)
-      ((μ.prod ρ).prod (volume.restrict (Set.Ioo a b))) :=
-    Integrable.of_bound hAES (2/a) hbdd
+  exact Integrable.of_bound hAES (2/a) hbdd
+
+/-- Inner integral over `ℂ × ℂ` at fixed `s`. -/
+theorem inner_trunc_eq (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFiniteMeasure ρ]
+    {a b : ℝ} (ha : 0 < a) {s : ℝ} (hs : s ∈ Set.Ioo a b) :
+    (∫ p, logTruncIntegrand ‖p.1 - p.2‖ s ∂(μ.prod ρ))
+      = (Real.exp (-s) * (μ Set.univ).toReal * (ρ Set.univ).toReal
+        - gaussJ μ ρ s)/s := by
+  have hspos : (0:ℝ) < s := lt_trans ha (Set.mem_Ioo.mp hs).1
+  have hs0' : (0:ℝ) ≤ s := hspos.le
+  unfold logTruncIntegrand
+  rw [integral_div]
+  congr 1
+  have hconst : Integrable (fun _ : ℂ × ℂ => Real.exp (-s)) (μ.prod ρ) :=
+    integrable_const _
+  have hK : Integrable
+      (fun p : ℂ × ℂ => Real.exp (-s*‖p.1 - p.2‖^2)) (μ.prod ρ) := by
+    refine Integrable.of_bound ?_ 1 ?_
+    · apply Continuous.aestronglyMeasurable
+      fun_prop
+    · filter_upwards with p
+      rw [Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le]
+      apply Real.exp_le_one_iff.mpr
+      exact mul_nonpos_of_nonpos_of_nonneg (neg_nonpos.mpr hs0') (sq_nonneg _)
+  rw [integral_sub hconst hK]
+  congr 1
+  have huniv : (Set.univ ×ˢ Set.univ : Set (ℂ × ℂ)) = Set.univ := by
+    ext p; simp
+  have hprod_univ : (μ.prod ρ) Set.univ = μ Set.univ * ρ Set.univ := by
+    have h := Measure.prod_prod (μ := μ) (ν := ρ) Set.univ Set.univ
+    rwa [huniv] at h
+  rw [integral_const]
+  show ((μ.prod ρ) Set.univ).toReal • Real.exp (-s) = _
+  rw [hprod_univ, ENNReal.toReal_mul, smul_eq_mul]
+  ring
+
+/-- Per-pair truncated energy identity. -/
+theorem pair_truncEnergy_eq (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFiniteMeasure ρ]
+    {a b : ℝ} (ha : 0 < a) :
+    ∫ p, logTrunc a b ‖p.1 - p.2‖ ∂(μ.prod ρ)
+      = (1/2) * ∫ s in Set.Ioo a b,
+          (Real.exp (-s) * (μ Set.univ).toReal * (ρ Set.univ).toReal - gaussJ μ ρ s) / s
+          ∂volume := by
   have hswap : (∫ p, ∫ s in Set.Ioo a b, logTruncIntegrand ‖p.1 - p.2‖ s
           ∂volume ∂(μ.prod ρ))
       = ∫ s in Set.Ioo a b, ∫ p, logTruncIntegrand ‖p.1 - p.2‖ s
           ∂(μ.prod ρ) ∂volume :=
-    integral_integral_swap hInt
-  have hinner : ∀ s ∈ Set.Ioo a b,
-      (∫ p, logTruncIntegrand ‖p.1 - p.2‖ s ∂(μ.prod ρ))
-        = (Real.exp (-s) * (μ Set.univ).toReal * (ρ Set.univ).toReal
-          - gaussJ μ ρ s)/s := by
-    intro s hs
-    have hspos : (0:ℝ) < s := lt_trans ha (Set.mem_Ioo.mp hs).1
-    have hs0' : (0:ℝ) ≤ s := hspos.le
-    unfold logTruncIntegrand
-    rw [integral_div]
-    congr 1
-    have hconst : Integrable (fun _ : ℂ × ℂ => Real.exp (-s)) (μ.prod ρ) :=
-      integrable_const _
-    have hK : Integrable
-        (fun p : ℂ × ℂ => Real.exp (-s*‖p.1 - p.2‖^2)) (μ.prod ρ) := by
-      refine Integrable.of_bound ?_ 1 ?_
-      · apply Continuous.aestronglyMeasurable
-        fun_prop
-      · filter_upwards with p
-        rw [Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le]
-        apply Real.exp_le_one_iff.mpr
-        exact mul_nonpos_of_nonpos_of_nonneg (neg_nonpos.mpr hs0') (sq_nonneg _)
-    rw [integral_sub hconst hK]
-    congr 1
-    · have huniv : (Set.univ ×ˢ Set.univ : Set (ℂ × ℂ)) = Set.univ := by
-        ext p; simp
-      have hprod_univ : (μ.prod ρ) Set.univ = μ Set.univ * ρ Set.univ := by
-        have h := Measure.prod_prod (μ := μ) (ν := ρ) Set.univ Set.univ
-        rwa [huniv] at h
-      rw [integral_const]
-      show ((μ.prod ρ) Set.univ).toReal • Real.exp (-s) = _
-      rw [hprod_univ, ENNReal.toReal_mul, smul_eq_mul]
-      ring
-    · rfl
+    integral_integral_swap (integrable_truncKernel μ ρ ha)
   unfold logTrunc
   rw [integral_const_mul]
   congr 1
@@ -1089,16 +1093,260 @@ theorem pair_truncEnergy_eq (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFinite
   apply setIntegral_congr_ae measurableSet_Ioo
   filter_upwards with s
   intro hs
-  exact hinner s hs
+  exact inner_trunc_eq μ ρ ha hs
 
 /-! ## Layer 6: dominated convergence and the main theorem -/
+
+/-- Truncation sequences are ordered. -/
+theorem truncA_le_truncB (n : ℕ) : truncA n ≤ truncB n := by
+  have h2 : (1:ℝ) < (n:ℝ) + 2 := by
+    have h : (0:ℝ) ≤ (n:ℝ) := Nat.cast_nonneg n
+    linarith
+  have hlt : ((n:ℝ) + 2)⁻¹ < (n:ℝ) + 2 :=
+    lt_trans (inv_lt_one_of_one_lt₀ h2) h2
+  unfold truncA truncB
+  exact hlt.le
 
 /-- Zero-mass logarithmic energy (Lemma 6.2): `I(ν) ≤ 0`. -/
 theorem zero_mass_energy_nonpos (ν : SignedMeasure ℂ)
     (hmass : ν Set.univ = 0)
-    (hsupp : ∃ K : Set ℂ, IsCompact K ∧ ν.totalVariation Kᶜ = 0)
+    (_hsupp : ∃ K : Set ℂ, IsCompact K ∧ ν.totalVariation Kᶜ = 0)
     (hInt : ∫⁻ p, logKernelAbs p ∂(ν.totalVariation.prod ν.totalVariation) < ∞) :
     signedEnergy ν ≤ 0 := by
-  sorry
+  set j := ν.toJordanDecomposition with hj
+  have hmass_eq : (j.posPart Set.univ).toReal = (j.negPart Set.univ).toReal := by
+    have h := SignedMeasure.apply_eq_posPart_real_sub_negPart_real ν measurableSet_univ
+    rw [hmass] at h
+    have h2 : j.posPart.real Set.univ = j.negPart.real Set.univ := by linarith
+    exact h2
+  have hle_p : j.posPart ≤ ν.totalVariation := by
+    show j.posPart ≤ j.posPart + j.negPart
+    exact le_add_right _ _
+  have hle_n : j.negPart ≤ ν.totalVariation := by
+    show j.negPart ≤ j.posPart + j.negPart
+    exact le_add_left _ _
+  have hDmeas : MeasurableSet {p : ℂ × ℂ | p.1 = p.2} := by
+    have h : Measurable fun p : ℂ × ℂ => p.1 - p.2 :=
+      (continuous_fst.sub continuous_snd).measurable
+    have hset : {p : ℂ × ℂ | p.1 = p.2} = (fun p : ℂ × ℂ => p.1 - p.2) ⁻¹' {0} := by
+      ext p
+      simp [sub_eq_zero]
+    rw [hset]
+    exact h (measurableSet_singleton 0)
+  have hDnull_TV : (ν.totalVariation.prod ν.totalVariation)
+      {p : ℂ × ℂ | p.1 = p.2} = 0 := by
+    by_contra hne
+    have hge : ∫⁻ p in {p : ℂ × ℂ | p.1 = p.2}, logKernelAbs p
+          ∂(ν.totalVariation.prod ν.totalVariation)
+        ≤ ∫⁻ p, logKernelAbs p ∂(ν.totalVariation.prod ν.totalVariation) :=
+      setLIntegral_le_lintegral _ _
+    have heq : (∫⁻ p in {p : ℂ × ℂ | p.1 = p.2}, logKernelAbs p
+          ∂(ν.totalVariation.prod ν.totalVariation)) = ⊤ := by
+      have hconst : (∫⁻ p in {p : ℂ × ℂ | p.1 = p.2}, logKernelAbs p
+            ∂(ν.totalVariation.prod ν.totalVariation))
+          = ∫⁻ p in {p : ℂ × ℂ | p.1 = p.2}, ⊤
+            ∂(ν.totalVariation.prod ν.totalVariation) := by
+        apply lintegral_congr_ae
+        filter_upwards [ae_restrict_mem hDmeas] with p hp
+        have hp' : p.1 = p.2 := hp
+        unfold logKernelAbs
+        rw [if_pos hp']
+      rw [hconst, lintegral_const, Measure.restrict_apply_univ]
+      exact ENNReal.top_mul hne
+    have htop_le : (⊤ : ℝ≥0∞)
+        ≤ ∫⁻ p, logKernelAbs p ∂(ν.totalVariation.prod ν.totalVariation) := by
+      rw [← heq]
+      exact hge
+    have htop := top_le_iff.mp htop_le
+    rw [htop] at hInt
+    exact absurd hInt (lt_irrefl _)
+  have hDnull : ∀ (μ₁ μ₂ : Measure ℂ), μ₁ ≤ ν.totalVariation →
+      μ₂ ≤ ν.totalVariation →
+      (μ₁.prod μ₂) {p : ℂ × ℂ | p.1 = p.2} = 0 := by
+    intro μ₁ μ₂ h1 h2
+    have hle : μ₁.prod μ₂ ≤ ν.totalVariation.prod ν.totalVariation :=
+      Measure.prod_mono h1 h2
+    have hle0 : (μ₁.prod μ₂) {p : ℂ × ℂ | p.1 = p.2}
+        ≤ (ν.totalVariation.prod ν.totalVariation) {p : ℂ × ℂ | p.1 = p.2} :=
+      hle _
+    rw [hDnull_TV] at hle0
+    exact nonpos_iff_eq_zero.mp hle0
+  have haeD : ∀ (μ₁ μ₂ : Measure ℂ) (h1 : μ₁ ≤ ν.totalVariation)
+      (h2 : μ₂ ≤ ν.totalVariation),
+      ∀ᵐ p ∂(μ₁.prod μ₂), p ∉ {p : ℂ × ℂ | p.1 = p.2} :=
+    fun μ₁ μ₂ h1 h2 => measure_eq_zero_iff_ae_notMem.mp (hDnull μ₁ μ₂ h1 h2)
+  have hIntAbs : ∀ (μ₁ μ₂ : Measure ℂ) (h1 : μ₁ ≤ ν.totalVariation)
+      (h2 : μ₂ ≤ ν.totalVariation),
+      Integrable (fun p : ℂ × ℂ => |logKernel p|) (μ₁.prod μ₂) := by
+    intro μ₁ μ₂ h1 h2
+    have haesm : AEStronglyMeasurable (fun p : ℂ × ℂ => |logKernel p|) (μ₁.prod μ₂) :=
+      (continuous_abs.measurable.comp measurable_logKernel).aestronglyMeasurable
+    refine ⟨haesm, ?_⟩
+    show ∫⁻ p, ‖|logKernel p|‖ₑ ∂(μ₁.prod μ₂) < ∞
+    have hpt : ∀ p : ℂ × ℂ, (‖|logKernel p|‖ₑ) ≤ logKernelAbs p := by
+      intro p
+      by_cases hp : p.1 = p.2
+      · have hK : logKernelAbs p = ⊤ := by
+          unfold logKernelAbs
+          rw [if_pos hp]
+        rw [hK]
+        exact le_top
+      · have hK : logKernelAbs p = ENNReal.ofReal |Real.log ‖p.1 - p.2‖| := by
+          unfold logKernelAbs
+          rw [if_neg hp]
+        have hL : logKernel p = Real.log ‖p.1 - p.2‖ := rfl
+        rw [hK, ← ofReal_norm, Real.norm_of_nonneg (abs_nonneg _)]
+        exact le_of_eq (by rw [hL])
+    calc ∫⁻ p, ‖|logKernel p|‖ₑ ∂(μ₁.prod μ₂)
+        ≤ ∫⁻ p, logKernelAbs p ∂(μ₁.prod μ₂) := lintegral_mono hpt
+      _ ≤ ∫⁻ p, logKernelAbs p ∂(ν.totalVariation.prod ν.totalVariation) :=
+          lintegral_mono' (Measure.prod_mono h1 h2) (le_rfl _)
+      _ < ∞ := hInt
+  have hIntS : ∀ (μ₁ μ₂ : Measure ℂ) (h1 : μ₁ ≤ ν.totalVariation)
+      (h2 : μ₂ ≤ ν.totalVariation),
+      Integrable logKernel (μ₁.prod μ₂) := by
+    intro μ₁ μ₂ h1 h2
+    have hAbs := hIntAbs μ₁ μ₂ h1 h2
+    refine ⟨aestronglyMeasurable_logKernel _, ?_⟩
+    show ∫⁻ p, ‖logKernel p‖ₑ ∂(μ₁.prod μ₂) < ∞
+    have heq : (∫⁻ p, ‖logKernel p‖ₑ ∂(μ₁.prod μ₂))
+        = ∫⁻ p, ‖|logKernel p|‖ₑ ∂(μ₁.prod μ₂) := by
+      apply lintegral_congr_ae
+      filter_upwards with p
+      have e1 : (‖logKernel p‖ₑ) = ENNReal.ofReal |logKernel p| := by
+        rw [← ofReal_norm, Real.norm_eq_abs]
+      have e2 : (‖|logKernel p|‖ₑ) = ENNReal.ofReal |logKernel p| := by
+        rw [← ofReal_norm, Real.norm_of_nonneg (abs_nonneg _)]
+      rw [e1, e2]
+    rw [heq]
+    exact hAbs.hasFiniteIntegral
+  have hDCT : ∀ (μ₁ μ₂ : Measure ℂ) [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂]
+      (h1 : μ₁ ≤ ν.totalVariation) (h2 : μ₂ ≤ ν.totalVariation),
+      Tendsto (fun n => ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(μ₁.prod μ₂))
+        atTop (𝓝 (∫ p, logKernel p ∂(μ₁.prod μ₂))) := by
+    intro μ₁ μ₂ _ _ h1 h2
+    have hmeas : ∀ n, AEStronglyMeasurable
+        (fun p : ℂ × ℂ => logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖) (μ₁.prod μ₂) := by
+      intro n
+      have hpart := (integrable_truncKernel μ₁ μ₂ (truncA_pos n)).integral_prod_left
+      have haesm := hpart.aestronglyMeasurable.const_mul (1/2)
+      exact haesm
+    have hbound : ∀ n, ∀ᵐ p ∂(μ₁.prod μ₂),
+        ‖logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖‖ ≤ |logKernel p| := by
+      intro n
+      filter_upwards [haeD μ₁ μ₂ h1 h2] with p hp
+      have hp' : p.1 ≠ p.2 := hp
+      have hr : (0:ℝ) < ‖p.1 - p.2‖ :=
+        norm_pos_iff.mpr (sub_ne_zero.mpr hp')
+      rw [Real.norm_eq_abs]
+      have hle := logTrunc_le_abs_log (truncA_pos n) (truncA_le_truncB n) hr
+      show |logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖| ≤ |logKernel p|
+      unfold logKernel
+      exact hle
+    have hlim : ∀ᵐ p ∂(μ₁.prod μ₂), Tendsto
+        (fun n => logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖)
+        atTop (𝓝 (logKernel p)) := by
+      filter_upwards [haeD μ₁ μ₂ h1 h2] with p hp
+      have hp' : p.1 ≠ p.2 := hp
+      have hr : (0:ℝ) < ‖p.1 - p.2‖ :=
+        norm_pos_iff.mpr (sub_ne_zero.mpr hp')
+      exact tendsto_logTrunc_seq hr
+    exact tendsto_integral_of_dominated_convergence
+      (fun p => |logKernel p|) hmeas (hIntAbs μ₁ μ₂ h1 h2) hbound hlim
+  have hMZ : ∀ n, (∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖
+          ∂(j.posPart.prod j.posPart)
+        - ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.posPart.prod j.negPart)
+        - ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.negPart.prod j.posPart)
+        + ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.negPart.prod j.negPart))
+        = (1/2) * ∫ s in Set.Ioo (truncA n) (truncB n),
+            (-(gaussJ j.posPart j.posPart s - gaussJ j.posPart j.negPart s
+              - gaussJ j.negPart j.posPart s + gaussJ j.negPart j.negPart s))/s
+            ∂volume := by
+    intro n
+    have ha' := truncA_pos n
+    rw [pair_truncEnergy_eq j.posPart j.posPart ha',
+      pair_truncEnergy_eq j.posPart j.negPart ha',
+      pair_truncEnergy_eq j.negPart j.posPart ha',
+      pair_truncEnergy_eq j.negPart j.negPart ha']
+    have hFint : ∀ (μ₁ μ₂ : Measure ℂ) [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂],
+        Integrable (fun s => (Real.exp (-s) * (μ₁ Set.univ).toReal
+          * (μ₂ Set.univ).toReal - gaussJ μ₁ μ₂ s)/s)
+          (volume.restrict (Set.Ioo (truncA n) (truncB n))) := by
+      intro μ₁ μ₂ _ _
+      have hpart := (integrable_truncKernel μ₁ μ₂ ha').integral_prod_right
+      refine Integrable.congr hpart ?_
+      filter_upwards [ae_restrict_mem measurableSet_Ioo] with s hs
+      exact inner_trunc_eq μ₁ μ₂ ha' hs
+    have ePP := hFint j.posPart j.posPart
+    have ePN := hFint j.posPart j.negPart
+    have eNP := hFint j.negPart j.posPart
+    have eNN := hFint j.negPart j.negPart
+    have eAB : Integrable (fun s =>
+        (Real.exp (-s) * (j.posPart Set.univ).toReal * (j.posPart Set.univ).toReal
+          - gaussJ j.posPart j.posPart s)/s
+        - (Real.exp (-s) * (j.posPart Set.univ).toReal * (j.negPart Set.univ).toReal
+          - gaussJ j.posPart j.negPart s)/s)
+        (volume.restrict (Set.Ioo (truncA n) (truncB n))) := ePP.sub ePN
+    have eABC : Integrable (fun s =>
+        (Real.exp (-s) * (j.posPart Set.univ).toReal * (j.posPart Set.univ).toReal
+          - gaussJ j.posPart j.posPart s)/s
+        - (Real.exp (-s) * (j.posPart Set.univ).toReal * (j.negPart Set.univ).toReal
+          - gaussJ j.posPart j.negPart s)/s
+        - (Real.exp (-s) * (j.negPart Set.univ).toReal * (j.posPart Set.univ).toReal
+          - gaussJ j.negPart j.posPart s)/s)
+        (volume.restrict (Set.Ioo (truncA n) (truncB n))) := eAB.sub eNP
+    rw [← mul_sub, ← mul_sub, ← mul_add]
+    congr 1
+    rw [← integral_sub ePP ePN, ← integral_sub eAB eNP, ← integral_add eABC eNN]
+    apply setIntegral_congr_ae measurableSet_Ioo
+    filter_upwards with s
+    intro _
+    show (Real.exp (-s) * (j.posPart Set.univ).toReal * (j.posPart Set.univ).toReal
+          - gaussJ j.posPart j.posPart s)/s
+        - (Real.exp (-s) * (j.posPart Set.univ).toReal * (j.negPart Set.univ).toReal
+          - gaussJ j.posPart j.negPart s)/s
+        - (Real.exp (-s) * (j.negPart Set.univ).toReal * (j.posPart Set.univ).toReal
+          - gaussJ j.negPart j.posPart s)/s
+        + (Real.exp (-s) * (j.negPart Set.univ).toReal * (j.negPart Set.univ).toReal
+          - gaussJ j.negPart j.negPart s)/s
+        = (-(gaussJ j.posPart j.posPart s - gaussJ j.posPart j.negPart s
+          - gaussJ j.negPart j.posPart s + gaussJ j.negPart j.negPart s))/s
+    rw [hmass_eq, ← sub_div, ← sub_div, ← add_div]
+    congr 1
+    ring
+  have hnonpos : ∀ n, (∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖
+          ∂(j.posPart.prod j.posPart)
+        - ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.posPart.prod j.negPart)
+        - ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.negPart.prod j.posPart)
+        + ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.negPart.prod j.negPart))
+        ≤ 0 := by
+    intro n
+    rw [hMZ n]
+    apply mul_nonpos_of_nonneg_of_nonpos (by norm_num)
+    apply integral_nonpos_of_ae
+    filter_upwards [ae_restrict_mem measurableSet_Ioo] with s hs
+    have hspos : (0:ℝ) < s :=
+      lt_trans (truncA_pos n) (Set.mem_Ioo.mp hs).1
+    have hJ : 0 ≤ gaussJ j.posPart j.posPart s - gaussJ j.posPart j.negPart s
+        - gaussJ j.negPart j.posPart s + gaussJ j.negPart j.negPart s :=
+      signed_gaussJ_nonneg j.posPart j.negPart hspos
+    exact div_nonpos_of_nonpos_of_nonneg (neg_nonpos.mpr hJ) hspos.le
+  have hlim : Tendsto (fun n => (∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖
+          ∂(j.posPart.prod j.posPart)
+        - ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.posPart.prod j.negPart)
+        - ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.negPart.prod j.posPart)
+        + ∫ p, logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖ ∂(j.negPart.prod j.negPart)))
+      atTop (𝓝 (pairEnergy j.posPart j.posPart - pairEnergy j.posPart j.negPart
+        - pairEnergy j.negPart j.posPart + pairEnergy j.negPart j.negPart)) :=
+    ((hDCT j.posPart j.posPart hle_p hle_p).sub
+      (hDCT j.posPart j.negPart hle_p hle_n)).sub
+      (hDCT j.negPart j.posPart hle_n hle_p) |>.add
+      (hDCT j.negPart j.negPart hle_n hle_n)
+  have hfinal : pairEnergy j.posPart j.posPart - pairEnergy j.posPart j.negPart
+      - pairEnergy j.negPart j.posPart + pairEnergy j.negPart j.negPart ≤ 0 :=
+    le_of_tendsto' hlim hnonpos
+  show pairEnergy j.posPart j.posPart - pairEnergy j.posPart j.negPart
+      - pairEnergy j.negPart j.posPart + pairEnergy j.negPart j.negPart ≤ 0
+  exact hfinal
 
 end ZetaSeven.ZeroMassEnergy
