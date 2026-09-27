@@ -950,11 +950,10 @@ theorem tendsto_logTrunc_seq {r : ℝ} (hr : 0 < r) :
       have hev1 : ∀ᶠ n in atTop, truncA n < s :=
         Filter.Tendsto.eventually_lt_const hs0' hA
       have hev2 : ∀ᶠ n in atTop, s < truncB n := hB.eventually_gt_atTop s
-      have hev : ∀ᶠ n in atTop,
-          ((Set.Ioo (truncA n) (truncB n)).indicator (logTruncIntegrand r)) s
-            = logTruncIntegrand r s := by
+      have hev : ∀ᶠ n in atTop, logTruncIntegrand r s
+          = ((Set.Ioo (truncA n) (truncB n)).indicator (logTruncIntegrand r)) s := by
         filter_upwards [hev1, hev2] with n hn1 hn2
-        exact Set.indicator_of_mem (Set.mem_Ioo.mpr ⟨hn1, hn2⟩) _
+        exact (Set.indicator_of_mem (Set.mem_Ioo.mpr ⟨hn1, hn2⟩) _).symm
       exact Filter.Tendsto.congr' hev tendsto_const_nhds
     have hF : ∀ n, (∫ s, ((Set.Ioo (truncA n) (truncB n)).indicator
           (logTruncIntegrand r)) s ∂(volume.restrict (Set.Ioi 0)))
@@ -985,10 +984,6 @@ theorem pair_truncEnergy_eq (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFinite
       = (1/2) * ∫ s in Set.Ioo a b,
           (Real.exp (-s) * (μ Set.univ).toReal * (ρ Set.univ).toReal - gaussJ μ ρ s) / s
           ∂volume := by
-  haveI hfin_Ioo : IsFiniteMeasure (volume.restrict (Set.Ioo a b)) := by
-    refine ⟨?_⟩
-    rw [Measure.restrict_apply_univ, Real.volume_Ioo]
-    exact ENNReal.ofReal_lt_top
   have hprod : (μ.prod ρ).prod (volume.restrict (Set.Ioo a b))
       = ((μ.prod ρ).prod volume).restrict (Set.univ ×ˢ Set.Ioo a b) := by
     rw [← Measure.prod_restrict, Measure.restrict_univ]
@@ -1068,7 +1063,7 @@ theorem pair_truncEnergy_eq (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFinite
       integrable_const _
     have hK : Integrable
         (fun p : ℂ × ℂ => Real.exp (-s*‖p.1 - p.2‖^2)) (μ.prod ρ) := by
-      apply Integrable.of_bound _ 1
+      refine Integrable.of_bound ?_ 1 ?_
       · apply Continuous.aestronglyMeasurable
         fun_prop
       · filter_upwards with p
