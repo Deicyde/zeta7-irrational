@@ -425,7 +425,7 @@ theorem inner_exp_eq_general {s u v : ℝ} (hs : 0 < s) (huv : u ≤ v) :
   have hdiv : ∫ x in u..v, Real.exp (-s*x) ∂volume
       = (Real.exp (-s*u) - Real.exp (-s*v))/s := by
     rw [eq_div_iff hs0]
-    have h := hmul.trans hftc
+    have h := hmul.symm.trans hftc
     linear_combination h
   have hIoc : ∫ x in u..v, Real.exp (-s*x) ∂volume
       = ∫ w in Set.Ioc u v, Real.exp (-s*w) ∂volume :=
@@ -440,7 +440,7 @@ theorem integrableOn_exp_neg_mul {v : ℝ} (hv : 0 < v) :
     (by norm_num) (by norm_num) hv
   refine h.congr_fun (fun x hx => ?_) measurableSet_Ioi
   show x ^ (0:ℝ) * Real.exp (-v * x ^ (1:ℝ)) = Real.exp (-x*v)
-  rw [rpow_zero, rpow_one, one_mul]
+  rw [Real.rpow_zero, Real.rpow_one, one_mul]
   congr 1
   ring
 
@@ -461,10 +461,11 @@ theorem lintegral_exp_neg_mul_Ioi {v : ℝ} (hv : 0 < v) :
       congr 1
       ring
     rw [hcongr, h, mul_zero, Real.exp_zero, neg_div_neg_eq, one_div]
-  rw [← ofReal_integral_eq_lintegral_ofReal hInt
-    (ae_of_all _ (fun s => (Real.exp_pos _).le))]
-  congr 1
-  exact hval
+  calc ∫⁻ s in Set.Ioi 0, ENNReal.ofReal (Real.exp (-s*v)) ∂volume
+      = ENNReal.ofReal (∫ s in Set.Ioi 0, Real.exp (-s*v) ∂volume) :=
+        (ofReal_integral_eq_lintegral_ofReal hInt
+          (ae_of_all _ (fun s => (Real.exp_pos _).le))).symm
+    _ = ENNReal.ofReal v⁻¹ := by rw [hval]
 
 /-- Outer `v`-integral: `∫_{Ioc u v} w⁻¹ dw = log (v/u)` (lintegral form). -/
 theorem lintegral_inv_Ioc_general {u v : ℝ} (hu : 0 < u) (huv : u ≤ v) :
@@ -488,9 +489,10 @@ theorem lintegral_inv_Ioc_general {u v : ℝ} (hu : 0 < u) (huv : u ≤ v) :
       have h1 : u < w := (Set.mem_Ioc.mp hw).1
       linarith [hu]
     exact inv_nonneg.mpr hw0
-  rw [← ofReal_integral_eq_lintegral_ofReal hInt hnn]
-  congr 1
-  exact hval
+  calc ∫⁻ w in Set.Ioc u v, ENNReal.ofReal w⁻¹ ∂volume
+      = ENNReal.ofReal (∫ w in Set.Ioc u v, w⁻¹ ∂volume) :=
+        (ofReal_integral_eq_lintegral_ofReal hInt hnn).symm
+    _ = ENNReal.ofReal (Real.log (v/u)) := by rw [hval]
 
 /-- Tonelli computation: the double integral equals `log (v/u)`. -/
 theorem tonelli_exp_Ioc {u v : ℝ} (hu : 0 < u) (huv : u ≤ v) :
@@ -539,10 +541,12 @@ theorem ofReal_truncIntegrand_gt_one {r s : ℝ} (hr : 1 < r) (hs : 0 < s) :
     rw [mul_one] at h
     unfold logTruncIntegrand
     exact h
-  rw [← ofReal_integral_eq_lintegral_ofReal hInt
-    (ae_of_all _ (fun v => (Real.exp_pos _).le))]
-  congr 1
-  exact hval
+  calc ENNReal.ofReal (logTruncIntegrand r s)
+      = ENNReal.ofReal (∫ v in Set.Ioc 1 (r^2), Real.exp (-s*v) ∂volume) := by
+        rw [hval]
+    _ = ∫⁻ v in Set.Ioc 1 (r^2), ENNReal.ofReal (Real.exp (-s*v)) ∂volume :=
+        ofReal_integral_eq_lintegral_ofReal hInt
+          (ae_of_all _ (fun v => (Real.exp_pos _).le))
 
 /-- For `r > 1`: the truncated integrand is nonnegative on `Ioi 0`. -/
 theorem nonneg_truncIntegrand_gt_one {r s : ℝ} (hr : 1 < r) (hs : 0 < s) :
@@ -632,10 +636,12 @@ theorem ofReal_neg_truncIntegrand_lt_one {r s : ℝ} (hr0 : 0 < r) (hr1 : r < 1)
     unfold logTruncIntegrand
     rw [h]
     ring
-  rw [← ofReal_integral_eq_lintegral_ofReal hInt
-    (ae_of_all _ (fun v => (Real.exp_pos _).le))]
-  congr 1
-  exact hval
+  calc ENNReal.ofReal (-logTruncIntegrand r s)
+      = ENNReal.ofReal (∫ v in Set.Ioc (r^2) 1, Real.exp (-s*v) ∂volume) := by
+        rw [hval]
+    _ = ∫⁻ v in Set.Ioc (r^2) 1, ENNReal.ofReal (Real.exp (-s*v)) ∂volume :=
+        ofReal_integral_eq_lintegral_ofReal hInt
+          (ae_of_all _ (fun v => (Real.exp_pos _).le))
 
 /-- For `r < 1`: the truncated integrand is nonpositive on `Ioi 0`. -/
 theorem nonpos_truncIntegrand_lt_one {r s : ℝ} (hr0 : 0 < r) (hr1 : r < 1)
@@ -644,7 +650,7 @@ theorem nonpos_truncIntegrand_lt_one {r s : ℝ} (hr0 : 0 < r) (hr1 : r < 1)
   have hr2 : (r^2:ℝ) ≤ 1 := by nlinarith [hr0, hr1]
   have hprod : s * (r^2 - 1) ≤ 0 := mul_nonpos_of_nonneg_of_nonpos hs.le (by linarith)
   unfold logTruncIntegrand
-  apply div_nonpos _ hs.le
+  apply div_nonpos_of_nonpos_of_nonneg _ hs.le
   apply sub_nonpos.mpr
   apply Real.exp_le_exp.mpr
   linarith
@@ -776,7 +782,7 @@ theorem tendsto_truncA_zero : Tendsto truncA atTop (𝓝 0) := by
   exact Filter.Tendsto.inv_tendsto_atTop htop
 
 /-- Pointwise domination: `|L_{a,b}(r)| ≤ |log r|`. -/
-theorem logTrunc_le_abs_log {a b r : ℝ} (ha : 0 < a) (hab : a ≤ b) (hr : 0 < r) :
+theorem logTrunc_le_abs_log {a b r : ℝ} (ha : 0 < a) (_hab : a ≤ b) (hr : 0 < r) :
     |logTrunc a b r| ≤ |Real.log r| := by
   have hIoo_sub : Set.Ioo a b ⊆ Set.Ioi 0 := by
     intro s hs
@@ -949,7 +955,7 @@ theorem tendsto_logTrunc_seq {r : ℝ} (hr : 0 < r) :
             = logTruncIntegrand r s := by
         filter_upwards [hev1, hev2] with n hn1 hn2
         exact Set.indicator_of_mem (Set.mem_Ioo.mpr ⟨hn1, hn2⟩) _
-      exact tendsto_atTop_of_eventually_const hev
+      exact Filter.Tendsto.congr' hev tendsto_const_nhds
     have hF : ∀ n, (∫ s, ((Set.Ioo (truncA n) (truncB n)).indicator
           (logTruncIntegrand r)) s ∂(volume.restrict (Set.Ioi 0)))
         = ∫ s in Set.Ioo (truncA n) (truncB n), logTruncIntegrand r s ∂volume := by
@@ -979,7 +985,116 @@ theorem pair_truncEnergy_eq (μ ρ : Measure ℂ) [IsFiniteMeasure μ] [IsFinite
       = (1/2) * ∫ s in Set.Ioo a b,
           (Real.exp (-s) * (μ Set.univ).toReal * (ρ Set.univ).toReal - gaussJ μ ρ s) / s
           ∂volume := by
-  sorry
+  haveI hfin_Ioo : IsFiniteMeasure (volume.restrict (Set.Ioo a b)) := by
+    refine ⟨?_⟩
+    rw [Measure.restrict_apply_univ, Real.volume_Ioo]
+    exact ENNReal.ofReal_lt_top
+  have hprod : (μ.prod ρ).prod (volume.restrict (Set.Ioo a b))
+      = ((μ.prod ρ).prod volume).restrict (Set.univ ×ˢ Set.Ioo a b) := by
+    rw [← Measure.prod_restrict, Measure.restrict_univ]
+  have hmeas_prod : MeasurableSet (Set.univ ×ˢ Set.Ioo a b : Set ((ℂ × ℂ) × ℝ)) :=
+    MeasurableSet.univ.prod measurableSet_Ioo
+  have hAES : AEStronglyMeasurable
+      (fun q : (ℂ × ℂ) × ℝ => logTruncIntegrand ‖q.1.1 - q.1.2‖ q.2)
+      ((μ.prod ρ).prod (volume.restrict (Set.Ioo a b))) := by
+    rw [hprod]
+    apply ContinuousOn.aestronglyMeasurable _ hmeas_prod
+    have c1 : Continuous
+        (fun q : (ℂ × ℂ) × ℝ => Real.exp (-q.2)) := by fun_prop
+    have c2 : Continuous
+        (fun q : (ℂ × ℂ) × ℝ => Real.exp (-q.2*‖q.1.1 - q.1.2‖^2)) := by fun_prop
+    have hnum : ContinuousOn (fun q : (ℂ × ℂ) × ℝ =>
+        Real.exp (-q.2) - Real.exp (-q.2*‖q.1.1 - q.1.2‖^2))
+        (Set.univ ×ˢ Set.Ioo a b) := c1.continuousOn.sub c2.continuousOn
+    have hdiv : ContinuousOn (fun q : (ℂ × ℂ) × ℝ =>
+        (Real.exp (-q.2) - Real.exp (-q.2*‖q.1.1 - q.1.2‖^2))/q.2)
+        (Set.univ ×ˢ Set.Ioo a b) := by
+      refine ContinuousOn.div hnum continuousOn_snd ?_
+      intro q hq
+      have hmem : q.1 ∈ (Set.univ : Set (ℂ × ℂ)) ∧ q.2 ∈ Set.Ioo a b := hq
+      have h2 : a < q.2 ∧ q.2 < b := Set.mem_Ioo.mp hmem.2
+      exact ne_of_gt (lt_trans ha h2.1)
+    unfold logTruncIntegrand
+    exact hdiv
+  have hbdd : ∀ᵐ q ∂((μ.prod ρ).prod (volume.restrict (Set.Ioo a b))),
+      ‖logTruncIntegrand ‖q.1.1 - q.1.2‖ q.2‖ ≤ 2/a := by
+    rw [hprod]
+    filter_upwards [ae_restrict_mem hmeas_prod] with q hq
+    have hmem : q.1 ∈ (Set.univ : Set (ℂ × ℂ)) ∧ q.2 ∈ Set.Ioo a b := hq
+    have h2 : a < q.2 ∧ q.2 < b := Set.mem_Ioo.mp hmem.2
+    have hs0 : (0:ℝ) ≤ q.2 := le_trans ha.le h2.1.le
+    have hspos : (0:ℝ) < q.2 := lt_trans ha h2.1
+    have ha0 : a ≠ 0 := ne_of_gt ha
+    have e1 : |Real.exp (-q.2)| ≤ 1 := by
+      rw [abs_of_nonneg (Real.exp_pos _).le]
+      exact Real.exp_le_one_iff.mpr (neg_nonpos.mpr hs0)
+    have e2 : |Real.exp (-q.2*‖q.1.1 - q.1.2‖^2)| ≤ 1 := by
+      rw [abs_of_nonneg (Real.exp_pos _).le]
+      apply Real.exp_le_one_iff.mpr
+      exact mul_nonpos_of_nonpos_of_nonneg (neg_nonpos.mpr hs0) (sq_nonneg _)
+    have hsub : |Real.exp (-q.2) - Real.exp (-q.2*‖q.1.1 - q.1.2‖^2)| ≤ 2 := by
+      calc |Real.exp (-q.2) - Real.exp (-q.2*‖q.1.1 - q.1.2‖^2)|
+          ≤ |Real.exp (-q.2)| + |Real.exp (-q.2*‖q.1.1 - q.1.2‖^2)| :=
+            abs_sub _ _
+        _ ≤ 1 + 1 := add_le_add e1 e2
+        _ = 2 := by norm_num
+    unfold logTruncIntegrand
+    rw [Real.norm_eq_abs, abs_div, abs_of_pos hspos, div_le_iff₀ hspos]
+    calc |Real.exp (-q.2) - Real.exp (-q.2*‖q.1.1 - q.1.2‖^2)|
+        ≤ 2 := hsub
+      _ = (2/a)*a := (div_mul_cancel₀ 2 ha0).symm
+      _ ≤ (2/a)*q.2 :=
+          mul_le_mul_of_nonneg_left h2.1.le (div_nonneg (by norm_num) ha.le)
+  have hInt : Integrable
+      (fun q : (ℂ × ℂ) × ℝ => logTruncIntegrand ‖q.1.1 - q.1.2‖ q.2)
+      ((μ.prod ρ).prod (volume.restrict (Set.Ioo a b))) :=
+    Integrable.of_bound hAES (2/a) hbdd
+  have hswap : (∫ p, ∫ s in Set.Ioo a b, logTruncIntegrand ‖p.1 - p.2‖ s
+          ∂volume ∂(μ.prod ρ))
+      = ∫ s in Set.Ioo a b, ∫ p, logTruncIntegrand ‖p.1 - p.2‖ s
+          ∂(μ.prod ρ) ∂volume :=
+    integral_integral_swap hInt
+  have hinner : ∀ s ∈ Set.Ioo a b,
+      (∫ p, logTruncIntegrand ‖p.1 - p.2‖ s ∂(μ.prod ρ))
+        = (Real.exp (-s) * (μ Set.univ).toReal * (ρ Set.univ).toReal
+          - gaussJ μ ρ s)/s := by
+    intro s hs
+    have hspos : (0:ℝ) < s := lt_trans ha (Set.mem_Ioo.mp hs).1
+    have hs0' : (0:ℝ) ≤ s := hspos.le
+    unfold logTruncIntegrand
+    rw [integral_div]
+    congr 1
+    have hconst : Integrable (fun _ : ℂ × ℂ => Real.exp (-s)) (μ.prod ρ) :=
+      integrable_const _
+    have hK : Integrable
+        (fun p : ℂ × ℂ => Real.exp (-s*‖p.1 - p.2‖^2)) (μ.prod ρ) := by
+      apply Integrable.of_bound _ 1
+      · apply Continuous.aestronglyMeasurable
+        fun_prop
+      · filter_upwards with p
+        rw [Real.norm_eq_abs, abs_of_nonneg (Real.exp_pos _).le]
+        apply Real.exp_le_one_iff.mpr
+        exact mul_nonpos_of_nonpos_of_nonneg (neg_nonpos.mpr hs0') (sq_nonneg _)
+    rw [integral_sub hconst hK]
+    congr 1
+    · have huniv : (Set.univ ×ˢ Set.univ : Set (ℂ × ℂ)) = Set.univ := by
+        ext p; simp
+      have hprod_univ : (μ.prod ρ) Set.univ = μ Set.univ * ρ Set.univ := by
+        have h := Measure.prod_prod (μ := μ) (ν := ρ) Set.univ Set.univ
+        rwa [huniv] at h
+      rw [integral_const]
+      show ((μ.prod ρ) Set.univ).toReal • Real.exp (-s) = _
+      rw [hprod_univ, ENNReal.toReal_mul, smul_eq_mul]
+      ring
+    · rfl
+  unfold logTrunc
+  rw [integral_const_mul]
+  congr 1
+  rw [hswap]
+  apply setIntegral_congr_ae measurableSet_Ioo
+  filter_upwards with s
+  intro hs
+  exact hinner s hs
 
 /-! ## Layer 6: dominated convergence and the main theorem -/
 
