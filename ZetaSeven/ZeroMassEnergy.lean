@@ -1115,16 +1115,16 @@ theorem zero_mass_energy_nonpos (ν : SignedMeasure ℂ)
     signedEnergy ν ≤ 0 := by
   set j := ν.toJordanDecomposition with hj
   have hmass_eq : (j.posPart Set.univ).toReal = (j.negPart Set.univ).toReal := by
-    have h := SignedMeasure.apply_eq_posPart_real_sub_negPart_real ν measurableSet_univ
+    have h := SignedMeasure.apply_eq_posPart_real_sub_negPart_real ν MeasurableSet.univ
     rw [hmass] at h
     have h2 : j.posPart.real Set.univ = j.negPart.real Set.univ := by linarith
     exact h2
   have hle_p : j.posPart ≤ ν.totalVariation := by
     show j.posPart ≤ j.posPart + j.negPart
-    exact le_add_right _ _
+    exact Measure.le_add_right le_rfl
   have hle_n : j.negPart ≤ ν.totalVariation := by
     show j.negPart ≤ j.posPart + j.negPart
-    exact le_add_left _ _
+    exact Measure.le_add_left le_rfl
   have hDmeas : MeasurableSet {p : ℂ × ℂ | p.1 = p.2} := by
     have h : Measurable fun p : ℂ × ℂ => p.1 - p.2 :=
       (continuous_fst.sub continuous_snd).measurable
@@ -1150,7 +1150,7 @@ theorem zero_mass_energy_nonpos (ν : SignedMeasure ℂ)
         filter_upwards [ae_restrict_mem hDmeas] with p hp
         have hp' : p.1 = p.2 := hp
         unfold logKernelAbs
-        rw [if_pos hp']
+        rw [ite_eq_left hp']
       rw [hconst, lintegral_const, Measure.restrict_apply_univ]
       exact ENNReal.top_mul hne
     have htop_le : (⊤ : ℝ≥0∞)
@@ -1160,10 +1160,11 @@ theorem zero_mass_energy_nonpos (ν : SignedMeasure ℂ)
     have htop := top_le_iff.mp htop_le
     rw [htop] at hInt
     exact absurd hInt (lt_irrefl _)
-  have hDnull : ∀ (μ₁ μ₂ : Measure ℂ), μ₁ ≤ ν.totalVariation →
+  have hDnull : ∀ (μ₁ μ₂ : Measure ℂ) [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂],
+      μ₁ ≤ ν.totalVariation →
       μ₂ ≤ ν.totalVariation →
       (μ₁.prod μ₂) {p : ℂ × ℂ | p.1 = p.2} = 0 := by
-    intro μ₁ μ₂ h1 h2
+    intro μ₁ μ₂ _ _ h1 h2
     have hle : μ₁.prod μ₂ ≤ ν.totalVariation.prod ν.totalVariation :=
       Measure.prod_mono h1 h2
     have hle0 : (μ₁.prod μ₂) {p : ℂ × ℂ | p.1 = p.2}
@@ -1171,14 +1172,15 @@ theorem zero_mass_energy_nonpos (ν : SignedMeasure ℂ)
       hle _
     rw [hDnull_TV] at hle0
     exact nonpos_iff_eq_zero.mp hle0
-  have haeD : ∀ (μ₁ μ₂ : Measure ℂ) (h1 : μ₁ ≤ ν.totalVariation)
-      (h2 : μ₂ ≤ ν.totalVariation),
-      ∀ᵐ p ∂(μ₁.prod μ₂), p ∉ {p : ℂ × ℂ | p.1 = p.2} :=
-    fun μ₁ μ₂ h1 h2 => measure_eq_zero_iff_ae_notMem.mp (hDnull μ₁ μ₂ h1 h2)
-  have hIntAbs : ∀ (μ₁ μ₂ : Measure ℂ) (h1 : μ₁ ≤ ν.totalVariation)
-      (h2 : μ₂ ≤ ν.totalVariation),
+  have haeD : ∀ (μ₁ μ₂ : Measure ℂ) [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂]
+      (h1 : μ₁ ≤ ν.totalVariation) (h2 : μ₂ ≤ ν.totalVariation),
+      ∀ᵐ p ∂(μ₁.prod μ₂), p ∉ {p : ℂ × ℂ | p.1 = p.2} := by
+    intro μ₁ μ₂ _ _ h1 h2
+    exact measure_eq_zero_iff_ae_notMem.mp (hDnull μ₁ μ₂ h1 h2)
+  have hIntAbs : ∀ (μ₁ μ₂ : Measure ℂ) [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂]
+      (h1 : μ₁ ≤ ν.totalVariation) (h2 : μ₂ ≤ ν.totalVariation),
       Integrable (fun p : ℂ × ℂ => |logKernel p|) (μ₁.prod μ₂) := by
-    intro μ₁ μ₂ h1 h2
+    intro μ₁ μ₂ _ _ h1 h2
     have haesm : AEStronglyMeasurable (fun p : ℂ × ℂ => |logKernel p|) (μ₁.prod μ₂) :=
       (continuous_abs.measurable.comp measurable_logKernel).aestronglyMeasurable
     refine ⟨haesm, ?_⟩
@@ -1188,24 +1190,24 @@ theorem zero_mass_energy_nonpos (ν : SignedMeasure ℂ)
       by_cases hp : p.1 = p.2
       · have hK : logKernelAbs p = ⊤ := by
           unfold logKernelAbs
-          rw [if_pos hp]
+          rw [ite_eq_left hp]
         rw [hK]
         exact le_top
       · have hK : logKernelAbs p = ENNReal.ofReal |Real.log ‖p.1 - p.2‖| := by
           unfold logKernelAbs
-          rw [if_neg hp]
+          rw [ite_eq_right hp]
         have hL : logKernel p = Real.log ‖p.1 - p.2‖ := rfl
         rw [hK, ← ofReal_norm, Real.norm_of_nonneg (abs_nonneg _)]
         exact le_of_eq (by rw [hL])
     calc ∫⁻ p, ‖|logKernel p|‖ₑ ∂(μ₁.prod μ₂)
         ≤ ∫⁻ p, logKernelAbs p ∂(μ₁.prod μ₂) := lintegral_mono hpt
       _ ≤ ∫⁻ p, logKernelAbs p ∂(ν.totalVariation.prod ν.totalVariation) :=
-          lintegral_mono' (Measure.prod_mono h1 h2) (le_rfl _)
+          lintegral_mono' (Measure.prod_mono h1 h2) le_rfl
       _ < ∞ := hInt
-  have hIntS : ∀ (μ₁ μ₂ : Measure ℂ) (h1 : μ₁ ≤ ν.totalVariation)
-      (h2 : μ₂ ≤ ν.totalVariation),
+  have hIntS : ∀ (μ₁ μ₂ : Measure ℂ) [IsFiniteMeasure μ₁] [IsFiniteMeasure μ₂]
+      (h1 : μ₁ ≤ ν.totalVariation) (h2 : μ₂ ≤ ν.totalVariation),
       Integrable logKernel (μ₁.prod μ₂) := by
-    intro μ₁ μ₂ h1 h2
+    intro μ₁ μ₂ _ _ h1 h2
     have hAbs := hIntAbs μ₁ μ₂ h1 h2
     refine ⟨aestronglyMeasurable_logKernel _, ?_⟩
     show ∫⁻ p, ‖logKernel p‖ₑ ∂(μ₁.prod μ₂) < ∞
@@ -1228,7 +1230,8 @@ theorem zero_mass_energy_nonpos (ν : SignedMeasure ℂ)
     have hmeas : ∀ n, AEStronglyMeasurable
         (fun p : ℂ × ℂ => logTrunc (truncA n) (truncB n) ‖p.1 - p.2‖) (μ₁.prod μ₂) := by
       intro n
-      have hpart := (integrable_truncKernel μ₁ μ₂ (truncA_pos n)).integral_prod_left
+      have hpart := (integrable_truncKernel μ₁ μ₂ (b := truncB n)
+        (truncA_pos n)).integral_prod_left
       have haesm := hpart.aestronglyMeasurable.const_mul (1/2)
       exact haesm
     have hbound : ∀ n, ∀ᵐ p ∂(μ₁.prod μ₂),
@@ -1273,7 +1276,8 @@ theorem zero_mass_energy_nonpos (ν : SignedMeasure ℂ)
           * (μ₂ Set.univ).toReal - gaussJ μ₁ μ₂ s)/s)
           (volume.restrict (Set.Ioo (truncA n) (truncB n))) := by
       intro μ₁ μ₂ _ _
-      have hpart := (integrable_truncKernel μ₁ μ₂ ha').integral_prod_right
+      have hpart := (integrable_truncKernel μ₁ μ₂ (b := truncB n)
+        ha').integral_prod_right
       refine Integrable.congr hpart ?_
       filter_upwards [ae_restrict_mem measurableSet_Ioo] with s hs
       exact inner_trunc_eq μ₁ μ₂ ha' hs
