@@ -1,6 +1,9 @@
 ---
 declaration: lemma
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.ZeroMassEnergy.zero_mass_energy_nonpos ZetaSeven.ZeroMassEnergy.signedEnergy ZetaSeven.ZeroMassEnergy.signed_gaussJ_nonneg ZetaSeven.ZeroMassEnergy.gaussian_pointwise ZetaSeven.ZeroMassEnergy.pair_truncEnergy_eq ZetaSeven.ZeroMassEnergy.tendsto_logTrunc_seq ZetaSeven.ZeroMassEnergy.logTrunc_le_abs_log
 ---
 
 # Zero-mass logarithmic energy
