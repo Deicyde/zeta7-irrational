@@ -46,6 +46,7 @@ for `p ∈ {2,3,5}`, `d ≤ 29`, and that (I1) holds and is sharp.
 namespace ZetaSeven.IntegerValued
 
 open Finset
+open scoped BigOperators
 
 variable {p : ℕ} [Fact p.Prime]
 
