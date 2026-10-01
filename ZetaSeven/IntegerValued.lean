@@ -125,6 +125,7 @@ theorem padicValNat_le_log_of_le (m d : ℕ) (hm : 1 ≤ m) (hmd : m ≤ d) :
     ((padicValNat p m : ℕ) : ℤ) ≤ (Nat.log p d : ℤ) := by
   have h := le_trans (padicValNat_le_nat_log (p := p) m) (Nat.log_mono_right hmd)
   have _ : Fact p.Prime := inferInstance
+  have _ := hm
   exact_mod_cast h
 
 end ValuationHelpers
@@ -150,13 +151,13 @@ theorem vandermonde_diff (n t k : ℕ) (ht : 1 ≤ t) :
     have h1 : (n + t).choose k
         = ∑ i ∈ Finset.range (k + 1), n.choose i * t.choose (k - i) := by
       have h0 := Nat.add_choose_eq n t k
-      rw [Finset.sum_antidiagonal_eq_sum_range_succ_mk] at h0
+      rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk] at h0
       exact h0
     rw [h1]
     push_cast
     rw [Finset.sum_range_succ]
     congr 1
-    simp [Nat.sub_self, Nat.choose_zero_right]
+    simp [Nat.choose_zero_right]
   have hterm : ∀ i ∈ Finset.range k,
       ((n.choose i * t.choose (k - i) : ℕ) : ℚ)
         = (t : ℚ) * ((((n.choose i * (t - 1).choose (k - i - 1) : ℕ)) : ℚ)
@@ -247,7 +248,7 @@ theorem intValued_lipschitz (d : ℕ) (c : ℕ → ℚ)
       · intro k hk
         have hc0 := hc k hk
         have hkd : k ≤ d := by have := Finset.mem_range.mp hk; omega
-        have hV := padicValRat_vandermondeQuot_ge d n t k hkd
+        have hV := padicValRat_vandermondeQuot_ge (p := p) d n t k hkd
         have h := padicValRat_mul_ge (c k) (vandermondeQuot n t k) 0
           (-(((Nat.log p (max 1 d) : ℕ)) : ℤ)) hc0 hV (by linarith)
         simpa using h
@@ -266,11 +267,12 @@ theorem bernoulli_functional_bound (d A : ℕ) (c : ℕ → ℚ)
   have hA : (0 : ℤ) ≤ ((A : ℕ) : ℤ) := by positivity
   have hL : (0 : ℤ) ≤ ((Nat.log p (d + 1) : ℕ) : ℤ) := by positivity
   have h720 : (0 : ℤ) ≤ padicValRat p ((720 : ℕ) : ℚ) := zero_le_padicValRat_of_nat 720
+  have _ : Fact p.Prime := inferInstance
   have hU : ∀ k ∈ Finset.range (d + 1),
       -(((Nat.log p (d + 1) : ℕ)) : ℤ)
         ≤ padicValRat p ((-1 : ℚ) ^ k / ((k : ℚ) + 1)) := by
     intro k hk
-    have hcast : ((k : ℚ) + 1) = ((k + 1 : ℕ) : ℚ) := by push_cast
+    have hcast : ((k : ℚ) + 1) = ((k + 1 : ℕ) : ℚ) := (Nat.cast_add_one k).symm
     rw [hcast]
     have hneg1 : padicValRat p (-1 : ℚ) = 0 := by
       rw [padicValRat.neg, padicValRat.one]
@@ -336,7 +338,7 @@ theorem binomPoly_comp_X_sub_one (j : ℕ) :
       constructor <;> simp [binomPoly]
     | succ j ih =>
       obtain ⟨ihF, ihX⟩ := ih
-      have hcast : ((j : ℚ) + 1) = (((j + 1 : ℕ)) : ℚ) := by push_cast
+      have hcast : ((j : ℚ) + 1) = (((j + 1 : ℕ)) : ℚ) := (Nat.cast_add_one j).symm
       have hGrec : (∑ s ∈ Finset.range (j + 1 + 1),
             Polynomial.C ((-1 : ℚ) ^ (j + 1 - s)) * binomPoly s)
           = binomPoly (j + 1) - (∑ s ∈ Finset.range (j + 1),
@@ -384,7 +386,8 @@ theorem binomPoly_comp_X_sub_one (j : ℕ) :
         rw [hF, hGrec, ihF]
         linear_combination ihX
       have hsm2 := binomPoly_succ_mul (j + 1)
-      have hcast2 : (((j + 1 : ℕ)) : ℚ) + 1 = (((j + 1 + 1 : ℕ)) : ℚ) := by push_cast
+      have hcast2 : (((j + 1 : ℕ)) : ℚ) + 1 = (((j + 1 + 1 : ℕ)) : ℚ) :=
+        (Nat.cast_add_one (j + 1)).symm
       rw [hcast2] at hsm2
       have goal2 : Polynomial.X * (∑ s ∈ Finset.range (j + 1 + 1),
               Polynomial.C ((-1 : ℚ) ^ (j + 1 - s)) * binomPoly s)
@@ -430,7 +433,7 @@ theorem binomPoly_quot_comp (i : ℕ) (hi : 1 ≤ i) :
   rw [Finset.prod_range_succ', Nat.factorial_succ]
   push_cast
   rw [Polynomial.mul_comp, hprod, hprod2]
-  simp only [Polynomial.C_comp, Nat.cast_zero, Polynomial.C_0, sub_zero]
+  simp only [Polynomial.C_comp, Polynomial.C_0, sub_zero]
   linear_combination
     (∏ x ∈ Finset.range j, (Polynomial.X - Polynomial.C ((x : ℚ) + 1)))
       * Polynomial.X * hC
@@ -473,6 +476,7 @@ theorem derivCoeff_succ_zero (r : ℕ) : derivCoeff (r + 1) 0 = 0 := by
 
 /-- `D(0, i)` is `p`-integral (it is `C(0,i) ∈ {0, 1}`). -/
 theorem derivCoeff_zero_ge (i : ℕ) : 0 ≤ padicValRat p (derivCoeff 0 i) := by
+  have _ : Fact p.Prime := inferInstance
   rcases eq_or_ne i 0 with rfl | hi
   · have hB0 : binomPoly 0 = 1 := by simp [binomPoly]
     have h1 : (1 : Polynomial ℚ).coeff 0 = 1 := by simp
@@ -520,7 +524,7 @@ theorem deriv_loss (d r i : ℕ) (hi : i ≤ d) :
         linarith
       · have hi1 : 1 ≤ i := Nat.one_le_iff_ne_zero.mpr hi0
         rw [derivCoeff_succ r i hi1]
-        have hcast : ((r : ℚ) + 1) = (((r + 1 : ℕ)) : ℚ) := by push_cast
+        have hcast : ((r : ℚ) + 1) = (((r + 1 : ℕ)) : ℚ) := (Nat.cast_add_one r).symm
         rw [hcast]
         have hfrac : -(((Nat.log p (d + 1) : ℕ)) : ℤ)
             ≤ padicValRat p ((((r + 1 : ℕ)) : ℚ) / ((i : ℕ) : ℚ)) := by
@@ -570,7 +574,7 @@ theorem deriv_loss (d r i : ℕ) (hi : i ≤ d) :
 theorem deriv_loss_five (d i : ℕ) (hi : i ≤ d) :
     -(5 * ((Nat.log p (d + 1) : ℕ) : ℤ))
       ≤ padicValRat p (derivCoeff 5 i) := by
-  have h := deriv_loss d 5 i hi
+  have h := deriv_loss (p := p) d 5 i hi
   have heq : ((((5 * Nat.log p (d + 1) : ℕ))) : ℤ)
       = 5 * (((Nat.log p (d + 1) : ℕ)) : ℤ) := by
     norm_cast
