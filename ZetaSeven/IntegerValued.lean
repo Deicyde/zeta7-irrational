@@ -111,7 +111,13 @@ theorem padicValRat_mul_ge (a b : ℚ) (B₁ B₂ : ℤ)
 theorem padicValRat_div_int_ge (a : ℚ) (j : ℕ) (hj : 1 ≤ j)
     (ha : 0 ≤ padicValRat p a) :
     -((padicValNat p j : ℕ) : ℤ) ≤ padicValRat p (a / (j : ℚ)) := by
-  sorry
+  have hj0 : (j : ℚ) ≠ 0 := by exact_mod_cast (by omega : j ≠ 0)
+  by_cases ha0 : a = 0
+  · rw [ha0, zero_div, padicValRat.zero]
+    have hnn : (0 : ℤ) ≤ ((padicValNat p j : ℕ) : ℤ) := by positivity
+    linarith
+  · rw [padicValRat.div ha0 hj0, padicValRat.of_nat]
+    linarith [ha]
 
 /-- `v_p(m) ≤ ⌊log_p d⌋` for `1 ≤ m ≤ d`. -/
 theorem padicValNat_le_log_of_le (m d : ℕ) (hm : 1 ≤ m) (hmd : m ≤ d) :
