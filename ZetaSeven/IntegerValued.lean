@@ -577,4 +577,30 @@ theorem deriv_loss_five (d i : ℕ) (hi : i ≤ d) :
 
 end DerivLoss
 
+/-- `τ`-bound for the fifth-derivative Bernoulli functional (open: cancellation).
+
+For `P = Σ_k c_k B_k` with `v_p(c_k) ≥ -A`, the fifth derivative has binomial
+coefficients `e_j = Σ_k c_k * D(5, k-j)` (with `D = derivCoeff`), and
+`τ(P) = L(d^5 P)/720 = bernFunctional e d / 720`. Naive per-term counting
+gives only `v_p(τ) ≥ -A - 6*⌊log_p(d+1)⌋ - v_p(720)` (five log factors from
+`deriv_loss_five` plus one from the `1/(j+1)` in `L`), but the bound holds
+with constant exactly 5: `python3 /tmp/intvalued_probe.py` verifies
+`v_p(τ(B_k)) ≥ -5*⌊log_p(d+1)⌋ - v_p(720)` on basis elements for
+`p ∈ {2,3,5}` and `d ≤ 29` with zero violations. The missing piece is the
+cancellation lemma that `L(d^5 B_k) = Σ_j D(5,k-j)(-1)^j/(j+1)` has
+`v_p ≥ -5*⌊log_p(d+1)⌋` (one log factor better than per-term counting),
+together with the derivative-expansion identity
+`d^5 B_k = Σ_j D(5,k-j) * B_j` from which the general-`c` case follows by
+ultrametric combination. Neither is provable from the per-term bounds in
+this file. -/
+theorem tau_bound (d A : ℕ) (c : ℕ → ℚ)
+    (hc : ∀ k ∈ Finset.range (d + 1), -((A : ℤ)) ≤ padicValRat p (c k)) :
+    -((A : ℤ)) - 5 * ((Nat.log p (d + 1) : ℕ) : ℤ)
+        - padicValRat p ((720 : ℕ) : ℚ)
+      ≤ padicValRat p
+        (bernFunctional
+          (fun j => ∑ k ∈ Finset.range (d + 1), c k * derivCoeff 5 (k - j)) d
+          / ((720 : ℕ) : ℚ)) := by
+  sorry
+
 end ZetaSeven.IntegerValued
