@@ -81,7 +81,18 @@ section ValuationHelpers
 theorem padicValRat_le_sum {ι : Type*} (s : Finset ι) (f : ι → ℚ) (B : ℤ)
     (hB : B ≤ 0) (h : ∀ i ∈ s, B ≤ padicValRat p (f i)) :
     B ≤ padicValRat p (∑ i ∈ s, f i) := by
-  sorry
+  induction s using Finset.induction with
+  | empty => simpa [padicValRat.zero] using hB
+  | insert a s has ih =>
+    rw [Finset.sum_insert has]
+    by_cases hsum : f a + ∑ i ∈ s, f i = 0
+    · rw [hsum, padicValRat.zero]
+      exact hB
+    · have h1 : B ≤ padicValRat p (f a) := h a (Finset.mem_insert_self a s)
+      have h2 : B ≤ padicValRat p (∑ i ∈ s, f i) :=
+        ih (fun i hi => h i (Finset.mem_insert_of_mem hi))
+      have hmin := le_trans (min_le_min h1 h2) (padicValRat.min_le_padicValRat_add hsum)
+      simpa using hmin
 
 /-- Finite-product lower bound over `ℚ` for `B₁ + B₂ ≤ 0`. -/
 theorem padicValRat_mul_ge (a b : ℚ) (B₁ B₂ : ℤ)
