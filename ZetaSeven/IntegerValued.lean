@@ -142,7 +142,51 @@ theorem choose_absorb (t j : ℕ) (hj : 1 ≤ j) (hjt : j ≤ t) :
 theorem vandermonde_diff (n t k : ℕ) (ht : 1 ≤ t) :
     ((n + t).choose k : ℚ) - (n.choose k : ℚ)
       = (t : ℚ) * vandermondeQuot n t k := by
-  sorry
+  have hsum : ((n + t).choose k : ℚ)
+      = (∑ i ∈ Finset.range k, ((n.choose i * t.choose (k - i) : ℕ) : ℚ))
+        + (n.choose k : ℚ) := by
+    have h1 : (n + t).choose k
+        = ∑ i ∈ Finset.range (k + 1), n.choose i * t.choose (k - i) := by
+      have h0 := Nat.add_choose_eq n t k
+      rw [Finset.sum_antidiagonal_eq_sum_range_succ_mk] at h0
+      exact h0
+    rw [h1]
+    push_cast
+    rw [Finset.sum_range_succ]
+    congr 1
+    simp [Nat.sub_self, Nat.choose_zero_right]
+  have hterm : ∀ i ∈ Finset.range k,
+      ((n.choose i * t.choose (k - i) : ℕ) : ℚ)
+        = (t : ℚ) * ((((n.choose i * (t - 1).choose (k - i - 1) : ℕ)) : ℚ)
+          / ((k - i : ℕ) : ℚ)) := by
+    intro i hi
+    have hik : i < k := Finset.mem_range.mp hi
+    have hji : 1 ≤ k - i := by omega
+    have hne : ((k - i : ℕ) : ℚ) ≠ 0 := by exact_mod_cast (by omega : k - i ≠ 0)
+    by_cases hle : k - i ≤ t
+    · have habs := choose_absorb t (k - i) hji hle
+      have habsQ := congrArg (Nat.cast : ℕ → ℚ) habs
+      push_cast at habsQ
+      have hsingle : ((t.choose (k - i) : ℕ) : ℚ)
+          = (t : ℚ) * ((((t - 1).choose (k - i - 1) : ℕ)) : ℚ)
+            / ((k - i : ℕ) : ℚ) := by
+        field_simp [hne]
+        linear_combination habsQ
+      calc ((n.choose i * t.choose (k - i) : ℕ) : ℚ)
+          = (n.choose i : ℚ) * (t.choose (k - i) : ℚ) := Nat.cast_mul _ _
+        _ = (n.choose i : ℚ) * ((t : ℚ)
+              * ((((t - 1).choose (k - i - 1) : ℕ)) : ℚ) / ((k - i : ℕ) : ℚ)) := by
+            rw [hsingle]
+        _ = (t : ℚ) * ((((n.choose i * (t - 1).choose (k - i - 1) : ℕ)) : ℚ)
+            / ((k - i : ℕ) : ℚ)) := by push_cast; ring
+    · have h1 : t.choose (k - i) = 0 := Nat.choose_eq_zero_of_lt (by omega)
+      have h2 : (t - 1).choose (k - i - 1) = 0 := Nat.choose_eq_zero_of_lt (by omega)
+      rw [h1, h2]
+      simp
+  rw [hsum, add_sub_cancel_right]
+  unfold vandermondeQuot
+  rw [Finset.mul_sum]
+  exact Finset.sum_congr rfl hterm
 
 /-- Valuation bound on the Vandermonde cofactor sum. -/
 theorem padicValRat_vandermondeQuot_ge (d n t k : ℕ) (hk : k ≤ d) :
