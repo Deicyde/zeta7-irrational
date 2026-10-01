@@ -261,7 +261,37 @@ theorem bernoulli_functional_bound (d A : ℕ) (c : ℕ → ℚ)
     -((A : ℤ)) - 5 * ((Nat.log p (d + 1) : ℕ) : ℤ)
         - padicValRat p ((720 : ℕ) : ℚ)
       ≤ padicValRat p (bernFunctional c d) := by
-  sorry
+  have hA : (0 : ℤ) ≤ ((A : ℕ) : ℤ) := by positivity
+  have hL : (0 : ℤ) ≤ ((Nat.log p (d + 1) : ℕ) : ℤ) := by positivity
+  have h720 : (0 : ℤ) ≤ padicValRat p ((720 : ℕ) : ℚ) := zero_le_padicValRat_of_nat 720
+  have hU : ∀ k ∈ Finset.range (d + 1),
+      -(((Nat.log p (d + 1) : ℕ)) : ℤ)
+        ≤ padicValRat p ((-1 : ℚ) ^ k / ((k : ℚ) + 1)) := by
+    intro k hk
+    have hcast : ((k : ℚ) + 1) = ((k + 1 : ℕ) : ℚ) := by push_cast
+    rw [hcast]
+    have hneg1 : padicValRat p (-1 : ℚ) = 0 := by
+      rw [padicValRat.neg, padicValRat.one]
+    have hpow : padicValRat p ((-1 : ℚ) ^ k) = 0 := by
+      rw [padicValRat.pow, hneg1, mul_zero]
+    have hdiv := padicValRat_div_int_ge ((-1 : ℚ) ^ k) (k + 1)
+      (Nat.le_add_left 1 k) (le_of_eq hpow.symm)
+    have hle := padicValNat_le_log_of_le (k + 1) (d + 1)
+      (Nat.le_add_left 1 k) (by have := Finset.mem_range.mp hk; omega)
+    linarith [hdiv, hle]
+  have hmain : -((A : ℤ)) - (((Nat.log p (d + 1) : ℕ)) : ℤ)
+      ≤ padicValRat p (bernFunctional c d) := by
+    unfold bernFunctional
+    apply padicValRat_le_sum
+    · linarith
+    · intro k hk
+      have hck := hc k hk
+      have huk := hU k hk
+      have h := padicValRat_mul_ge (c k) ((-1 : ℚ) ^ k / ((k : ℚ) + 1))
+        (-((A : ℤ))) (-(((Nat.log p (d + 1) : ℕ)) : ℤ)) hck huk (by linarith)
+      rw [sub_eq_add_neg]
+      exact h
+  linarith [hmain]
 
 end Bernoulli
 
