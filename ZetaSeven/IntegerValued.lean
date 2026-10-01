@@ -132,7 +132,11 @@ section Vandermonde
 /-- Absorption identity: `j * C(t,j) = t * C(t-1,j-1)`. -/
 theorem choose_absorb (t j : ℕ) (hj : 1 ≤ j) (hjt : j ≤ t) :
     j * t.choose j = t * (t - 1).choose (j - 1) := by
-  sorry
+  obtain ⟨k, rfl⟩ := Nat.exists_eq_succ_of_ne_zero (by omega : j ≠ 0)
+  obtain ⟨n, rfl⟩ : ∃ n, t = n + 1 := ⟨t - 1, by omega⟩
+  simp only [Nat.add_sub_cancel]
+  rw [mul_comm (k + 1) _]
+  exact (Nat.add_one_mul_choose_eq n k).symm
 
 /-- Vandermonde difference identity (via `Nat.add_choose_eq`). -/
 theorem vandermonde_diff (n t k : ℕ) (ht : 1 ≤ t) :
