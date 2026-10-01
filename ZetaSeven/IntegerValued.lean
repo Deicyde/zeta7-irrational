@@ -463,7 +463,11 @@ theorem derivCoeff_succ (r i : ℕ) (hi : 1 ≤ i) :
 
 /-- `D(r+1, 0) = 0`. -/
 theorem derivCoeff_succ_zero (r : ℕ) : derivCoeff (r + 1) 0 = 0 := by
-  sorry
+  have hB0 : binomPoly 0 = 1 := by simp [binomPoly]
+  have hcoeff : (1 : Polynomial ℚ).coeff (r + 1) = 0 :=
+    Polynomial.coeff_eq_zero_of_natDegree_lt (by rw [Polynomial.natDegree_one]; omega)
+  unfold derivCoeff
+  rw [hB0, hcoeff, mul_zero]
 
 /-- `D(0, i)` is `p`-integral (it is `C(0,i) ∈ {0, 1}`). -/
 theorem derivCoeff_zero_ge (i : ℕ) : 0 ≤ padicValRat p (derivCoeff 0 i) := by
