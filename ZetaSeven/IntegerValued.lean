@@ -192,7 +192,18 @@ theorem vandermonde_diff (n t k : ℕ) (ht : 1 ≤ t) :
 theorem padicValRat_vandermondeQuot_ge (d n t k : ℕ) (hk : k ≤ d) :
     -((Nat.log p (max 1 d) : ℕ) : ℤ)
       ≤ padicValRat p (vandermondeQuot n t k) := by
-  sorry
+  have hlog : (0 : ℤ) ≤ ((Nat.log p (max 1 d) : ℕ) : ℤ) := by positivity
+  unfold vandermondeQuot
+  apply padicValRat_le_sum
+  · linarith
+  · intro i hi
+    have hik : i < k := Finset.mem_range.mp hi
+    have hji : 1 ≤ k - i := by omega
+    have h1 := padicValRat_div_int_ge (p := p)
+      (((n.choose i * (t - 1).choose (k - i - 1) : ℕ)) : ℚ) (k - i) hji
+      (zero_le_padicValRat_of_nat _)
+    have h2 := padicValNat_le_log_of_le (p := p) (k - i) (max 1 d) hji (by omega)
+    linarith [h1, h2]
 
 /-- (I1) Lipschitz-type bound for integer-valued polynomials (3.8).
 The difference is required to be nonzero (see file docstring). -/
