@@ -471,7 +471,29 @@ theorem derivCoeff_succ_zero (r : ℕ) : derivCoeff (r + 1) 0 = 0 := by
 
 /-- `D(0, i)` is `p`-integral (it is `C(0,i) ∈ {0, 1}`). -/
 theorem derivCoeff_zero_ge (i : ℕ) : 0 ≤ padicValRat p (derivCoeff 0 i) := by
-  sorry
+  rcases eq_or_ne i 0 with rfl | hi
+  · have hB0 : binomPoly 0 = 1 := by simp [binomPoly]
+    have h1 : (1 : Polynomial ℚ).coeff 0 = 1 := by simp
+    have hD : derivCoeff 0 0 = 1 := by
+      unfold derivCoeff
+      rw [hB0, h1]
+      simp
+    rw [hD]
+    exact le_of_eq padicValRat.one.symm
+  · have h0 : (binomPoly i).coeff 0 = 0 := by
+      unfold binomPoly
+      rw [Polynomial.coeff_mul_C]
+      have hP : (∏ s ∈ Finset.range i,
+          (Polynomial.X - Polynomial.C (s : ℚ))).coeff 0 = 0 := by
+        rw [Polynomial.coeff_zero_eq_eval_zero, Polynomial.eval_prod]
+        apply Finset.prod_eq_zero (Finset.mem_range.mpr (Nat.pos_of_ne_zero hi))
+        show (Polynomial.X - Polynomial.C ((0 : ℕ) : ℚ)).eval 0 = 0
+        rw [Polynomial.eval_sub, Polynomial.eval_X, Polynomial.eval_C,
+          Nat.cast_zero, sub_zero]
+      rw [hP, zero_mul]
+    unfold derivCoeff
+    rw [h0, mul_zero]
+    exact le_of_eq padicValRat.zero.symm
 
 /-- Derivative loss: the `r`-th derivative of `C(X,i)` is integer-valued
 up to a loss of `r * ⌊log_p (d+1)⌋`. -/
