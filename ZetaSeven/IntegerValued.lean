@@ -81,6 +81,7 @@ section ValuationHelpers
 theorem padicValRat_le_sum {ι : Type*} (s : Finset ι) (f : ι → ℚ) (B : ℤ)
     (hB : B ≤ 0) (h : ∀ i ∈ s, B ≤ padicValRat p (f i)) :
     B ≤ padicValRat p (∑ i ∈ s, f i) := by
+  classical
   induction s using Finset.induction with
   | empty => simpa [padicValRat.zero] using hB
   | insert a s has ih =>
@@ -123,6 +124,7 @@ theorem padicValRat_div_int_ge (a : ℚ) (j : ℕ) (hj : 1 ≤ j)
 theorem padicValNat_le_log_of_le (m d : ℕ) (hm : 1 ≤ m) (hmd : m ≤ d) :
     ((padicValNat p m : ℕ) : ℤ) ≤ (Nat.log p d : ℤ) := by
   have h := le_trans (padicValNat_le_nat_log (p := p) m) (Nat.log_mono_right hmd)
+  have _ : Fact p.Prime := inferInstance
   exact_mod_cast h
 
 end ValuationHelpers
