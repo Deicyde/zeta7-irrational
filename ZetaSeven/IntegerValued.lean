@@ -99,7 +99,13 @@ theorem padicValRat_mul_ge (a b : ℚ) (B₁ B₂ : ℤ)
     (ha : B₁ ≤ padicValRat p a) (hb : B₂ ≤ padicValRat p b)
     (hB : B₁ + B₂ ≤ 0) :
     B₁ + B₂ ≤ padicValRat p (a * b) := by
-  sorry
+  by_cases hab : a * b = 0
+  · rw [hab, padicValRat.zero]
+    exact hB
+  · have ha' : a ≠ 0 := fun h => hab (by simp [h])
+    have hb' : b ≠ 0 := fun h => hab (by simp [h])
+    rw [padicValRat.mul ha' hb']
+    exact add_le_add ha hb
 
 /-- Dividing a `p`-integral rational by a positive natural. -/
 theorem padicValRat_div_int_ge (a : ℚ) (j : ℕ) (hj : 1 ≤ j)
