@@ -437,7 +437,29 @@ theorem binomPoly_quot_comp (i : ℕ) (hi : 1 ≤ i) :
 theorem derivCoeff_succ (r i : ℕ) (hi : 1 ≤ i) :
     derivCoeff (r + 1) i = (((r : ℚ) + 1) / (i : ℚ))
       * ∑ s ∈ Finset.range i, (-1 : ℚ) ^ (i - 1 - s) * derivCoeff r s := by
-  sorry
+  have hq := binomPoly_quot_comp i hi
+  rw [binomPoly_comp_X_sub_one (i - 1)] at hq
+  have hi1 : i - 1 + 1 = i := by omega
+  rw [hi1] at hq
+  have hcoeff := congrArg (fun P => Polynomial.coeff P (r + 1)) hq
+  simp only [Polynomial.coeff_C_mul, Polynomial.coeff_X_mul,
+    Polynomial.finsetSum_coeff] at hcoeff
+  have hi0 : (i : ℚ) ≠ 0 := by exact_mod_cast (by omega : i ≠ 0)
+  have hS : (∑ s ∈ Finset.range i,
+        (-1 : ℚ) ^ (i - 1 - s) * ((Nat.factorial r : ℚ) * (binomPoly s).coeff r))
+      = (Nat.factorial r : ℚ) * ∑ s ∈ Finset.range i,
+        (-1 : ℚ) ^ (i - 1 - s) * (binomPoly s).coeff r := by
+    rw [Finset.mul_sum]
+    apply Finset.sum_congr rfl
+    intro s hs
+    ring
+  unfold derivCoeff
+  rw [Nat.factorial_succ]
+  push_cast
+  rw [hS, ← hcoeff, div_eq_mul_inv]
+  have hinv : (i : ℚ) * (i : ℚ)⁻¹ = 1 := mul_inv_cancel₀ hi0
+  linear_combination
+    (-(((r : ℚ) + 1) * (Nat.factorial r : ℚ) * (binomPoly i).coeff (r + 1))) * hinv
 
 /-- `D(r+1, 0) = 0`. -/
 theorem derivCoeff_succ_zero (r : ℕ) : derivCoeff (r + 1) 0 = 0 := by
