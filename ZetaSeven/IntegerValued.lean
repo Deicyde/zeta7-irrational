@@ -322,7 +322,75 @@ theorem binomPoly_comp_X_sub_one (j : ℕ) :
     (binomPoly j).comp (Polynomial.X - 1)
       = ∑ s ∈ Finset.range (j + 1),
           Polynomial.C ((-1 : ℚ) ^ (j - s)) * binomPoly s := by
-  sorry
+  have main : ∀ j, ((binomPoly j).comp (Polynomial.X - 1)
+        = ∑ s ∈ Finset.range (j + 1),
+            Polynomial.C ((-1 : ℚ) ^ (j - s)) * binomPoly s)
+      ∧ (Polynomial.X * (∑ s ∈ Finset.range (j + 1),
+            Polynomial.C ((-1 : ℚ) ^ (j - s)) * binomPoly s)
+        = Polynomial.C (((j + 1 : ℕ)) : ℚ) * binomPoly (j + 1)) := by
+    intro j
+    induction j with
+    | zero =>
+      constructor <;> simp [binomPoly]
+    | succ j ih =>
+      obtain ⟨ihF, ihX⟩ := ih
+      have hcast : ((j : ℚ) + 1) = (((j + 1 : ℕ)) : ℚ) := by push_cast
+      have hGrec : (∑ s ∈ Finset.range (j + 1 + 1),
+            Polynomial.C ((-1 : ℚ) ^ (j + 1 - s)) * binomPoly s)
+          = binomPoly (j + 1) - (∑ s ∈ Finset.range (j + 1),
+            Polynomial.C ((-1 : ℚ) ^ (j - s)) * binomPoly s) := by
+        rw [Finset.sum_range_succ]
+        have hlast : Polynomial.C ((-1 : ℚ) ^ (j + 1 - (j + 1))) * binomPoly (j + 1)
+            = binomPoly (j + 1) := by
+          rw [Nat.sub_self, pow_zero, Polynomial.C_1, one_mul]
+        have hneg : (∑ s ∈ Finset.range (j + 1),
+              Polynomial.C ((-1 : ℚ) ^ (j + 1 - s)) * binomPoly s)
+            = -(∑ s ∈ Finset.range (j + 1),
+              Polynomial.C ((-1 : ℚ) ^ (j - s)) * binomPoly s) := by
+          rw [← Finset.sum_neg_distrib]
+          apply Finset.sum_congr rfl
+          intro s hs
+          have hsj : s ≤ j := by have := Finset.mem_range.mp hs; omega
+          have hexp : j + 1 - s = (j - s) + 1 := by omega
+          have hCm1 : Polynomial.C (-1 : ℚ) = -1 := by
+            rw [Polynomial.C_neg, Polynomial.C_1]
+          rw [hexp, pow_succ, Polynomial.C_mul, hCm1]
+          ring
+        rw [hlast, hneg]
+        ring
+      have hF : Polynomial.C (((j + 1 : ℕ)) : ℚ)
+            * (binomPoly (j + 1)).comp (Polynomial.X - 1)
+          = (Polynomial.X - Polynomial.C (((j + 1 : ℕ)) : ℚ))
+            * (binomPoly j).comp (Polynomial.X - 1) := by
+        have hsm := binomPoly_succ_mul j
+        have hFc := congrArg (fun P => P.comp (Polynomial.X - 1)) hsm
+        simp only [Polynomial.mul_comp, Polynomial.C_comp, Polynomial.sub_comp,
+          Polynomial.X_comp] at hFc
+        have hX : (Polynomial.X - 1 - Polynomial.C (j : ℚ))
+            = Polynomial.X - Polynomial.C (((j + 1 : ℕ)) : ℚ) := by
+          rw [← hcast, Polynomial.C_add, Polynomial.C_1]
+          ring
+        rw [hcast, hX] at hFc
+        exact hFc
+      have hcancel : Polynomial.C (((j + 1 : ℕ)) : ℚ) ≠ 0 := by
+        have h1 : (((j + 1 : ℕ)) : ℚ) ≠ 0 := by positivity
+        exact mt Polynomial.C_eq_zero.mp h1
+      have goal1 : (binomPoly (j + 1)).comp (Polynomial.X - 1)
+          = ∑ s ∈ Finset.range (j + 1 + 1),
+              Polynomial.C ((-1 : ℚ) ^ (j + 1 - s)) * binomPoly s := by
+        apply mul_left_cancel₀ hcancel
+        rw [hF, hGrec, ihF]
+        linear_combination ihX
+      have hsm2 := binomPoly_succ_mul (j + 1)
+      have hcast2 : (((j + 1 : ℕ)) : ℚ) + 1 = (((j + 1 + 1 : ℕ)) : ℚ) := by push_cast
+      rw [hcast2] at hsm2
+      have goal2 : Polynomial.X * (∑ s ∈ Finset.range (j + 1 + 1),
+              Polynomial.C ((-1 : ℚ) ^ (j + 1 - s)) * binomPoly s)
+          = Polynomial.C (((j + 1 + 1 : ℕ)) : ℚ) * binomPoly (j + 1 + 1) := by
+        rw [hGrec]
+        linear_combination -hsm2 - ihX
+      exact ⟨goal1, goal2⟩
+  exact (main j).1
 
 /-- `i * B(i) = X * (B(i-1) ∘ (X-1))` for `i ≥ 1`. -/
 theorem binomPoly_quot_comp (i : ℕ) (hi : 1 ≤ i) :
