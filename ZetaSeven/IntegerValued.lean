@@ -212,7 +212,44 @@ theorem intValued_lipschitz (d : ℕ) (c : ℕ → ℚ)
     (n t : ℕ) (hne : evalBinom c d (n + t) - evalBinom c d n ≠ 0) :
     padicValRat p (t : ℚ) - ((Nat.log p (max 1 d) : ℕ) : ℤ)
       ≤ padicValRat p (evalBinom c d (n + t) - evalBinom c d n) := by
-  sorry
+  have hlog : (0 : ℤ) ≤ ((Nat.log p (max 1 d) : ℕ) : ℤ) := by positivity
+  rcases eq_or_ne t 0 with rfl | ht0
+  · rw [Nat.add_zero, sub_self] at hne
+    exact (hne rfl).elim
+  · have ht : 1 ≤ t := Nat.one_le_iff_ne_zero.mpr ht0
+    have hdiff : evalBinom c d (n + t) - evalBinom c d n
+        = ∑ k ∈ Finset.range (d + 1), c k * ((t : ℚ) * vandermondeQuot n t k) := by
+      unfold evalBinom
+      rw [← Finset.sum_sub_distrib]
+      apply Finset.sum_congr rfl
+      intro k hk
+      rw [← mul_sub, vandermonde_diff n t k ht]
+    have hfactor : (∑ k ∈ Finset.range (d + 1), c k * ((t : ℚ) * vandermondeQuot n t k))
+        = (t : ℚ) * ∑ k ∈ Finset.range (d + 1), c k * vandermondeQuot n t k := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro k hk
+      ring
+    rw [hdiff, hfactor]
+    have htQ : (t : ℚ) ≠ 0 := by exact_mod_cast ht0
+    have hne' : (t : ℚ) * ∑ k ∈ Finset.range (d + 1), c k * vandermondeQuot n t k ≠ 0 := by
+      rw [← hfactor, ← hdiff]
+      exact hne
+    have hS0 : ∑ k ∈ Finset.range (d + 1), c k * vandermondeQuot n t k ≠ 0 :=
+      fun h => hne' (by simp [h])
+    rw [padicValRat.mul htQ hS0]
+    have hS : -(((Nat.log p (max 1 d) : ℕ)) : ℤ)
+        ≤ padicValRat p (∑ k ∈ Finset.range (d + 1), c k * vandermondeQuot n t k) := by
+      apply padicValRat_le_sum
+      · linarith
+      · intro k hk
+        have hc0 := hc k hk
+        have hkd : k ≤ d := by have := Finset.mem_range.mp hk; omega
+        have hV := padicValRat_vandermondeQuot_ge d n t k hkd
+        have h := padicValRat_mul_ge (c k) (vandermondeQuot n t k) 0
+          (-(((Nat.log p (max 1 d) : ℕ)) : ℤ)) hc0 hV (by linarith)
+        simpa using h
+    linarith [hS]
 
 end Vandermonde
 
