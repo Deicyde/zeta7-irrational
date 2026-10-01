@@ -301,7 +301,21 @@ section DerivLoss
 theorem binomPoly_succ_mul (j : ℕ) :
     Polynomial.C ((j : ℚ) + 1) * binomPoly (j + 1)
       = (Polynomial.X - Polynomial.C (j : ℚ)) * binomPoly j := by
-  sorry
+  have hj1 : ((j : ℚ) + 1) ≠ 0 := by positivity
+  have hjf : (((Nat.factorial j : ℕ)) : ℚ) ≠ 0 :=
+    Nat.cast_ne_zero.mpr (Nat.factorial_ne_zero j)
+  have hC : Polynomial.C ((j : ℚ) + 1)
+        * Polynomial.C ((((j : ℚ) + 1) * ((Nat.factorial j : ℕ) : ℚ))⁻¹)
+      = Polynomial.C ((((Nat.factorial j : ℕ) : ℚ))⁻¹) := by
+    rw [← Polynomial.C_mul]
+    congr 1
+    rw [mul_inv, ← mul_assoc, mul_inv_cancel₀ hj1, one_mul]
+  unfold binomPoly
+  rw [Finset.prod_range_succ, Nat.factorial_succ]
+  push_cast
+  linear_combination
+    (∏ i ∈ Finset.range j, (Polynomial.X - Polynomial.C (i : ℚ)))
+      * (Polynomial.X - Polynomial.C (j : ℚ)) * hC
 
 /-- Shift identity: `B(j) ∘ (X - 1) = Σ_s (-1)^{j-s} B(s)`. -/
 theorem binomPoly_comp_X_sub_one (j : ℕ) :
