@@ -396,7 +396,42 @@ theorem binomPoly_comp_X_sub_one (j : ℕ) :
 theorem binomPoly_quot_comp (i : ℕ) (hi : 1 ≤ i) :
     Polynomial.C (i : ℚ) * binomPoly i
       = Polynomial.X * (binomPoly (i - 1)).comp (Polynomial.X - 1) := by
-  sorry
+  obtain ⟨j, rfl⟩ : ∃ j, i = j + 1 := ⟨i - 1, by omega⟩
+  rw [Nat.add_sub_cancel]
+  have hprod : ∀ (s : Finset ℕ) (f : ℕ → Polynomial ℚ),
+      (∏ x ∈ s, f x).comp (Polynomial.X - 1)
+        = ∏ x ∈ s, (f x).comp (Polynomial.X - 1) := by
+    intro s f
+    induction s using Finset.induction with
+    | empty => simp
+    | insert a s has ih =>
+      rw [Finset.prod_insert has, Finset.prod_insert has, Polynomial.mul_comp, ih]
+  have hfact : ∀ s ∈ Finset.range j,
+      (Polynomial.X - Polynomial.C (s : ℚ)).comp (Polynomial.X - 1)
+        = Polynomial.X - Polynomial.C ((s : ℚ) + 1) := by
+    intro s hs
+    rw [Polynomial.sub_comp, Polynomial.X_comp, Polynomial.C_comp,
+      Polynomial.C_add, Polynomial.C_1]
+    ring
+  have hj1 : ((j : ℚ) + 1) ≠ 0 := by positivity
+  have hC : Polynomial.C ((j : ℚ) + 1)
+        * Polynomial.C ((((j : ℚ) + 1) * ((Nat.factorial j : ℕ) : ℚ))⁻¹)
+      = Polynomial.C ((((Nat.factorial j : ℕ) : ℚ))⁻¹) := by
+    rw [← Polynomial.C_mul]
+    congr 1
+    rw [mul_inv, ← mul_assoc, mul_inv_cancel₀ hj1, one_mul]
+  have hprod2 : (∏ x ∈ Finset.range j,
+        (Polynomial.X - Polynomial.C (x : ℚ)).comp (Polynomial.X - 1))
+      = ∏ x ∈ Finset.range j, (Polynomial.X - Polynomial.C ((x : ℚ) + 1)) :=
+    Finset.prod_congr rfl hfact
+  unfold binomPoly
+  rw [Finset.prod_range_succ', Nat.factorial_succ]
+  push_cast
+  rw [Polynomial.mul_comp, hprod, hprod2]
+  simp only [Polynomial.C_comp, Nat.cast_zero, Polynomial.C_0, sub_zero]
+  linear_combination
+    (∏ x ∈ Finset.range j, (Polynomial.X - Polynomial.C ((x : ℚ) + 1)))
+      * Polynomial.X * hC
 
 /-- Coefficient recursion for `derivCoeff`. -/
 theorem derivCoeff_succ (r i : ℕ) (hi : 1 ≤ i) :
