@@ -122,7 +122,8 @@ theorem padicValRat_div_int_ge (a : ℚ) (j : ℕ) (hj : 1 ≤ j)
 /-- `v_p(m) ≤ ⌊log_p d⌋` for `1 ≤ m ≤ d`. -/
 theorem padicValNat_le_log_of_le (m d : ℕ) (hm : 1 ≤ m) (hmd : m ≤ d) :
     ((padicValNat p m : ℕ) : ℤ) ≤ (Nat.log p d : ℤ) := by
-  sorry
+  have h := le_trans (padicValNat_le_nat_log (p := p) m) (Nat.log_mono_right hmd)
+  exact_mod_cast h
 
 end ValuationHelpers
 
