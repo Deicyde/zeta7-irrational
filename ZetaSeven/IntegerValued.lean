@@ -500,7 +500,69 @@ up to a loss of `r * ⌊log_p (d+1)⌋`. -/
 theorem deriv_loss (d r i : ℕ) (hi : i ≤ d) :
     -((((r * Nat.log p (d + 1) : ℕ))) : ℤ)
       ≤ padicValRat p (derivCoeff r i) := by
-  sorry
+  have hL : (0 : ℤ) ≤ (((Nat.log p (d + 1) : ℕ)) : ℤ) := by positivity
+  have main : ∀ (r : ℕ) (i : ℕ), i ≤ d →
+      -((((r * Nat.log p (d + 1) : ℕ))) : ℤ)
+        ≤ padicValRat p (derivCoeff r i) := by
+    intro r
+    induction r with
+    | zero =>
+      intro i hi
+      simpa using derivCoeff_zero_ge i
+    | succ r ih =>
+      intro i hi
+      rcases eq_or_ne i 0 with rfl | hi0
+      · rw [derivCoeff_succ_zero, padicValRat.zero]
+        have hnn : (0 : ℤ) ≤ (((((r + 1) * Nat.log p (d + 1) : ℕ))) : ℤ) := by
+          positivity
+        linarith
+      · have hi1 : 1 ≤ i := Nat.one_le_iff_ne_zero.mpr hi0
+        rw [derivCoeff_succ r i hi1]
+        have hcast : ((r : ℚ) + 1) = (((r + 1 : ℕ)) : ℚ) := by push_cast
+        rw [hcast]
+        have hfrac : -(((Nat.log p (d + 1) : ℕ)) : ℤ)
+            ≤ padicValRat p ((((r + 1 : ℕ)) : ℚ) / ((i : ℕ) : ℚ)) := by
+          have h1 := padicValRat_div_int_ge (((r + 1 : ℕ)) : ℚ) i hi1
+            (zero_le_padicValRat_of_nat (r + 1))
+          have h2 := padicValNat_le_log_of_le i (d + 1) hi1 (by omega)
+          linarith [h1, h2]
+        have hsum : -((((r * Nat.log p (d + 1) : ℕ))) : ℤ)
+            ≤ padicValRat p (∑ s ∈ Finset.range i,
+              (-1 : ℚ) ^ (i - 1 - s) * derivCoeff r s) := by
+          apply padicValRat_le_sum
+          · have hnn : (0 : ℤ) ≤ ((((r * Nat.log p (d + 1) : ℕ))) : ℤ) := by
+              positivity
+            linarith
+          · intro s hs
+            have hsr : s ≤ d := by have := Finset.mem_range.mp hs; omega
+            have ihs := ih s hsr
+            have hpow : (0 : ℤ) ≤ padicValRat p ((-1 : ℚ) ^ (i - 1 - s)) := by
+              have hneg1 : padicValRat p (-1 : ℚ) = 0 := by
+                rw [padicValRat.neg, padicValRat.one]
+              have h0 : padicValRat p ((-1 : ℚ) ^ (i - 1 - s)) = 0 := by
+                rw [padicValRat.pow, hneg1, mul_zero]
+              exact le_of_eq h0.symm
+            have h := padicValRat_mul_ge ((-1 : ℚ) ^ (i - 1 - s)) (derivCoeff r s) 0
+              (-((((r * Nat.log p (d + 1) : ℕ))) : ℤ)) hpow ihs (by
+                have hnn : (0 : ℤ) ≤ ((((r * Nat.log p (d + 1) : ℕ))) : ℤ) := by
+                  positivity
+                linarith)
+            simpa using h
+        have hmul := padicValRat_mul_ge ((((r + 1 : ℕ)) : ℚ) / ((i : ℕ) : ℚ))
+          (∑ s ∈ Finset.range i, (-1 : ℚ) ^ (i - 1 - s) * derivCoeff r s)
+          (-(((Nat.log p (d + 1) : ℕ)) : ℤ)) (-((((r * Nat.log p (d + 1) : ℕ))) : ℤ))
+          hfrac hsum (by
+            have hnn : (0 : ℤ) ≤ ((((r * Nat.log p (d + 1) : ℕ))) : ℤ) := by
+              positivity
+            linarith)
+        have heq : (-((((r + 1) * Nat.log p (d + 1) : ℕ))) : ℤ)
+            = -(((Nat.log p (d + 1) : ℕ)) : ℤ)
+              + -((((r * Nat.log p (d + 1) : ℕ))) : ℤ) := by
+          push_cast
+          ring
+        rw [heq]
+        exact hmul
+  exact main r i hi
 
 /-- Derivative loss at `r = 5` (five derivatives in `τ`). -/
 theorem deriv_loss_five (d i : ℕ) (hi : i ≤ d) :
