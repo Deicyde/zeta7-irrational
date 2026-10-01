@@ -568,7 +568,12 @@ theorem deriv_loss (d r i : ℕ) (hi : i ≤ d) :
 theorem deriv_loss_five (d i : ℕ) (hi : i ≤ d) :
     -(5 * ((Nat.log p (d + 1) : ℕ) : ℤ))
       ≤ padicValRat p (derivCoeff 5 i) := by
-  sorry
+  have h := deriv_loss d 5 i hi
+  have heq : ((((5 * Nat.log p (d + 1) : ℕ))) : ℤ)
+      = 5 * (((Nat.log p (d + 1) : ℕ)) : ℤ) := by
+    norm_cast
+  rw [heq] at h
+  exact h
 
 end DerivLoss
 
