@@ -280,7 +280,7 @@ theorem bernoulli_functional_bound (d A : ℕ) (c : ℕ → ℚ)
       rw [padicValRat.pow, hneg1, mul_zero]
     have hdiv := padicValRat_div_int_ge ((-1 : ℚ) ^ k) (k + 1)
       (Nat.le_add_left 1 k) (le_of_eq hpow.symm)
-    have hle := padicValNat_le_log_of_le (k + 1) (d + 1)
+    have hle := padicValNat_le_log_of_le (p := p) (k + 1) (d + 1)
       (Nat.le_add_left 1 k) (by have := Finset.mem_range.mp hk; omega)
     linarith [hdiv, hle]
   have hmain : -((A : ℤ)) - (((Nat.log p (d + 1) : ℕ)) : ℤ)
@@ -528,9 +528,9 @@ theorem deriv_loss (d r i : ℕ) (hi : i ≤ d) :
         rw [hcast]
         have hfrac : -(((Nat.log p (d + 1) : ℕ)) : ℤ)
             ≤ padicValRat p ((((r + 1 : ℕ)) : ℚ) / ((i : ℕ) : ℚ)) := by
-          have h1 := padicValRat_div_int_ge (((r + 1 : ℕ)) : ℚ) i hi1
+          have h1 := padicValRat_div_int_ge (p := p) (((r + 1 : ℕ)) : ℚ) i hi1
             (zero_le_padicValRat_of_nat (r + 1))
-          have h2 := padicValNat_le_log_of_le i (d + 1) hi1 (by omega)
+          have h2 := padicValNat_le_log_of_le (p := p) i (d + 1) hi1 (by omega)
           linarith [h1, h2]
         have hsum : -((((r * Nat.log p (d + 1) : ℕ))) : ℤ)
             ≤ padicValRat p (∑ s ∈ Finset.range i,
