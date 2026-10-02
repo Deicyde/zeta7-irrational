@@ -1,6 +1,8 @@
 ---
 declaration: def
 origin: cited
+statement: formalized
+lean: ZetaSeven.eAlpha ZetaSeven.Jfield ZetaSeven.Vfield ZetaSeven.Ulog ZetaSeven.Ilog
 ---
 
 # External field

@@ -1,6 +1,8 @@
 ---
 declaration: def
 origin: cited
+statement: formalized
+lean: ZetaSeven.K ZetaSeven.N ZetaSeven.hDim ZetaSeven.alpha ZetaSeven.lam ZetaSeven.bigH ZetaSeven.Dpoly ZetaSeven.H7 ZetaSeven.muMonomial ZetaSeven.muPole ZetaSeven.muFunctional
 ---
 
 # Functional mu
