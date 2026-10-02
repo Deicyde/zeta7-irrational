@@ -1,6 +1,9 @@
 ---
 declaration: theorem
 origin: background
+statement: formalized
+proof: formalized
+lean: ZetaSeven.Andreief.sign_sq_eq_one ZetaSeven.Andreief.sum_sign_mul_prod ZetaSeven.Andreief.andreief_integral ZetaSeven.Andreief.andreief_moment_det ZetaSeven.Andreief.andreief_moment_det_prod
 ---
 
 # Andreief identity
