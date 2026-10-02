@@ -1,6 +1,9 @@
 ---
 declaration: theorem
 origin: background
+statement: formalized
+proof: formalized
+lean: ZetaSeven.Stirling.log_factorial_upper ZetaSeven.Stirling.log_factorial_lower ZetaSeven.Stirling.sum_integral_compare ZetaSeven.Stirling.stirling_106 ZetaSeven.Stirling.SK ZetaSeven.Stirling.log_SK ZetaSeven.Stirling.four_log_two_lam_add_log_four_le ZetaSeven.Stirling.stirling_107
 ---
 
 # Stirling factorial estimate
