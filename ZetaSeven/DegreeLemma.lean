@@ -26,7 +26,7 @@ theorem NK_succ_le_K_of_pos (n : ℕ) (hn : 0 < n) : N n + 1 ≤ K n := by
 
 theorem card_Icc_NK (n : ℕ) (hn : 0 < n) :
     (Finset.Icc (N n + 1) (K n)).card = hDim n := by
-  rw [Finset.card_Icc]
+  rw [Nat.card_Icc]
   unfold K N hDim
   omega
 
@@ -44,9 +44,9 @@ theorem hDim_le_K (n : ℕ) : hDim n ≤ K n := by
 
 /-! ## Finsupp sums over single-coefficient data -/
 
-theorem coeff_finsupp_sum {f : ℕ →₀ ℚ} {g : ℕ → ℚ → Polynomial ℚ} {k : ℕ} :
-    (f.sum g).coeff k = ∑ a ∈ f.support, (g a (f a)).coeff k := by
-  have h : f.sum g = ∑ a ∈ f.support, g a (f a) := rfl
+theorem coeff_poly_sum {p : Polynomial ℚ} {g : ℕ → ℚ → Polynomial ℚ} {k : ℕ} :
+    (p.sum g).coeff k = ∑ e ∈ p.support, (g e (p.coeff e)).coeff k := by
+  have h : p.sum g = ∑ e ∈ p.support, g e (p.coeff e) := rfl
   rw [h, Polynomial.finsetSum_coeff]
 
 theorem poleCoeffs_sum (n i j : ℕ) (g : ℕ → ℚ → Polynomial ℚ)
@@ -76,7 +76,7 @@ theorem Gentry_coeff_one (n i j : ℕ) :
       = ∑ a ∈ Finset.Icc (N n + 1) (K n), resCoeff n i j a * (a : ℚ) ^ 6 := by
   have hpoly : ((polyPart n i j).sum (fun e a => C a * C (muMonomial e))).coeff 1
       = 0 := by
-    rw [coeff_finsupp_sum]
+    rw [coeff_poly_sum]
     apply Finset.sum_eq_zero
     intro e _
     rw [← Polynomial.C_mul]
@@ -93,35 +93,38 @@ theorem Gentry_coeff_one (n i j : ℕ) :
 
 /-! ## Entries are affine in `X` -/
 
+theorem natDegree_C_le_one (c : ℚ) : (C c : Polynomial ℚ).natDegree ≤ 1 :=
+  (Polynomial.natDegree_C c).le.trans zero_le_one
+
 theorem natDegree_muPole_le (a : ℕ) : (muPole a).natDegree ≤ 1 := by
   have hX : (X : Polynomial ℚ).natDegree ≤ 1 := Polynomial.natDegree_X_le
   have hsub : (X - C (H7 a) : Polynomial ℚ).natDegree ≤ 1 := by
     refine le_trans (Polynomial.natDegree_sub_le _ _) ?_
     rw [max_le_iff]
-    exact ⟨hX, (Polynomial.natDegree_C _).le⟩
+    exact ⟨hX, natDegree_C_le_one _⟩
   have hmul : (C (a : ℚ) ^ 6 * (X - C (H7 a)) : Polynomial ℚ).natDegree ≤ 1 := by
     have h6 : (C (a : ℚ) ^ 6 : Polynomial ℚ).natDegree ≤ 0 := by
       rw [← map_pow]
       exact (Polynomial.natDegree_C _).le
-    refine le_trans (Polynomial.natDegree_mul_le _ _) ?_
+    refine le_trans Polynomial.natDegree_mul_le ?_
     calc (C (a : ℚ) ^ 6).natDegree + (X - C (H7 a)).natDegree
         ≤ 0 + 1 := Nat.add_le_add h6 hsub
       _ = 1 := rfl
   unfold muPole
   refine le_trans (Polynomial.natDegree_add_le _ _) ?_
   rw [max_le_iff]
-  exact ⟨hmul, (Polynomial.natDegree_C _).le⟩
+  exact ⟨hmul, natDegree_C_le_one _⟩
 
 theorem natDegree_Gentry_le (n i j : ℕ) : (Gentry n i j).natDegree ≤ 1 := by
   have hpoly : ((polyPart n i j).sum
       (fun e a => C a * C (muMonomial e))).natDegree ≤ 1 := by
     have hsum : (polyPart n i j).sum (fun e a => C a * C (muMonomial e))
         = ∑ e ∈ (polyPart n i j).support,
-          C ((polyPart n i j) e) * C (muMonomial e) := rfl
+          C ((polyPart n i j).coeff e) * C (muMonomial e) := rfl
     rw [hsum]
-    refine le_trans (Polynomial.natDegree_sum_le_of_forall_le _ ?_) zero_le_one
+    refine le_trans (Polynomial.natDegree_sum_le_of_forall_le _ _ ?_) zero_le_one
     intro e _
-    refine le_trans (Polynomial.natDegree_mul_le _ _) ?_
+    refine le_trans Polynomial.natDegree_mul_le ?_
     rw [Polynomial.natDegree_C, Polynomial.natDegree_C, add_zero]
   have hpole : ((poleCoeffs n i j).sum
       (fun j a => C a * muPole j)).natDegree ≤ 1 := by
@@ -129,9 +132,9 @@ theorem natDegree_Gentry_le (n i j : ℕ) : (Gentry n i j).natDegree ≤ 1 := by
         = ∑ a ∈ (poleCoeffs n i j).support,
           C ((poleCoeffs n i j) a) * muPole a := rfl
     rw [hsum]
-    refine le_trans (Polynomial.natDegree_sum_le_of_forall_le _ ?_) le_rfl
+    refine le_trans (Polynomial.natDegree_sum_le_of_forall_le _ _ ?_) le_rfl
     intro a _
-    refine le_trans (Polynomial.natDegree_mul_le _ _) ?_
+    refine le_trans Polynomial.natDegree_mul_le ?_
     calc (C ((poleCoeffs n i j) a)).natDegree + (muPole a).natDegree
         ≤ 0 + 1 := Nat.add_le_add (Polynomial.natDegree_C _).le
           (natDegree_muPole_le a)
@@ -168,9 +171,10 @@ noncomputable def Amat (n : ℕ) : Matrix (Fin (hDim n)) (Fin (hDim n)) ℚ :=
 theorem Gmat_eq_affine (n : ℕ) :
     Gmat n
       = Matrix.of fun i j => C (Amat n i j) + X * C (Bmat n i j) := by
-  ext i j
+  apply Matrix.ext
+  intro i j
   simp only [Gmat, Amat, Bmat, Matrix.of_apply]
-  rw [Gentry_affine n i.val j.val, Gentry_coeff_one n i.val j.val]
+  conv_lhs => rw [Gentry_affine n i.val j.val, Gentry_coeff_one n i.val j.val]
 
 /-! ## Determinant of an affine matrix pencil -/
 
@@ -178,8 +182,8 @@ theorem natDegree_affine_entry (a b : ℚ) :
     (C a + X * C b : Polynomial ℚ).natDegree ≤ 1 := by
   refine le_trans (Polynomial.natDegree_add_le _ _) ?_
   rw [max_le_iff]
-  refine ⟨(Polynomial.natDegree_C _).le, ?_⟩
-  refine le_trans (Polynomial.natDegree_mul_le _ _) ?_
+  refine ⟨natDegree_C_le_one _, ?_⟩
+  refine le_trans Polynomial.natDegree_mul_le ?_
   calc (X : Polynomial ℚ).natDegree + (C b).natDegree
       ≤ 1 + 0 := Nat.add_le_add Polynomial.natDegree_X_le
         (Polynomial.natDegree_C _).le
@@ -224,7 +228,8 @@ theorem coeff_det_affine {h : ℕ} (A B : Matrix (Fin h) (Fin h) ℚ) :
   apply Finset.sum_congr rfl
   intro σ _
   have hC : (((Equiv.Perm.sign σ : ℤ) : Polynomial ℚ))
-      = C (((Equiv.Perm.sign σ : ℤ) : ℚ)) := (map_intCast C _).symm
+      = C (((Equiv.Perm.sign σ : ℤ) : ℚ)) :=
+    (map_intCast (C : ℚ →+* Polynomial ℚ) _).symm
   have hmain := coeff_prod_affine (Finset.univ : Finset (Fin h))
     (fun i => A (σ i) i) (fun i => B (σ i) i)
   rw [hcard] at hmain
@@ -238,12 +243,13 @@ theorem natDegree_det_affine_le {h : ℕ} (A B : Matrix (Fin h) (Fin h) ℚ) :
       (C (A i j) + X * C (B i j) : Polynomial ℚ)).det.natDegree ≤ h := by
   have hcard : (Finset.univ : Finset (Fin h)).card = h := by simp
   rw [Matrix.det_apply']
-  refine le_trans (Polynomial.natDegree_sum_le_of_forall_le _ ?_) le_rfl
+  refine le_trans (Polynomial.natDegree_sum_le_of_forall_le _ _ ?_) le_rfl
   intro σ _
   have hC : (((Equiv.Perm.sign σ : ℤ) : Polynomial ℚ))
-      = C (((Equiv.Perm.sign σ : ℤ) : ℚ)) := (map_intCast C _).symm
+      = C (((Equiv.Perm.sign σ : ℤ) : ℚ)) :=
+    (map_intCast (C : ℚ →+* Polynomial ℚ) _).symm
   rw [hC]
-  refine le_trans (Polynomial.natDegree_mul_le _ _) ?_
+  refine le_trans Polynomial.natDegree_mul_le ?_
   have hP : (∏ i, ((Matrix.of fun i j =>
       (C (A i j) + X * C (B i j) : Polynomial ℚ)) (σ i) i)).natDegree ≤ h := by
     simp only [Matrix.of_apply]
@@ -387,12 +393,10 @@ theorem Bmat_eq (n : ℕ) (hn : 0 < n) :
     simp only [Matrix.diagonal_apply, mul_ite, mul_zero,
       Finset.sum_ite_eq', Finset.mem_univ, if_true]
   ext i j
-  rw [Bmat_apply n hn i j]
-  simp only [Matrix.mul_apply, Matrix.transpose_apply,
-    Matrix.vandermonde_apply]
+  rw [Bmat_apply n hn i j, Matrix.mul_apply]
+  simp only [hVD, Matrix.transpose_apply, Matrix.vandermonde_apply]
   apply Finset.sum_congr rfl
   intro k _
-  rw [hVD]
   ring
 
 theorem det_Bmat (n : ℕ) (hn : 0 < n) :
@@ -430,11 +434,12 @@ theorem Dtail_deriv_eval (n : ℕ) (a : ℕ)
     apply Finset.sum_eq_single a
     · intro i hi hia
       rw [Polynomial.eval_prod]
-      apply Finset.prod_eq_zero (a := a)
-      · rw [Finset.mem_erase]
+      have hmem : a ∈ (Finset.Icc (N n + 1) (K n)).erase i := by
+        rw [Finset.mem_erase]
         exact ⟨Ne.symm hia, ha⟩
-      · rw [Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C]
-        ring
+      refine Finset.prod_eq_zero hmem ?_
+      rw [Polynomial.eval_add, Polynomial.eval_X, Polynomial.eval_C]
+      ring
     · intro hcon
       exact absurd ha hcon
   rw [hsum, Polynomial.eval_prod]
@@ -593,7 +598,7 @@ theorem prod_pairLT_eq_fin (n : ℕ) (hn : 0 < n) :
       have he2 : nodeEmb n hn e2 = p.2 :=
         orderEmb_symm_apply _ (card_Icc_NK n hn) ⟨p.2, hp2⟩
       have hlt' : e1 < e2 := by
-        have hiff := (nodeEmb n hn).strictMono.lt_iff_lt
+        have hiff := (nodeEmb n hn).strictMono.lt_iff_lt (a := e1) (b := e2)
         rw [he1, he2] at hiff
         exact hiff.mp hlt
       refine ⟨(e1, e2), ?_, ?_⟩
@@ -672,7 +677,7 @@ theorem card_pairLT (n : ℕ) (hn : 0 < n) :
       · rintro ⟨hlo, hhi⟩
         have ha1 := (Finset.mem_Icc.mp ha).1
         exact ⟨⟨by omega, hhi⟩, by omega⟩
-    rw [hset, Finset.card_Icc]
+    rw [hset, Nat.card_Icc]
     omega
   have hKN : K n - N n = hDim n := sub_NK_eq_hDim n
   have hpos : 0 < hDim n := hDim_pos_of_pos n hn
@@ -693,7 +698,8 @@ theorem card_pairLT (n : ℕ) (hn : 0 < n) :
       refine ⟨K n - c, ?_, ?_⟩
       · simp only [Finset.mem_Icc]
         omega
-      · have hcK : c ≤ K n := by omega
+      · show K n - (K n - c) = c
+        have hcK : c ≤ K n := by omega
         omega
     · intro a _
       rfl
