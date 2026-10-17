@@ -17,6 +17,7 @@ tail-divisor derivative identity.
 namespace ZetaSeven
 
 open Polynomial Finset
+open scoped Matrix
 
 /-! ## Parameter identities -/
 
@@ -235,8 +236,6 @@ theorem coeff_det_affine {h : ℕ} (A B : Matrix (Fin h) (Fin h) ℚ) :
   rw [hcard] at hmain
   rw [hC, Polynomial.coeff_C_mul]
   congr 1
-  simp only [Matrix.of_apply]
-  exact hmain
 
 theorem natDegree_det_affine_le {h : ℕ} (A B : Matrix (Fin h) (Fin h) ℚ) :
     (Matrix.of fun i j =>
@@ -282,7 +281,6 @@ theorem orderEmb_symm_apply (s : Finset ℕ) {k : ℕ} (hk : s.card = k)
       (((Finset.orderIsoOfFin s hk).toEquiv).symm x) = x
     exact Equiv.apply_symm_apply _ _
   rw [hcan]
-  rfl
 
 theorem prod_nodeEmb (n : ℕ) (hn : 0 < n) {M : Type*} [CommMonoid M]
     (g : ℕ → M) :
@@ -333,11 +331,11 @@ theorem nat_eq_of_sq_eq {a b : ℕ} (h : (a : ℚ) ^ 2 = (b : ℚ) ^ 2) : a = b 
   have h2 : a ^ 2 = b ^ 2 := by exact_mod_cast h
   rcases lt_trichotomy a b with hlt | heq | hgt
   · exfalso
-    have hpow : a ^ 2 < b ^ 2 := pow_lt_pow_left' two_ne_zero hlt
+    have hpow : a ^ 2 < b ^ 2 := Nat.pow_lt_pow_left hlt two_ne_zero
     omega
   · exact heq
   · exfalso
-    have hpow : b ^ 2 < a ^ 2 := pow_lt_pow_left' two_ne_zero hgt
+    have hpow : b ^ 2 < a ^ 2 := Nat.pow_lt_pow_left hgt two_ne_zero
     omega
 
 theorem nodeVal_injective (n : ℕ) (hn : 0 < n) :
@@ -475,7 +473,7 @@ theorem filter_lt_gt_disjoint (s : Finset ℕ) (t : ℕ) :
     Disjoint (s.filter (· < t)) (s.filter fun u => t < u) := by
   rw [Finset.disjoint_filter]
   intro u _ h
-  exact lt_asymm h.1 h.2
+  exact lt_asymm h
 
 theorem prod_erase_eq (n : ℕ) (t : ℕ)
     (ht : t ∈ Finset.Icc (N n + 1) (K n)) :
@@ -492,47 +490,24 @@ theorem prod_LT_lower (n : ℕ) :
         ∏ u ∈ (Finset.Icc (N n + 1) (K n)).filter (· < t),
           ((u : ℚ) ^ 2 - (t : ℚ) ^ 2)
       = ∏ p ∈ pairLT n, ((p.1 : ℚ) ^ 2 - (p.2 : ℚ) ^ 2) := by
-  conv_lhs => rw [← Finset.prod_sigma]
-  simp only [pairLT]
-  apply Finset.prod_bij (fun p _ => (p.2, p.1)) ?hi ?inj ?surj ?h
-  · intro p hp
-    simp only [Finset.mem_sigma, Finset.mem_filter, Finset.mem_product] at hp ⊢
-    obtain ⟨ht, hu, hlt⟩ := hp
-    exact ⟨⟨hu, ht⟩, hlt⟩
-  · intro p₁ _ p₂ _ heq
-    simp only [Prod.mk.injEq] at heq
-    exact Prod.ext heq.2 heq.1
-  · intro q hq
-    simp only [Finset.mem_filter, Finset.mem_product] at hq
-    obtain ⟨⟨hq1, hq2⟩, hlt⟩ := hq
-    refine ⟨(q.2, q.1), ?_, rfl⟩
-    simp only [Finset.mem_sigma, Finset.mem_filter]
-    exact ⟨hq2, hq1, hlt⟩
-  · intro p _
-    rfl
+  refine (Finset.prod_finset_product_right (pairLT n) (Finset.Icc (N n + 1) (K n))
+    (fun t => (Finset.Icc (N n + 1) (K n)).filter (· < t))
+    (f := fun p => (p.1 : ℚ) ^ 2 - (p.2 : ℚ) ^ 2) ?_).symm
+  intro p
+  simp only [pairLT, Finset.mem_filter, Finset.mem_product]
+  tauto
 
 theorem prod_LT_upper (n : ℕ) :
     ∏ t ∈ Finset.Icc (N n + 1) (K n),
         ∏ u ∈ (Finset.Icc (N n + 1) (K n)).filter (fun u => t < u),
           ((u : ℚ) ^ 2 - (t : ℚ) ^ 2)
       = ∏ p ∈ pairLT n, ((p.2 : ℚ) ^ 2 - (p.1 : ℚ) ^ 2) := by
-  conv_lhs => rw [← Finset.prod_sigma]
-  simp only [pairLT]
-  apply Finset.prod_bij (fun p _ => p) ?hi ?inj ?surj ?h
-  · intro p hp
-    simp only [Finset.mem_sigma, Finset.mem_filter, Finset.mem_product] at hp ⊢
-    obtain ⟨ht, hu, hlt⟩ := hp
-    exact ⟨⟨ht, hu⟩, hlt⟩
-  · intro p₁ _ p₂ _ heq
-    exact heq
-  · intro q hq
-    simp only [Finset.mem_filter, Finset.mem_product] at hq
-    obtain ⟨⟨hq1, hq2⟩, hlt⟩ := hq
-    refine ⟨q, ?_, rfl⟩
-    simp only [Finset.mem_sigma, Finset.mem_filter]
-    exact ⟨hq1, hq2, hlt⟩
-  · intro p _
-    rfl
+  refine (Finset.prod_finset_product (pairLT n) (Finset.Icc (N n + 1) (K n))
+    (fun t => (Finset.Icc (N n + 1) (K n)).filter (fun u => t < u))
+    (f := fun p => (p.2 : ℚ) ^ 2 - (p.1 : ℚ) ^ 2) ?_).symm
+  intro p
+  simp only [pairLT, Finset.mem_filter, Finset.mem_product]
+  tauto
 
 theorem prod_Dtail_deriv_eq (n : ℕ) :
     ∏ t ∈ Finset.Icc (N n + 1) (K n),
@@ -602,10 +577,9 @@ theorem prod_pairLT_eq_fin (n : ℕ) (hn : 0 < n) :
         rw [he1, he2] at hiff
         exact hiff.mp hlt
       refine ⟨(e1, e2), ?_, ?_⟩
-      · simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ]
+      · simp only [Finset.mem_filter, Finset.mem_product, Finset.mem_univ, true_and]
         exact hlt'
       · simp only [he1, he2]
-        rfl
     · intro q _
       rfl
   exact h.symm
@@ -630,19 +604,8 @@ theorem prod_pairLTFin_eq_det (n : ℕ) (hn : 0 < n) :
             - ((nodeEmb n hn q.1 : ℕ) : ℚ) ^ 2) ^ 2)
         = ∏ i : Fin (hDim n), ∏ j ∈ Finset.Ioi i,
           ((((nodeEmb n hn j : ℚ) ^ 2 - (nodeEmb n hn i : ℚ) ^ 2)) ^ 2) := by
-    have hQeq : pairLTFin n
-        = Finset.univ.sigma
-          (fun i : Fin (hDim n) => Finset.univ.filter (fun j => i < j)) := by
-      ext q
-      simp [pairLTFin, Finset.mem_sigma]
-    rw [hQeq, Finset.prod_sigma]
-    apply Finset.prod_congr rfl
-    intro i _
-    have hIoi : Finset.univ.filter (fun j : Fin (hDim n) => i < j)
-        = Finset.Ioi i := by
-      ext j
-      simp
-    rw [hIoi]
+    exact Finset.prod_finset_product (pairLTFin n) Finset.univ
+      (fun i : Fin (hDim n) => Finset.Ioi i) (fun p => by simp [pairLTFin])
   rw [hQ, hdet, ← Finset.prod_pow]
   apply Finset.prod_congr rfl
   intro i _
@@ -653,16 +616,14 @@ theorem prod_pairLTFin_eq_det (n : ℕ) (hn : 0 < n) :
 
 theorem card_pairLT (n : ℕ) (hn : 0 < n) :
     (pairLT n).card = (hDim n) * ((hDim n) - 1) / 2 := by
-  have hPeq : pairLT n
-      = (Finset.Icc (N n + 1) (K n)).sigma
-        (fun a => (Finset.Icc (N n + 1) (K n)).filter (fun b => a < b)) := by
-    ext p
-    simp only [pairLT, Finset.mem_filter, Finset.mem_product, Finset.mem_sigma]
-    constructor
-    · rintro ⟨⟨h1, h2⟩, hlt⟩
-      exact ⟨h1, h2, hlt⟩
-    · rintro ⟨h1, h2, hlt⟩
-      exact ⟨⟨h1, h2⟩, hlt⟩
+  have hPcard : (pairLT n).card
+      = ∑ a ∈ Finset.Icc (N n + 1) (K n),
+          ((Finset.Icc (N n + 1) (K n)).filter (fun b => a < b)).card := by
+    rw [Finset.card_eq_sum_ones (pairLT n),
+      Finset.sum_finset_product (pairLT n) (Finset.Icc (N n + 1) (K n))
+        (fun a => (Finset.Icc (N n + 1) (K n)).filter (fun b => a < b))
+        (fun p => by simp only [pairLT, Finset.mem_filter, Finset.mem_product]; tauto)]
+    simp only [Finset.card_eq_sum_ones]
   have hfib : ∀ a ∈ Finset.Icc (N n + 1) (K n),
       ((Finset.Icc (N n + 1) (K n)).filter (fun b => a < b)).card
         = K n - a := by
@@ -703,8 +664,7 @@ theorem card_pairLT (n : ℕ) (hn : 0 < n) :
         omega
     · intro a _
       rfl
-  rw [hPeq, Finset.card_sigma, Finset.sum_congr rfl hfib, hre,
-    Finset.sum_range_id]
+  rw [hPcard, Finset.sum_congr rfl hfib, hre, Finset.sum_range_id]
 
 /-! ## Determinant value and nonvanishing -/
 
@@ -791,7 +751,7 @@ theorem det_Bmat_eq (n : ℕ) (hn : 0 < n) :
             * (-1 : ℚ) ^ ((hDim n) * ((hDim n) - 1) / 2) := by
             ring
   rw [det_Bmat n hn, prod_gamma_eq n hn, prod_Dtail_deriv_value n hn,
-    mul_div_assoc,
+    ← mul_div_assoc,
     mul_comm (((Matrix.vandermonde (nodeVal n hn)).det) ^ 2),
     mul_div_mul_right _ _ hV2, hNum]
 
