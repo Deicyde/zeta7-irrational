@@ -2,24 +2,27 @@
 article_id: af_4a2ec29b35052df331a4836a
 declaration: theorem
 origin: background
-not_ready: true
 ---
 
 # Prime number theorem
 
-The prime number theorem in the `θ(x) ~ x` form with partial
-summation over primes, as needed to turn the local exponents
-into the continuum integrals of the prime-sum bound. The pinned
-Mathlib checkout has only Chebyshev upper and lower bounds
-(`Chebyshev.theta_le_log4_mul_x`, `Chebyshev.theta_ge`), whose
-constants do not give the exact limit constants the final
-inequality needs.
+The prime number theorem in the `θ(x) ~ x` form, with the
+partial-summation step that turns it into prime Riemann sums:
+for `0 < a < b` and a piecewise continuous weight `G` with
+finitely many breakpoints on `[a, b]`,
+`X^{-1} ∑_{aX < p ≤ bX} G(p/X) log p → ∫_a^b G(y) dy` as
+`X → ∞`. Proposition 5.4 uses the plain form in the middle prime
+range and the Riemann-sum form for the inner and outer integrals.
 
-This node is not ready because it needs a dependency-strategy
-decision first: adopt or port the external PrimeNumberTheoremAnd
-project, formalize the Wiener-Ikehara route, or restructure the
-prime-sum argument to work with explicit Chebyshev bounds. That
-decision is the largest open planning item in the roadmap.
+The asymptotic comes from the pinned PrimeNumberTheoremAnd
+dependency (rev `c39a751`): `chebyshev_asymptotic : θ ~[atTop] id`
+in `PrimeNumberTheoremAnd/Consequences.lean`, stated for Mathlib's
+`Chebyshev.theta`. The partial-summation step is project work;
+Mathlib's Abel summation (`sum_mul_eq_sub_integral_mul`) handles
+each smooth piece of the weight. No ZetaSeven module imports
+PrimeNumberTheoremAnd yet. The pinned Mathlib alone has only the
+Chebyshev bounds `Chebyshev.theta_le_log4_mul_x` and
+`Chebyshev.theta_ge`, too weak for the exact limit constants.
 
 ## Depends on
 

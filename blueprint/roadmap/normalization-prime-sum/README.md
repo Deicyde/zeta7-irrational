@@ -42,7 +42,7 @@ open until the author's v2 appears.
 
 ## Background
 
-- [Prime number theorem](prime-number-theorem.md) — exact prime asymptotics (strategy open).
+- [Prime number theorem](prime-number-theorem.md) — exact prime asymptotics via PrimeNumberTheoremAnd.
 
 ## Sources
 
