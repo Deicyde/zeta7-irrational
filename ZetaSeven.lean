@@ -3,6 +3,7 @@
 import ZetaSeven.Basic
 import ZetaSeven.Andreief
 import ZetaSeven.BernoulliMult
+import ZetaSeven.DegreeLemma
 import ZetaSeven.Enclosures
 import ZetaSeven.ExternalField
 import ZetaSeven.FunctionalMu

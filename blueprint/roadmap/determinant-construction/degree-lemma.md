@@ -2,6 +2,9 @@
 article_id: af_0ea96162bc1c1b4a1a49923e
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.degreeLemma ZetaSeven.Gmat_eq_affine ZetaSeven.Bmat_eq ZetaSeven.prod_Dtail_deriv_value ZetaSeven.det_Bmat_eq
 ---
 
 # Degree lemma
