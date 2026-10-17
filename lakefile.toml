@@ -11,5 +11,10 @@ name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.34.1"
 
+[[require]]
+name = "PrimeNumberTheoremAnd"
+git = "https://github.com/alexKontorovich/PrimeNumberTheoremAnd.git"
+rev = "c39a751132c88b6e8080b74c74023fd95b3d8be0"
+
 [[lean_lib]]
 name = "ZetaSeven"
