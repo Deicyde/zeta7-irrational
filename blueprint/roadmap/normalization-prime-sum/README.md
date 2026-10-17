@@ -1,3 +1,7 @@
+---
+article_id: af_1323c9eb0db11af5ed48fd33
+---
+
 # Normalization and the prime sum
 
 This chapter turns the local valuations into a global integrality

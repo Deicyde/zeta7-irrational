@@ -1,9 +1,10 @@
 ---
+article_id: af_777d2a6506e15243904e0cf5
 declaration: lemma
 origin: cited
 statement: formalized
 proof: formalized
-lean: ZetaSeven.ZeroMassEnergy.zero_mass_energy_nonpos ZetaSeven.ZeroMassEnergy.signedEnergy ZetaSeven.ZeroMassEnergy.signed_gaussJ_nonneg ZetaSeven.ZeroMassEnergy.gaussian_pointwise ZetaSeven.ZeroMassEnergy.pair_truncEnergy_eq ZetaSeven.ZeroMassEnergy.tendsto_logTrunc_seq ZetaSeven.ZeroMassEnergy.logTrunc_le_abs_log
+lean: ZetaSeven.ZeroMassEnergy.zero_mass_energy_nonpos
 ---
 
 # Zero-mass logarithmic energy
@@ -20,7 +21,12 @@ the limit by dominated convergence.
 
 ## Depends on
 
-None. Self-contained potential theory.
+None. The statement needs no other article.
+
+## Proof depends on
+
+- [Gaussian energy positivity](gaussian-energy-positivity.md)
+- [Truncated logarithm energy](truncated-log-energy.md)
 
 ## Sources
 

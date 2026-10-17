@@ -1,3 +1,7 @@
+---
+article_id: af_b18b590f352c29047380a8e6
+---
+
 # Irrationality proof
 
 This chapter assembles the pieces into the main theorems. Combining

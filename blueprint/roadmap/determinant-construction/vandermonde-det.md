@@ -1,4 +1,5 @@
 ---
+article_id: af_c264e214e7298808a93834a0
 declaration: theorem
 origin: background
 mathlib: true

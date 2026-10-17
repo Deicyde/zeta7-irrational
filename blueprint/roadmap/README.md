@@ -1,3 +1,7 @@
+---
+article_id: af_a8c752231b85495314d778c6
+---
+
 # Zeta 7 is Irrational roadmap
 
 Integer Hankel-determinant polynomials that stay positive but decay

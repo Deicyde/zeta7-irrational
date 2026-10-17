@@ -1,15 +1,20 @@
 ---
+article_id: af_ab893e2a96025b15c7aadf47
 declaration: theorem
 origin: background
+mathlib: true
+mathlib_declaration: hasSum_zeta_nat
 ---
 
 # Euler formula for even zeta values
 
 Euler's formula `ζ(2e+2) = (-1)^e B_{2e+2} (2π)^{2e+2} / (2(2e+2)!)`
 for every `e ≥ 0`, used to evaluate the even moments of the weight.
-No matching formula was found in the pinned Mathlib checkout, so this
-is project work; the standard proof goes through the Fourier
-expansion or the known zeta-value machinery once audited.
+This is upstream as `hasSum_zeta_nat` in the pinned Mathlib checkout
+(`Mathlib/NumberTheory/ZetaValues.lean`), verified by inspection:
+with `k = e+1` its value equals the formula above. The `tsum`
+equation and the rearrangement are short derivations and live in
+the positive-integral-representation node's proof.
 
 ## Depends on
 

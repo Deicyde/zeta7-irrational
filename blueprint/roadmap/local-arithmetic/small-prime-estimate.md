@@ -1,4 +1,5 @@
 ---
+article_id: af_d1535c272118e0129003b67c
 declaration: theorem
 origin: cited
 ---
@@ -16,7 +17,11 @@ The proof bounds residues by Legendre's formula, controls the
 polynomial part on and off the root balls, applies `τ` to the
 polynomial part, and bounds pole contributions by harmonic
 denominators. The binomial identities making `q_i(-x^2)` and
-`f_i(-x^2)` integer-valued are part of this node.
+`f_i(-x^2)` integer-valued are part of this node. The constant
+8 in (37) absorbs the per-term constant 6, since
+`⌊log_p(d+1)⌋ ≤ ⌊log_p max(2K,d+1)⌋`, so the proof needs no
+sharp constant-5 cancellation lemma; that sharpening is out of
+scope by design, and no separate node is planned for it.
 
 ## Depends on
 

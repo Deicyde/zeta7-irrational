@@ -4,6 +4,7 @@ Prince Anand, *Zeta 7 is Irrational*, preprint v1, 23 September 2026.
 Stable public record: [Zenodo 22920911](https://zenodo.org/records/22920911)
 (DOI `10.5281/zenodo.22920911`), file `Zeta7 (3).pdf`
 (md5 `6b7fae049a3f5970a45f51483098b521`, 42 PDF pages).
+Local vault copy: `Zeta7 (3).pdf` in this directory (md5 verified 2026-10-13).
 
 This is the adopted source for the whole roadmap. Every formalizable
 statement must trace to a locator below. Section, theorem, and equation
@@ -64,7 +65,12 @@ the `M = 200` constant.
 | Coefficient height, primitive normalization | Appendix B.3, equation (129) (p. 41) |
 
 Labels locate the authoritative statements; chapter prose is a planning
-aid and must not replace source inspection.
+aid and must not replace source inspection. Note the paper reuses the
+appendix labels A.1-A.3 and B.1-B.2: one series for the
+comparison-measure appendices (pp. 30-33) and a second series for the
+exact-integral and matrix-norm appendices (pp. 34-41). The page
+numbers above and the `comparison-measure` / `exact-integral` prefixes
+in article citations disambiguate them.
 
 ## Open source questions
 
@@ -74,10 +80,26 @@ aid and must not replace source inspection.
    arithmetic from the integral tables. The exact values
    (`A200 ~ -13.7528`, `U = 44/25`) leave margin `~0.118`, so the
    certificate is expected to close; see the `final-margins` node.
+   NOTE (2026-10-13): an external exact-arithmetic audit disputes the
+   Table 5 integral this target rests on (see open question 5). The
+   `-19000` decision stands until the project adjudicates it.
 2. The Fauzan zeta(5) predecessor [5] is cited for the architecture but
    has not been inspected; confirm no hidden lemma is imported from it.
-3. Background identities (Hermite/Hurwitz integral, von Staudt-Clausen,
-   Bernoulli multiplication, Andreief) still need a Mathlib audit before
-   bridging lemmas are planned.
+3. RESOLVED except Hermite/Hurwitz: von Staudt-Clausen is upstream
+   (`Bernoulli.vonStaudt_clausen`), Bernoulli multiplication and Andreief
+   were proved directly in Lean. Hermite/Hurwitz verdict (2026-10-17):
+   no Hermite integral, Euler-Maclaurin, Abel-Plana, or periodic/Lerch
+   zeta formula exists in the pinned Mathlib checkout (only special
+   values in `HurwitzZetaValues`), so the `s = 7` instance is project
+   work to prove directly (see the `hermite-hurwitz` node).
 4. Decide whether the 192-piece exact integral tables are recomputed in
    Lean or verified as certificates.
+5. UNADJUDICATED: an external reader report (gmDevi/zeta-7-21-lean issue
+   #1, 2026-10-03) and an independent exact-arithmetic audit (Toledo
+   cert-machine, record archived at Zenodo 23171167) recompute the outer
+   integral from the paper's own formulas as `I_out = 453803/288000`
+   (not (122)'s `-11002997/720000`) and `A200 + U ~ +4.86` (not `-11.99`),
+   which would break the v1 proof route at (117)-(118). The project has
+   not verified these recomputations, and no author v2 has appeared.
+   Directly implicates the `exact-outer-integral`, `final-margins`, and
+   `main-estimates` nodes.

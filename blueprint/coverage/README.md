@@ -12,7 +12,7 @@ bound, and the predecessor material excluded from scope.
 | Normalization and prime sum (Section 5, exact integrals) | `DECOMPOSED` | [Normalization chapter](../roadmap/normalization-prime-sum/README.md) covers integrality, limiting integrals, and the prime-sum bound |
 | Real determinant bound (Section 6, comparison measure) | `DECOMPOSED` | [Real bound chapter](../roadmap/real-bound/README.md) covers the energy comparison and the analytic bound |
 | Main irrationality assembly (Theorems 1.1-1.2) | `DECOMPOSED` | [Irrationality proof chapter](../roadmap/irrationality-proof/README.md) covers the decay estimates and the contradiction |
-| Background identities cited by the estimates | `MAPPED` | Mathlib audit pending: check Hermite/Hurwitz, von Staudt-Clausen, Bernoulli multiplication, and Andreief upstream before planning bridging lemmas |
+| Background identities cited by the estimates | `DECOMPOSED` | Decomposed into [Hermite/Hurwitz](../roadmap/determinant-construction/hermite-hurwitz.md), [von Staudt-Clausen](../roadmap/local-arithmetic/von-staudt-clausen.md), [Bernoulli multiplication](../roadmap/local-arithmetic/bernoulli-multiplication.md), and [Andreief](../roadmap/real-bound/andreief-identity.md) nodes; the remaining Mathlib audit is node-level work |
 | Approximation bound and coefficient height (Corollary 1.3) | `DEFERRED` | Later milestone after the main irrationality result; needs the relative matrix norm estimate of Proposition B.1 |
 | Fauzan zeta(5) predecessor and survey material | `OUT` | Cited for architecture only; not a formalization target |
 

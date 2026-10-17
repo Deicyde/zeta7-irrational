@@ -1,3 +1,7 @@
+---
+article_id: af_4996ba9844c8aabc450121cd
+---
+
 # Real determinant bound
 
 This chapter bounds the normalized determinant at zeta(7) from above.
@@ -25,6 +29,8 @@ analytic half of the final exponent.
 
 ## Energy bound
 
+- [Gaussian energy positivity](gaussian-energy-positivity.md) — nonnegative Gaussian-regularized signed energy.
+- [Truncated logarithm energy](truncated-log-energy.md) — s-integral representation with domination and limit.
 - [Zero-mass logarithmic energy](zero-mass-energy.md) — nonpositive energy at mass zero.
 - [Configuration energy bound](configuration-bound.md) — the general configuration estimate.
 

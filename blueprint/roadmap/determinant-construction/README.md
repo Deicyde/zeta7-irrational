@@ -1,3 +1,7 @@
+---
+article_id: af_ba33a6c5e3ae7ac76585c672
+---
+
 # Determinant construction
 
 This chapter builds the polynomials whose values at zeta(7) drive the

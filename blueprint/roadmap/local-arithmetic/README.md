@@ -1,3 +1,7 @@
+---
+article_id: af_39cc603be5dddc97d2cc885b
+---
+
 # Local arithmetic estimates
 
 This chapter controls the denominators of the determinant one prime at
