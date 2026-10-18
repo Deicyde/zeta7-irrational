@@ -35,6 +35,12 @@ open MeasureTheory
 
 /-! ### Supports, a lower bound for the potential, and integrability on products -/
 
+/-- `ω_{[0,L]}`, a density against Lebesgue measure on `(0, L)`, is s-finite, so Fubini's theorem
+applies to products of arcsine measures. -/
+instance sFinite_arcsineMeasure (L : ℝ) : SFinite (arcsineMeasure L) := by
+  unfold arcsineMeasure
+  infer_instance
+
 /-- `ω_{[0,L]}` is carried by `(0, L)`. -/
 theorem ae_mem_Ioo_arcsineMeasure (L : ℝ) : ∀ᵐ t ∂(arcsineMeasure L), t ∈ Set.Ioo 0 L := by
   unfold arcsineMeasure
@@ -47,7 +53,7 @@ theorem log_le_arcsinePotential {L t : ℝ} (hL : 0 < L) :
   by_cases htL : t ≤ L
   · exact (ite_eq_left htL).symm.le
   · rw [ite_eq_right htL]
-    push_neg at htL
+    have htL' := not_le.1 htL
     refine Real.log_le_log (by positivity) ?_
     have h := Real.sqrt_nonneg (t * (t - L))
     linarith
@@ -63,8 +69,8 @@ theorem abs_log_le_two_mul_sub_log {y B : ℝ} (hy : 0 ≤ y) (hyB : y ≤ B) :
 theorem integrable_log_abs_sub_prod_arcsineMeasure {L L' : ℝ} (hL : 0 < L) (hL' : 0 < L') :
     Integrable (fun p : ℝ × ℝ => Real.log |p.1 - p.2|)
       ((arcsineMeasure L).prod (arcsineMeasure L')) := by
-  haveI := isProbabilityMeasure_arcsineMeasure hL
-  haveI := isProbabilityMeasure_arcsineMeasure hL'
+  have := isProbabilityMeasure_arcsineMeasure hL
+  have := isProbabilityMeasure_arcsineMeasure hL'
   have hmeas : Measurable fun p : ℝ × ℝ => Real.log |p.1 - p.2| := by fun_prop
   rw [integrable_prod_iff hmeas.aestronglyMeasurable]
   refine ⟨ae_of_all _ fun t => integrable_log_abs_sub_arcsineMeasure hL' t, ?_⟩
@@ -104,7 +110,7 @@ theorem integral_log_abs_sub_prod_arcsineMeasure_of_le {L L' : ℝ} (hL : 0 < L)
     ∫ p, Real.log |p.1 - p.2| ∂((arcsineMeasure L).prod (arcsineMeasure L')) =
       Real.log (L' / 4) := by
   have hL' : 0 < L' := hL.trans_le hLL'
-  haveI := isProbabilityMeasure_arcsineMeasure hL
+  have := isProbabilityMeasure_arcsineMeasure hL
   rw [integral_prod _ (integrable_log_abs_sub_prod_arcsineMeasure hL hL')]
   have h : ∀ᵐ t ∂(arcsineMeasure L),
       ∫ u, Real.log |t - u| ∂(arcsineMeasure L') = Real.log (L' / 4) := by
@@ -206,10 +212,11 @@ theorem sum_sum_mul_min {n : ℕ} (c g : Fin n → ℝ) :
     rcases lt_trichotomy i (min j k) with h | h | h
     · rw [ite_eq_left (le_min_iff.1 h.le), ite_eq_left (lt_min_iff.1 h), ite_eq_right h.ne',
         sub_self]
-    · rw [ite_eq_left (le_min_iff.1 h.le), ite_eq_right fun h' => (lt_min_iff.2 h').ne h,
-        ite_eq_left h.symm, sub_zero]
-    · rw [ite_eq_right fun h' => (le_min_iff.2 h').not_lt h,
-        ite_eq_right fun h' => (lt_min_iff.2 h').not_lt h, ite_eq_right h.ne, sub_zero]
+    · have h2 : ¬(i < j ∧ i < k) := fun h' => ne_of_lt (lt_min_iff.2 h') h
+      rw [ite_eq_left (le_min_iff.1 h.le), ite_eq_right h2, ite_eq_left h.symm, sub_zero]
+    · have h1 : ¬(i ≤ j ∧ i ≤ k) := fun h' => not_lt_of_ge (le_min_iff.2 h') h
+      have h2 : ¬(i < j ∧ i < k) := fun h' => lt_asymm (lt_min_iff.2 h') h
+      rw [ite_eq_right h1, ite_eq_right h2, ite_eq_right h.ne, sub_zero]
   have hpt : ∀ j k : Fin n,
       c j * c k * g (min j k) = ∑ i, (if min j k = i then c j * c k else 0) * g i := by
     intro j k
