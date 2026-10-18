@@ -415,6 +415,7 @@ lemma integral_sin_div_exp_sub_one {t : ℝ} (ht : 0 < t) :
           have hs : |Real.sin (y * t)| ≤ y * t := by
             have h := Real.abs_sin_le_abs (x := y * t)
             rwa [abs_of_pos (mul_pos hy' ht)] at h
+          dsimp only
           rw [norm_mul, Real.norm_of_nonneg he.le, Real.norm_eq_abs, pow_one]
           calc |Real.sin (y * t)| * Real.exp (-(2 * π * ((k : ℝ) + 1)) * y)
               ≤ y * t * Real.exp (-(2 * π * ((k : ℝ) + 1)) * y) :=
@@ -516,6 +517,7 @@ private lemma hermite_left {a : ℝ} (ha : 0 < a) :
         (y ^ 2 + a ^ 2) ^ 7 / (Real.exp (2 * π * y) - 1) := by
   rw [← integral_const_mul]
   refine integral_congr_ae (ae_of_all _ fun y => ?_)
+  dsimp only
   rw [integral_div, integral_pow_six_mul_exp_mul_sin ha y]
   ring
 
