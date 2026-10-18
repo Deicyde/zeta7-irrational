@@ -10,16 +10,18 @@ probability measure on `(0, L)` with density `1 / (π √(t (L - t)))`.
 Table 1 lists the integers `10^12 L_j` and `10^12 c_j`; they are recorded verbatim and scaled
 by `10^12`. The facts the paper reads off the table are proved here: the weights sum to
 `λ = 37/40`, so `ρ` has total mass `37/40` (each arcsine component has mass one); the
-intervals are nested, `0 < L_16 < ⋯ < L_1 < 2`; and every length `L_j` exceeds `1/225`.
+intervals are nested, `0 < L_16 < ⋯ < L_1 < 2`, so `ρ` is supported in `(0, 2)`; and every
+length `L_j` exceeds `1/225`.
 
 Equation (109), the closed form of the potential `U_{ω_{[0,L]}}(t)` (`ZetaSeven.Ulog`) for
 `t ≥ 0`, is proved here (`Ulog_arcsineMeasure`), together with its weighted sum over Table 1
 (`Ulog_compMeasure`) and the integrability of `u ↦ log |t - u|` that the Bochner integral needs.
 As in the paper, the proof substitutes `u = L (1 + cos θ) / 2`, which carries `ω_{[0,L]}` to
-`dθ / π` on `(0, π)`. Writing `t - L/2 = (L/4) (w + w⁻¹)` and `z = e^{iθ}` factors
-`|t - u| = (L/4) |z - w| |z - w̄| / |w|`, and the circle average
-`circleAverage_log_norm_sub_const_eq_posLog` (the standard interval formula) evaluates the
-`θ`-integral; `w = e^{iφ}` for `0 ≤ t ≤ L` and `w > 1` real for `t > L`.
+`dθ / π` on `(0, π)`. In place of the paper's appeal to the standard interval formula, the
+`θ`-integral is evaluated on the unit circle: writing `t - L/2 = (L/4) (w + w⁻¹)` and
+`z = e^{iθ}` gives `|t - u| = (L/4) |z - w| |z - w̄| / |w|`, and Mathlib's circle average
+`circleAverage_log_norm_sub_const_eq_posLog` (the average of `log |z - a|` over `|z| = 1` is
+`log⁺ |a|`) finishes, with `w = e^{iφ}` for `0 ≤ t ≤ L` and `w > 1` real for `t > L`.
 -/
 
 namespace ZetaSeven
