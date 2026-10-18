@@ -183,4 +183,6 @@ dispute in open question 5 is separate.
    pair contribution to the entry has `v_41 = 0`. The conclusion
    `v^G_p(Δ_K) ≥ 0` is not contradicted; the
    [large-prime integrality](../roadmap/local-arithmetic/large-prime-integrality.md)
-   node plans to prove it with this pairing.
+   node plans to prove it with this pairing, which the
+   [paired-pole congruence](../roadmap/local-arithmetic/paired-pole-congruence.md)
+   node states.

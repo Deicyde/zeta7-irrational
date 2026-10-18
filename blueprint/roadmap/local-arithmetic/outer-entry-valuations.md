@@ -25,10 +25,12 @@ The proof: for rows of different classes, `r s` is divisible by
 `P_c(-b^2)` is a `p`-unit, and each factor `b'^2 - b^2` of the
 derivative of `F_c` has valuation exactly one because
 `b + b' ≤ 2K < p^2`. If either row index is at least `ℓ - 2`, the
-factor `E_c` cancels the poles with `b > p`; the remaining poles
-`c` (when `δ = 0`) and `p - c` have `p`-integral pole values that
-are congruent modulo `p`, and their residues have `p`-integral
-sum, so the entry is `p`-integral. If both row indices `i`, `j`
+factor `E_c` cancels the poles with `b > p`, which leaves an
+integer polynomial over `t + (p - c)^2` when `δ = 1` and over
+`(t + c^2)(t + (p - c)^2)` when `δ = 0`. A lone pole `p - c` has
+a `p`-integral residue and pole value, and the pair `c`, `p - c`
+contributes a `p`-integral amount by the paired-pole congruence,
+so the entry is `p`-integral. If both row indices `i`, `j`
 are below `ℓ - 2`, the residue at `b ∈ S_c` has valuation at
 least `(i + j) + 7δ - (ℓ - δ - 1)`, from `(t + c^2)^{i+j}`, from
 the factor `t + c^2` of `D_N` when `δ = 1`, and from the
@@ -48,6 +50,10 @@ have valuation at least `2(i + j) - 1`, respectively
 - [Outer range data](outer-range-data.md)
 - [Outer class basis](outer-class-basis.md)
 - [Outer rank decomposition](outer-rank-decomposition.md)
+
+## Proof depends on
+
+- [Paired-pole congruence](paired-pole-congruence.md)
 
 ## Sources
 

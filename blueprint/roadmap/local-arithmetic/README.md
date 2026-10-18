@@ -43,6 +43,7 @@ and the weight count that yields the exponent (59).
 - [Outer range data](outer-range-data.md) — class counts, the outer-range hypothesis, the rank correction, the class weights (56), and the exponent (59).
 - [Outer moment integrality](outer-moment-integrality.md) — the polynomial moments are integral below `3p - 4`.
 - [Outer rank decomposition](outer-rank-decomposition.md) — the low-rank correction.
+- [Paired-pole congruence](paired-pole-congruence.md) — the residues at a pole pair `a`, `p - a` have `p`-integral sum.
 - [Large-prime integrality](large-prime-integrality.md) — the determinant is integral above `K`.
 - [Outer class basis](outer-class-basis.md) — the unimodular basis adapted to residue classes, with the zero-class weights.
 - [Outer entry valuations](outer-entry-valuations.md) — weighted valuations of the class Gram matrix.
