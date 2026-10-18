@@ -1490,8 +1490,10 @@ theorem gram_matrix (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M 
   simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.map_apply, eMat, Matrix.of_apply,
     Gmat, Finset.sum_mul]
   conv_lhs => rw [Finset.sum_comm]
-  refine Finset.sum_congr rfl fun i _ => ?_
-  refine Finset.sum_congr rfl fun j _ => ?_
+  refine Finset.sum_congr rfl ?_
+  intro i _
+  refine Finset.sum_congr rfl ?_
+  intro j _
   rw [C_mul]
   ring
 
@@ -1646,8 +1648,9 @@ theorem algebraMap_mul_pullbackRatFunc (n : ℕ) (Q : ℚ[X]) :
   have hne : ∀ a : ℕ, algebraMap ℚ[X] (RatFunc ℚ) (-X ^ 2 + C ((a : ℚ) ^ 2)) ≠ 0 := by
     intro a
     refine RatFunc.algebraMap_ne_zero fun h => ?_
-    have := congrArg (fun q : ℚ[X] => q.coeff 2) h
-    norm_num [coeff_X_pow, coeff_C] at this
+    have h2 : (-X ^ 2 + C ((a : ℚ) ^ 2) : ℚ[X]).coeff 2 = 0 := by rw [h, coeff_zero]
+    rw [coeff_add, coeff_neg, coeff_X_pow, coeff_C] at h2
+    norm_num at h2
   have hterm : ∀ a ∈ Icc (N n + 1) (K n),
       algebraMap ℚ[X] (RatFunc ℚ) ((Dtail n).comp (-X ^ 2))
         * (algebraMap ℚ[X] (RatFunc ℚ) (C (tailRes n Q a))
@@ -1762,7 +1765,8 @@ theorem classDeg_Dpoly_comp (a m : ℕ) :
   refine ClassDeg.prod _ _ _ fun j _ => ?_
   rw [add_comp, X_comp, C_comp]
   have h := classDeg_negSq_nat (p := p) a (j + 1)
-  rwa [Nat.cast_add, Nat.cast_one] at h
+  push_cast at h
+  exact h
 
 /-- The class degree of `E_{b,i}(-x²)` at `a`. -/
 def eDeg (n M p : ℕ) (ε : ℕ → ℕ) (b i a : ℕ) : ℕ :=
@@ -1823,7 +1827,7 @@ theorem classMult_eq (hp : 2 * mHalf p + 1 = p) {a c : ℕ} (ha : a < p) (hc : c
       rw [dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
     simp only [hD1, hD2, ham, ite_true]
     split_ifs <;> omega
-  · have hD1 : (p : ℤ) ∣ (c : ℤ) - a ↔ False := by
+  · have hD1 : ¬ (p : ℤ) ∣ (c : ℤ) - a := by
       rw [dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
     have hD2 : (p : ℤ) ∣ -(c : ℤ) - a ↔ c = p - a := by
       rw [← dvd_add_left (dvd_refl (p : ℤ)), dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
@@ -1868,9 +1872,6 @@ theorem sum_classMult_Icc (hp : 2 * mHalf p + 1 = p) (A : ℕ) {a : ℕ} (ha : a
     have hdiv' : ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) + ((0 : ℕ) : ℤ)).card
         = A / p := by
       rw [← hdiv]
-      congr 1
-      ext j
-      simp only [Finset.mem_filter, Nat.cast_zero, sub_zero, add_zero]
     rw [hdiv, hdiv']
     ring
   · unfold cls
@@ -1879,15 +1880,15 @@ theorem sum_classMult_Icc (hp : 2 * mHalf p + 1 = p) (A : ℕ) {a : ℕ} (ha : a
     · rw [ite_eq_right ham, ell_eq_card_add hp A (p - a) (by omega) (by omega), add_comm]
       congr 2
       · ext j
-        have h : (p : ℤ) ∣ (j : ℤ) + a ↔ (p : ℤ) ∣ (j : ℤ) - (p - a : ℕ) := by
-          rw [Nat.cast_sub ha.le, show (j : ℤ) - (p - a) = (j : ℤ) + a - p by ring,
+        have h : ∀ x : ℕ, (p : ℤ) ∣ (x : ℤ) + a ↔ (p : ℤ) ∣ (x : ℤ) - (p - a : ℕ) := fun x => by
+          rw [Nat.cast_sub ha.le, show (x : ℤ) - (p - a) = (x : ℤ) + a - p by ring,
             dvd_sub_self_right]
-        simp only [h]
+        simp only [Finset.mem_filter, h]
       · ext j
-        have h : (p : ℤ) ∣ (j : ℤ) - a ↔ (p : ℤ) ∣ (j : ℤ) + (p - a : ℕ) := by
-          rw [Nat.cast_sub ha.le, show (j : ℤ) + (p - a) = (j : ℤ) - a + p by ring,
+        have h : ∀ x : ℕ, (p : ℤ) ∣ (x : ℤ) - a ↔ (p : ℤ) ∣ (x : ℤ) + (p - a : ℕ) := fun x => by
+          rw [Nat.cast_sub ha.le, show (x : ℤ) + (p - a) = (x : ℤ) - a + p by ring,
             dvd_add_self_right]
-        simp only [h]
+        simp only [Finset.mem_filter, h]
 
 theorem sum_range_classMult (A a : ℕ) :
     ∑ j ∈ range A, classMult p a ((j : ℤ) + 1) = ∑ j ∈ Icc 1 A, classMult p a j := by
@@ -1917,5 +1918,476 @@ theorem sum_Icc_split (f : ℕ → ℕ) {N' K' : ℕ} (h : N' ≤ K') :
     ← Finset.Ico_add_one_right_eq_Icc, Finset.sum_Ico_consecutive _ (by omega) (by omega)]
 
 end ClassArith
+
+/-! ## The comparison cases (i)-(iv) -/
+
+section Comparison
+
+variable {n M p : ℕ} {ε : ℕ → ℕ}
+
+theorem weight2_of_ne {a : ℕ} (ha : a ≠ 0) (i : ℕ) :
+    weight2 n M p ε a i = 2 * (i : ℤ) + 8 * ell p (N n) a - ell p (K n) a - 6 := by
+  unfold weight2
+  rw [ite_eq_right ha]
+
+theorem weight2_zero_le (i : ℕ) :
+    weight2 n M p ε 0 i ≤ 4 * (i : ℤ) + 16 * mN n p - 2 * mK n p + 1 := by
+  unfold weight2
+  rw [ite_eq_left rfl]
+  exact Finset.fold_min_le.mpr (Or.inl le_rfl)
+
+theorem weight2_zero_le' (i : ℕ) {c : ℕ} (hc : c ∈ Icc 1 (mHalf p)) :
+    weight2 n M p ε 0 i ≤ 2 * (allocZ n M p ε c : ℤ) - ell p (K n) c - 6 := by
+  unfold weight2
+  rw [ite_eq_left rfl]
+  exact Finset.fold_min_le.mpr (Or.inr ⟨c, hc, le_rfl⟩)
+
+theorem allocL_eq (hR : InnerRange n M p) [Fact p.Prime] {a : ℕ} (ha1 : 1 ≤ a)
+    (ham : a ≤ mHalf p) :
+    (allocL n M p ε a : ℤ) = allocT n M p + ε a - 4 * ell p (N n) a := by
+  have h := bA_lt_allocT hR ha1 ham
+  unfold allocL allocZ
+  unfold bA at h ⊢
+  rw [ite_eq_right (by omega)]
+  omega
+
+/-- **Comparison** (proof of Proposition 4.4, cases (i)-(iv) and the mixed cases with a
+zero-class row): for rows `(a, i)`, `(b, j)` and every source class `0 ≤ c ≤ m`, twice the
+residue exponent `(50)`/`(51)` dominates `2 w_{a,i} + 2 w_{b,j}`. Here `ν` is the vanishing order
+at `-c²` (`i` if the row belongs to class `c`, `L_c` otherwise). -/
+theorem comparison (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    {a i b j c : ℕ} (ha : a ≤ mHalf p) (hi : i < allocL n M p ε a)
+    (hb : b ≤ mHalf p) (hj : j < allocL n M p ε b) (hc : c ≤ mHalf p) :
+    weight2 n M p ε a i + weight2 n M p ε b j
+      ≤ 2 * (if c = 0 then 1 + 16 * (mN n p : ℤ) - 2 * mK n p
+            + 2 * ((if a = c then i else allocL n M p ε c : ℕ) : ℤ)
+            + 2 * ((if b = c then j else allocL n M p ε c : ℕ) : ℤ)
+          else 8 * (ell p (N n) c : ℤ) - ell p (K n) c
+            + ((if a = c then i else allocL n M p ε c : ℕ) : ℤ)
+            + ((if b = c then j else allocL n M p ε c : ℕ) : ℤ) - 6) := by
+  have hm := hR.two_mul_mHalf
+  have hT := allocT_lt hR
+  have hmK := hR.mK_lt
+  have hM := hR.forty_le
+  have hL0 : allocL n M p ε 0 = 6 * M + 10 := by
+    unfold allocL L0
+    rw [ite_eq_left rfl]
+  have hmono : ∀ x y, 1 ≤ x → x ≤ mHalf p → 1 ≤ y → y ≤ mHalf p →
+      ε x ≠ 0 ∨ ε y ≠ 1 ∨ ell p (K n) x ≤ ell p (K n) y := by
+    intro x y hx1 hx2 hy1 hy2
+    by_cases h1 : ε x = 0
+    · by_cases h2 : ε y = 1
+      · exact Or.inr (Or.inr (hε.mono x (Finset.mem_Icc.mpr ⟨hx1, hx2⟩) y
+          (Finset.mem_Icc.mpr ⟨hy1, hy2⟩) h1 h2))
+      · exact Or.inr (Or.inl h2)
+    · exact Or.inl h1
+  have hrow : ∀ x k, x ≤ mHalf p → k < allocL n M p ε x → x ≠ 0 →
+      weight2 n M p ε x k = 2 * (k : ℤ) + 8 * ell p (N n) x - ell p (K n) x - 6 ∧
+      (k : ℤ) < allocT n M p + ε x - 4 * ell p (N n) x ∧ ε x ≤ 1 := by
+    intro x k hx hk hx0
+    have hx1 : 1 ≤ x := Nat.pos_of_ne_zero hx0
+    refine ⟨weight2_of_ne hx0 k, ?_, hε.le_one x (Finset.mem_Icc.mpr ⟨hx1, hx⟩)⟩
+    have := allocL_eq (ε := ε) hR hx1 hx
+    omega
+  by_cases hc0 : c = 0
+  · rw [ite_eq_left hc0]
+    subst hc0
+    rw [hL0]
+    by_cases ha0 : a = 0
+    · rw [ite_eq_left ha0]
+      have hWa : weight2 n M p ε a i ≤ 4 * (i : ℤ) + 16 * mN n p - 2 * mK n p + 1 := by
+        rw [ha0]; exact weight2_zero_le i
+      by_cases hb0 : b = 0
+      · rw [ite_eq_left hb0]
+        have hWb : weight2 n M p ε b j ≤ 4 * (j : ℤ) + 16 * mN n p - 2 * mK n p + 1 := by
+          rw [hb0]; exact weight2_zero_le j
+        omega
+      · rw [ite_eq_right hb0]
+        obtain ⟨hWb, hjb, hεb⟩ := hrow b j hb hj hb0
+        omega
+    · rw [ite_eq_right ha0]
+      obtain ⟨hWa, hia, hεa⟩ := hrow a i ha hi ha0
+      by_cases hb0 : b = 0
+      · rw [ite_eq_left hb0]
+        have hWb : weight2 n M p ε b j ≤ 4 * (j : ℤ) + 16 * mN n p - 2 * mK n p + 1 := by
+          rw [hb0]; exact weight2_zero_le j
+        omega
+      · rw [ite_eq_right hb0]
+        obtain ⟨hWb, hjb, hεb⟩ := hrow b j hb hj hb0
+        omega
+  · rw [ite_eq_right hc0]
+    have hc1 : 1 ≤ c := Nat.pos_of_ne_zero hc0
+    have hcI : c ∈ Icc 1 (mHalf p) := Finset.mem_Icc.mpr ⟨hc1, hc⟩
+    have hLc := allocL_eq (ε := ε) hR hc1 hc
+    have hεc := hε.le_one c hcI
+    have hZc : (allocZ n M p ε c : ℤ) = allocT n M p + ε c := by unfold allocZ; push_cast; ring
+    by_cases hac : a = c
+    · rw [ite_eq_left hac]
+      have hWa : weight2 n M p ε a i
+          = 2 * (i : ℤ) + 8 * ell p (N n) c - ell p (K n) c - 6 := by
+        rw [hac]; exact weight2_of_ne hc0 i
+      by_cases hbc : b = c
+      · rw [ite_eq_left hbc]
+        have hWb : weight2 n M p ε b j
+            = 2 * (j : ℤ) + 8 * ell p (N n) c - ell p (K n) c - 6 := by
+          rw [hbc]; exact weight2_of_ne hc0 j
+        omega
+      · rw [ite_eq_right hbc]
+        by_cases hb0 : b = 0
+        · have hWb : weight2 n M p ε b j ≤ 2 * (allocZ n M p ε c : ℤ) - ell p (K n) c - 6 := by
+            rw [hb0]; exact weight2_zero_le' j hcI
+          omega
+        · obtain ⟨hWb, hjb, hεb⟩ := hrow b j hb hj hb0
+          have hb1 : 1 ≤ b := Nat.pos_of_ne_zero hb0
+          have h1 := ell_le_ell_add_one hm (K n) hb1 hb hc1 hc
+          have h2 := ell_le_ell_add_one hm (K n) hc1 hc hb1 hb
+          have h3 := hmono c b hc1 hc hb1 hb
+          omega
+    · rw [ite_eq_right hac]
+      by_cases ha0 : a = 0
+      · have hWa : weight2 n M p ε a i ≤ 2 * (allocZ n M p ε c : ℤ) - ell p (K n) c - 6 := by
+          rw [ha0]; exact weight2_zero_le' i hcI
+        by_cases hbc : b = c
+        · rw [ite_eq_left hbc]
+          have hWb : weight2 n M p ε b j
+              = 2 * (j : ℤ) + 8 * ell p (N n) c - ell p (K n) c - 6 := by
+            rw [hbc]; exact weight2_of_ne hc0 j
+          omega
+        · rw [ite_eq_right hbc]
+          by_cases hb0 : b = 0
+          · have hWb : weight2 n M p ε b j
+                ≤ 2 * (allocZ n M p ε c : ℤ) - ell p (K n) c - 6 := by
+              rw [hb0]; exact weight2_zero_le' j hcI
+            omega
+          · obtain ⟨hWb, hjb, hεb⟩ := hrow b j hb hj hb0
+            have hb1 : 1 ≤ b := Nat.pos_of_ne_zero hb0
+            have h1 := ell_le_ell_add_one hm (K n) hb1 hb hc1 hc
+            have h2 := ell_le_ell_add_one hm (K n) hc1 hc hb1 hb
+            have h3 := hmono c b hc1 hc hb1 hb
+            omega
+      · obtain ⟨hWa, hia, hεa⟩ := hrow a i ha hi ha0
+        have ha1 : 1 ≤ a := Nat.pos_of_ne_zero ha0
+        have h1 := ell_le_ell_add_one hm (K n) ha1 ha hc1 hc
+        have h2 := ell_le_ell_add_one hm (K n) hc1 hc ha1 ha
+        have h3 := hmono c a hc1 hc ha1 ha
+        by_cases hbc : b = c
+        · rw [ite_eq_left hbc]
+          have hWb : weight2 n M p ε b j
+              = 2 * (j : ℤ) + 8 * ell p (N n) c - ell p (K n) c - 6 := by
+            rw [hbc]; exact weight2_of_ne hc0 j
+          omega
+        · rw [ite_eq_right hbc]
+          by_cases hb0 : b = 0
+          · have hWb : weight2 n M p ε b j
+                ≤ 2 * (allocZ n M p ε c : ℤ) - ell p (K n) c - 6 := by
+              rw [hb0]; exact weight2_zero_le' j hcI
+            omega
+          · obtain ⟨hWb, hjb, hεb⟩ := hrow b j hb hj hb0
+            have hb1 : 1 ≤ b := Nat.pos_of_ne_zero hb0
+            have h4 := ell_le_ell_add_one hm (K n) hb1 hb hc1 hc
+            have h5 := ell_le_ell_add_one hm (K n) hc1 hc hb1 hb
+            have h6 := hmono c b hc1 hc hb1 hb
+            have h7 := ell_le_ell_add_one hm (K n) ha1 ha hb1 hb
+            have h8 := ell_le_ell_add_one hm (K n) hb1 hb ha1 ha
+            omega
+
+end Comparison
+
+/-! ## Entry valuations, the determinant bound and Proposition 4.4 -/
+
+section Assembly
+
+variable {n M p : ℕ} {ε : ℕ → ℕ}
+
+/-- `‖P_k‖_p² ≤ p^{-u}` for every coefficient: the Gauss valuation of `P` is at least `u/2`. -/
+def NormSqLe (p : ℕ) [Fact p.Prime] (u : ℤ) (P : ℚ[X]) : Prop :=
+  ∀ k, ‖((P.coeff k : ℚ) : ℚ_[p])‖ ^ 2 ≤ (p : ℝ) ^ (-u)
+
+theorem NormSqLe.mul [Fact p.Prime] {u v : ℤ} {P Q : ℚ[X]} (hP : NormSqLe p u P)
+    (hQ : NormSqLe p v Q) : NormSqLe p (u + v) (P * Q) := by
+  intro k
+  rw [coeff_mul, Rat.cast_sum]
+  obtain ⟨x, _, hle⟩ := IsUltrametricDist.exists_norm_finsetSum_le_of_nonempty
+    ⟨(0, k), Finset.HasAntidiagonal.mem_antidiagonal.mpr (zero_add k)⟩
+    (fun x : ℕ × ℕ => ((P.coeff x.1 * Q.coeff x.2 : ℚ) : ℚ_[p]))
+  calc _ ≤ ‖((P.coeff x.1 * Q.coeff x.2 : ℚ) : ℚ_[p])‖ ^ 2 := pow_le_pow_left₀ (norm_nonneg _) hle 2
+    _ = ‖((P.coeff x.1 : ℚ) : ℚ_[p])‖ ^ 2 * ‖((Q.coeff x.2 : ℚ) : ℚ_[p])‖ ^ 2 := by
+        rw [Rat.cast_mul, norm_mul, mul_pow]
+    _ ≤ (p : ℝ) ^ (-u) * (p : ℝ) ^ (-v) :=
+        mul_le_mul (hP _) (hQ _) (by positivity) (zpow_nonneg (Nat.cast_nonneg p) _)
+    _ = _ := by rw [← zpow_add₀ prime_cast_pos_real.ne']; congr 1; ring
+
+theorem NormSqLe.prod [Fact p.Prime] {ι : Type*} (s : Finset ι) (u : ι → ℤ) (P : ι → ℚ[X])
+    (h : ∀ i ∈ s, NormSqLe p (u i) (P i)) : NormSqLe p (∑ i ∈ s, u i) (∏ i ∈ s, P i) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty =>
+    intro k
+    rw [Finset.prod_empty, Finset.sum_empty, neg_zero, zpow_zero, coeff_one]
+    split_ifs <;> simp
+  | insert i s hi ih =>
+    rw [Finset.prod_insert hi, Finset.sum_insert hi]
+    exact (h i (Finset.mem_insert_self i s)).mul
+      (ih fun j hj => h j (Finset.mem_insert_of_mem hj))
+
+theorem NormSqLe.sum [Fact p.Prime] {ι : Type*} (s : Finset ι) {u : ℤ} (P : ι → ℚ[X])
+    (h : ∀ i ∈ s, NormSqLe p u (P i)) : NormSqLe p u (∑ i ∈ s, P i) := by
+  intro k
+  rw [finsetSum_coeff, Rat.cast_sum]
+  rcases Finset.eq_empty_or_nonempty s with he | hne
+  · rw [he, Finset.sum_empty, norm_zero]
+    simpa using zpow_nonneg (Nat.cast_nonneg (α := ℝ) p) (-u)
+  · obtain ⟨i, hi, hle⟩ := IsUltrametricDist.exists_norm_finsetSum_le_of_nonempty hne
+      (fun i => (((P i).coeff k : ℚ) : ℚ_[p]))
+    exact (pow_le_pow_left₀ (norm_nonneg _) hle 2).trans (h i hi k)
+
+theorem NormSqLe.intCast_mul [Fact p.Prime] {u : ℤ} {P : ℚ[X]} (hP : NormSqLe p u P) (z : ℤˣ) :
+    NormSqLe p u (((z : ℤ) : ℚ[X]) * P) := by
+  intro k
+  rw [← C_eq_intCast, coeff_C_mul, Rat.cast_mul, norm_mul, mul_pow]
+  have hz : ‖(((z : ℤ) : ℚ) : ℚ_[p])‖ = 1 := by
+    rcases Int.units_eq_one_or z with h | h <;> simp [h]
+  rw [hz, one_pow, one_mul]
+  exact hP k
+
+/-- Leibniz expansion: if `v^G_p(A_{ij}) ≥ (w_i + w_j)/2` then `v^G_p(det A) ≥ ∑ w_i`. -/
+theorem normSqLe_det [Fact p.Prime] {ι : Type*} [Fintype ι] [DecidableEq ι]
+    (A : Matrix ι ι ℚ[X]) (w : ι → ℤ) (hA : ∀ i j, NormSqLe p (w i + w j) (A i j)) :
+    NormSqLe p (2 * ∑ i, w i) A.det := by
+  rw [Matrix.det_apply']
+  refine NormSqLe.sum _ _ fun σ _ => ?_
+  have h := NormSqLe.prod Finset.univ (fun i => w (σ i) + w i) (fun i => A (σ i) i)
+    fun i _ => hA (σ i) i
+  have hsum : ∑ i, (w (σ i) + w i) = 2 * ∑ i, w i := by
+    rw [Finset.sum_add_distrib, Equiv.sum_comp σ w]
+    ring
+  rw [hsum] at h
+  exact h.intCast_mul _
+
+theorem mem_denSet_bound {r : ℤ} (hr : r ∈ denSet n) : -(K n : ℤ) ≤ r ∧ r ≤ K n := by
+  rcases Finset.mem_union.mp hr with h | h
+  · obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp h
+    have := (Finset.mem_Icc.mp hj).2
+    omega
+  · obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp h
+    have := (Finset.mem_Icc.mp hj).2
+    omega
+
+/-- Distinct poles are incongruent modulo `p²` (since `p² > 2K`). -/
+theorem denSet_not_dvd (hR : InnerRange n M p) [Fact p.Prime] {r j : ℤ} (hr : r ∈ denSet n)
+    (hj : j ∈ denSet n) (hrj : r ≠ j) : ¬ (p : ℤ) ^ 2 ∣ r - j := by
+  intro hdvd
+  obtain ⟨hr1, hr2⟩ := mem_denSet_bound hr
+  obtain ⟨hj1, hj2⟩ := mem_denSet_bound hj
+  have hK := hR.K_lt
+  have hpM := hR.p_gt
+  have hp2 : 2 * (K n : ℤ) < (p : ℤ) ^ 2 := by
+    have h1 : 200 * K n < p * p := by nlinarith
+    have h2 : 2 * K n < p ^ 2 := by nlinarith
+    exact_mod_cast h2
+  have h0 := int_eq_zero_of_dvd_of_lt (q := p ^ 2) (x := r - j) (by exact_mod_cast hdvd)
+    (by push_cast; omega) (by push_cast; omega)
+  omega
+
+/-- `d((r - a)/p) < p` for the poles `r ≡ a (mod p)`. -/
+theorem dIndex_lt_of_mem (hR : InnerRange n M p) [Fact p.Prime] {a : ℕ} (ha : a < p) {r : ℤ}
+    (hr : r ∈ denSet n) (hra : (p : ℤ) ∣ r - a) : dIndex ((r - a) / p) < p := by
+  obtain ⟨hr1, hr2⟩ := mem_denSet_bound hr
+  obtain ⟨s, hs⟩ := hra
+  have hp0 : (p : ℤ) ≠ 0 := by exact_mod_cast (Fact.out : p.Prime).ne_zero
+  have hpp : (0 : ℤ) < p := by exact_mod_cast (Fact.out : p.Prime).pos
+  rw [hs, Int.mul_ediv_cancel_left _ hp0]
+  have hK : (K n : ℤ) < M * p := by exact_mod_cast hR.K_lt
+  have hpM : (200 * M : ℤ) < p := by exact_mod_cast hR.p_gt
+  have ha' : (a : ℤ) < p := by exact_mod_cast ha
+  have h1 : (p : ℤ) * s < p * (M + 1) := by nlinarith
+  have h2 : (p : ℤ) * (-(M + 1)) < p * s := by nlinarith
+  have h3 : s < M + 1 := lt_of_mul_lt_mul_left h1 hpp.le
+  have h4 : -((M : ℤ) + 1) < s := lt_of_mul_lt_mul_left h2 hpp.le
+  unfold dIndex
+  split_ifs <;> omega
+
+theorem eDeg_eq (hR : InnerRange n M p) [Fact p.Prime] {b i a : ℕ} (hb : b ≤ mHalf p)
+    (ha : a < p) :
+    eDeg n M p ε b i a = (if a = 0 then 2 else 1)
+      * (if b = cls p a then i else allocL n M p ε (cls p a)) := by
+  have hm := hR.two_mul_mHalf
+  have hcl := cls_le hm ha
+  unfold eDeg
+  rw [classMult_eq hm ha hb, Finset.sum_congr rfl fun c hc => by
+    rw [classMult_eq hm ha (by
+      have := Finset.mem_range.mp (Finset.mem_of_mem_erase hc); omega)]]
+  simp only [ite_mul, zero_mul]
+  rw [Finset.sum_ite_eq']
+  by_cases hbc : b = cls p a
+  · rw [ite_eq_right (by simp only [Finset.mem_erase, Finset.mem_range]; omega :
+      cls p a ∉ (range (mHalf p + 1)).erase b), ite_eq_left hbc, ite_eq_left hbc]
+    ring
+  · rw [ite_eq_left (by simp only [Finset.mem_erase, Finset.mem_range]; omega :
+      cls p a ∈ (range (mHalf p + 1)).erase b), ite_eq_right hbc, ite_eq_right hbc]
+    ring
+
+/-- The residue exponent of class `a`: `n - t - 6` is `(51)` for `a = 0` and `(50)` otherwise,
+with `ν` the vanishing orders at `-c²`, `c = cls a`. -/
+theorem numDeg_sub (hR : InnerRange n M p) [Fact p.Prime] {b i b' i' a : ℕ}
+    (hb : b ≤ mHalf p) (hb' : b' ≤ mHalf p) (ha : a < p) :
+    (numDeg n M p ε b i b' i' a : ℤ) - ((denSet n).filter fun r => (p : ℤ) ∣ r - a).card - 6
+      = if cls p a = 0 then 1 + 16 * (mN n p : ℤ) - 2 * mK n p
+            + 2 * ((if b = cls p a then i else allocL n M p ε (cls p a) : ℕ) : ℤ)
+            + 2 * ((if b' = cls p a then i' else allocL n M p ε (cls p a) : ℕ) : ℤ)
+          else 8 * (ell p (N n) (cls p a) : ℤ) - ell p (K n) (cls p a)
+            + ((if b = cls p a then i else allocL n M p ε (cls p a) : ℕ) : ℤ)
+            + ((if b' = cls p a then i' else allocL n M p ε (cls p a) : ℕ) : ℤ) - 6 := by
+  have hm := hR.two_mul_mHalf
+  have hNK : N n ≤ K n := by unfold N K; omega
+  have hsplit := sum_Icc_split (fun j => classMult p a j) hNK
+  beta_reduce at hsplit
+  have hSN := sum_classMult_Icc hm (N n) ha
+  have hSK := sum_classMult_Icc hm (K n) ha
+  have hcls0 : cls p a = 0 ↔ a = 0 := by unfold cls; split_ifs <;> omega
+  have hdvd0 : (p : ℤ) ∣ 0 - a ↔ a = 0 := by
+    rw [dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
+  rw [card_denSet_filter, numDeg, eDeg_eq hR hb ha, eDeg_eq hR hb' ha, sum_range_classMult]
+  simp only [hcls0, hdvd0]
+  generalize (if b = cls p a then i else allocL n M p ε (cls p a)) = νb
+  generalize (if b' = cls p a then i' else allocL n M p ε (cls p a)) = νb'
+  unfold mN mK
+  split_ifs at hSN hSK ⊢ <;> omega
+
+/-- The class degree satisfies the degree condition `n ≤ p + 4` of the residue bound. -/
+theorem numDeg_le (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    {b i b' i' a : ℕ} (hb : b ≤ mHalf p) (hi : i < allocL n M p ε b) (hb' : b' ≤ mHalf p)
+    (hi' : i' < allocL n M p ε b') (ha : a < p) : numDeg n M p ε b i b' i' a ≤ p + 4 := by
+  have hm := hR.two_mul_mHalf
+  have hT := allocT_lt hR
+  have hpM := hR.p_gt
+  have hM := hR.forty_le
+  have hmK := hR.mK_lt
+  have hmN := mN_le_mK n p
+  have hSN := sum_classMult_Icc hm (N n) ha
+  have hcl := cls_le hm ha
+  have hcls0 : cls p a = 0 ↔ a = 0 := by unfold cls; split_ifs <;> omega
+  have hdvd0 : (p : ℤ) ∣ 0 - a ↔ a = 0 := by
+    rw [dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
+  have hνb : (if b = cls p a then i else allocL n M p ε (cls p a)) ≤ allocL n M p ε (cls p a) := by
+    split_ifs with h
+    · rw [← h]; exact hi.le
+    · exact le_rfl
+  have hνb' : (if b' = cls p a then i' else allocL n M p ε (cls p a))
+      ≤ allocL n M p ε (cls p a) := by
+    split_ifs with h
+    · rw [← h]; exact hi'.le
+    · exact le_rfl
+  rw [numDeg, eDeg_eq hR hb ha, eDeg_eq hR hb' ha, sum_range_classMult, hSN]
+  simp only [hdvd0]
+  generalize (if b = cls p a then i else allocL n M p ε (cls p a)) = νb at hνb ⊢
+  generalize (if b' = cls p a then i' else allocL n M p ε (cls p a)) = νb' at hνb' ⊢
+  by_cases ha0 : a = 0
+  · have hL0 : allocL n M p ε (cls p a) = 6 * M + 10 := by
+      rw [hcls0.mpr ha0]; unfold allocL L0; rw [ite_eq_left rfl]
+    rw [hL0] at hνb hνb'
+    simp only [ha0, ↓reduceIte]
+    unfold mN at hmN
+    omega
+  · have hc1 : 1 ≤ cls p a := Nat.pos_of_ne_zero fun h => ha0 (hcls0.mp h)
+    have hLc := allocL_eq (ε := ε) hR hc1 hcl
+    have hεc := hε.le_one (cls p a) (Finset.mem_Icc.mpr ⟨hc1, hcl⟩)
+    simp only [ha0, ↓reduceIte]
+    omega
+
+/-- **Residue bounds (50)-(51) and the comparison**: every entry of the Gram matrix in the
+`E`-basis has Gauss valuation at least `w_ρ + w_σ`. -/
+theorem normSqLe_gram (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (ρ σ : eIdx n M p ε) :
+    NormSqLe p (weight2 n M p ε ρ.1 ρ.2 + weight2 n M p ε σ.1 σ.2)
+      (muTail n (Dpoly (N n) ^ 7 * eBasis ℚ n M p ε ρ.1 ρ.2 * eBasis ℚ n M p ε σ.1 σ.2)) := by
+  intro k
+  have hp11 : 11 ≤ p := by have := hR.p_gt; have := hR.forty_le; omega
+  have hm := hR.two_mul_mHalf
+  have hp1 := prime_cast_one_lt_real (p := p)
+  have hρ : (ρ.1 : ℕ) ≤ mHalf p := Nat.lt_succ_iff.mp ρ.1.isLt
+  have hσ : (σ.1 : ℕ) ≤ mHalf p := Nat.lt_succ_iff.mp σ.1.isLt
+  set Q := Dpoly (N n) ^ 7 * eBasis ℚ n M p ε ρ.1 ρ.2 * eBasis ℚ n M p ε σ.1 σ.2 with hQ
+  set P := pullbackPoly (Q.div (Dtail n)) (tailCoeffs n Q) with hP
+  set d := pullbackPoles (tailCoeffs n Q) with hd
+  have h1 := congrArg (fun F : Polynomial ℚ_[p] => F.coeff k) (distribution_formula hp11 P d)
+  simp only [coeff_map, Rat.coe_castHom, coeff_C_mul, finsetSum_coeff] at h1
+  have hmu : muTail n Q = tauFunctional P d := by
+    rw [muTail_eq, hP, hd, tauFunctional_pullbackData]
+  rw [hmu, h1, norm_mul, Padic.norm_p_zpow, neg_neg]
+  have hsupp : d.support ⊆ denSet n := pullbackPoles_support_subset n Q
+  have hpf : pfNum P d (denSet n) = (-1) ^ hDim n * (X ^ 7 * Q.comp (-X ^ 2)) :=
+    pfNum_pullback n Q
+  have hterm : ∀ a ∈ range p, ‖(tauExt (distY p) (substPoles p a d)
+      (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+      (fun s => (substPrincipal p a d s : ℚ_[p]))).coeff k‖
+        ≤ (p : ℝ) ^ (-((numDeg n M p ε ρ.1 ρ.2 σ.1 σ.2 a : ℤ)
+          - ((denSet n).filter fun r => (p : ℤ) ∣ r - a).card)) := by
+    intro a ha
+    have ha' := Finset.mem_range.mp ha
+    refine tauExt_subst_norm_le hp11 a P d (denSet n) hsupp ?_
+      (fun r hr j hj hrj _ _ => denSet_not_dvd hR hr hj hrj)
+      (fun r hr hra => dIndex_lt_of_mem hR ha' hr hra)
+      (numDeg_le hR hε hρ ρ.2.isLt hσ σ.2.isLt ha') k
+    rw [hpf]
+    exact classDeg_numer a n M ε ρ.1 ρ.2 σ.1 σ.2
+  obtain ⟨a, ha, hle⟩ := IsUltrametricDist.exists_norm_finsetSum_le_of_nonempty
+    (Finset.nonempty_range_iff.mpr (Fact.out : p.Prime).ne_zero)
+    (fun a => (tauExt (distY p) (substPoles p a d)
+      (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+      (fun s => (substPrincipal p a d s : ℚ_[p]))).coeff k)
+  have ha' := Finset.mem_range.mp ha
+  have hcmp := comparison hR hε hρ ρ.2.isLt hσ σ.2.isLt (cls_le hm ha')
+  have hns := numDeg_sub (ε := ε) hR hρ hσ ha' (i := ρ.2) (i' := σ.2)
+  have hexp : (6 + -((numDeg n M p ε ρ.1 ρ.2 σ.1 σ.2 a : ℤ)
+      - ((denSet n).filter fun r => (p : ℤ) ∣ r - a).card)) * ((2 : ℕ) : ℤ)
+      ≤ -(weight2 n M p ε ρ.1 ρ.2 + weight2 n M p ε σ.1 σ.2) := by
+    push_cast
+    linarith
+  calc ((p : ℝ) ^ (6 : ℤ) * ‖∑ a ∈ range p, (tauExt (distY p) (substPoles p a d)
+        (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+        (fun s => (substPrincipal p a d s : ℚ_[p]))).coeff k‖) ^ 2
+      ≤ ((p : ℝ) ^ (6 : ℤ) * (p : ℝ) ^ (-((numDeg n M p ε ρ.1 ρ.2 σ.1 σ.2 a : ℤ)
+          - ((denSet n).filter fun r => (p : ℤ) ∣ r - a).card))) ^ 2 :=
+        pow_le_pow_left₀ (mul_nonneg (zpow_nonneg (Nat.cast_nonneg p) _) (norm_nonneg _))
+          (mul_le_mul_of_nonneg_left (hle.trans (hterm a ha))
+            (zpow_nonneg (Nat.cast_nonneg p) _)) 2
+    _ = (p : ℝ) ^ ((6 + -((numDeg n M p ε ρ.1 ρ.2 σ.1 σ.2 a : ℤ)
+          - ((denSet n).filter fun r => (p : ℤ) ∣ r - a).card)) * ((2 : ℕ) : ℤ)) := by
+        rw [← zpow_add₀ prime_cast_pos_real.ne', zpow_mul, zpow_natCast]
+    _ ≤ _ := zpow_le_zpow_right₀ hp1.le hexp
+
+/-- **Proposition 4.4** (inner estimate). Assume (44) with `M ≥ 40`, and let `ε` be any choice
+of extra rows allowed by Definition 4.1 (classes ordered by decreasing `ℓ_K`, ties broken
+arbitrarily). Then `v^G_p(Δ_K) ≥ γ^in_p`: every nonzero coefficient of `Δ_K(X)` has `p`-adic
+valuation at least `γ^in_p`. -/
+theorem inner_estimate (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (k : ℕ) (hk : (DeltaK n).coeff k ≠ 0) :
+    gammaIn n M p ε ≤ padicValRat p ((DeltaK n).coeff k) := by
+  obtain ⟨e⟩ : Nonempty (eIdx n M p ε ≃ Fin (hDim n)) :=
+    ⟨Fintype.equivFinOfCardEq (card_eIdx hR hε)⟩
+  have hbound := normSqLe_det (p := p) (Matrix.of fun k l : Fin (hDim n) =>
+    muTail n (Dpoly (N n) ^ 7 * eBasis ℚ n M p ε (e.symm k).1 (e.symm k).2
+      * eBasis ℚ n M p ε (e.symm l).1 (e.symm l).2))
+    (fun k => weight2 n M p ε (e.symm k).1 (e.symm k).2)
+    (fun k l => normSqLe_gram hR hε (e.symm k) (e.symm l)) k
+  rw [det_gram hR hε e, coeff_C_mul, Rat.cast_mul, norm_mul, mul_pow, Rat.cast_pow, norm_pow,
+    norm_det_eMat hR hε e, one_pow, one_pow, one_mul] at hbound
+  have hsum : ∑ k : Fin (hDim n), weight2 n M p ε (e.symm k).1 (e.symm k).2
+      = gammaIn n M p ε := by
+    rw [Equiv.sum_comp e.symm (fun ρ => weight2 n M p ε ρ.1 ρ.2), Fintype.sum_sigma]
+    unfold gammaIn
+    rw [← Fin.sum_univ_eq_sum_range
+      (fun a => ∑ i ∈ range (allocL n M p ε a), weight2 n M p ε a i)]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [← Fin.sum_univ_eq_sum_range (fun i => weight2 n M p ε a i)]
+  rw [hsum] at hbound
+  rw [Padic.norm_eq_zpow_neg_valuation (by exact_mod_cast hk), Padic.valuation_ratCast,
+    ← zpow_natCast, ← zpow_mul] at hbound
+  have := (zpow_le_zpow_iff_right₀ prime_cast_one_lt_real).mp hbound
+  push_cast at this
+  omega
+
+end Assembly
 
 end ZetaSeven
