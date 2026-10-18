@@ -5,7 +5,20 @@ import ZetaSeven.DistributionFormula
 # Inner range estimate (paper Section 4.1, Proposition 4.4, equations (42)-(51))
 
 Prince Anand, "Zeta 7 is Irrational", Section 4.1. Fix `M ≥ 40`, `K = 40n ≥ 200 M²` and a
-prime `p` with `K/M < p ≤ K/3` (hypothesis (44)).
+prime `p` with `K/M < p ≤ K/3` (hypothesis (44), `InnerRange`).
+
+## Main results
+
+* The statement data (42)-(49): `mHalf`, `mN`, `mK`, the class counts `ell` (43), the dimension
+  allocation `L0`, `bA`, `allocT`, `allocE`, `allocZ`, `allocL` (Definition 4.1, (45)), the
+  extra rows `ExtraRows` (classes ordered by decreasing `ℓ_K`, ties broken arbitrarily; such a
+  choice exists, `exists_extraRows`), the `E`-basis `eBasis` (Definition 4.2, (46)), the
+  half-weights `weight2` (doubled, (47)-(48)) and the exponent `gammaIn` (49).
+* Definition 4.1: `L_a ≥ 1` (`bA_lt_allocT`) and (45) (`alloc_eq`); the allocation fills
+  `R[t]_{<h}` (`card_eIdx`, `eBasis_natDegree_lt`).
+* Definition 4.2: the `E`-basis is `ℤ_p`-unimodular (`eBasis_unimodular`).
+* **Proposition 4.4** (`inner_estimate`): every nonzero coefficient of `Δ_K(X)` has `p`-adic
+  valuation at least `γ^in_p`, for every admissible choice of extra rows.
 
 ## The class-local residue bound
 
@@ -14,12 +27,14 @@ Gram matrix in the `E`-basis and bounds every residue-class term `τ^ext_Y(g(a +
 separately; the paper defers this step ((50)-(51)) to the `ζ(5)` predecessor. It is proved here
 in general (`tauExt_subst_norm_le`): write `g = P + ∑_{r ∈ den} d_r/(x - r)` and
 `Num = P D + ∑_r d_r D/(x - r)` with `D = ∏_{r ∈ den} (x - r)`. If after `x = a + p z` the
-numerator has class degree `n` (`ClassDeg`: coefficients divisible by `p^n`, and by `p^{n+1}`
-above degree `n`), the `t` poles `r ≡ a (mod p)` are pairwise incongruent modulo `p²`, and
-`n ≤ p + 4 + t`, then `τ^ext_Y(g(a + p z)) ∈ p^{n-t} ℤ_p[X]`. The analytic part is controlled by
-the identity `p^{-t} D(a + p z) · g(a + p z)^{an} = p^{-t}(Num(a + p z) - ∑_{r ≡ a} d_r ⋯)` and a
+numerator has class degree `n ≤ p + 4` (`ClassDeg`: coefficients divisible by `p^n`, and by
+`p^{n+1}` above degree `n`) and the `t` poles `r ≡ a (mod p)` are pairwise incongruent modulo
+`p²`, then `τ^ext_Y(g(a + p z)) ∈ p^{n-t} ℤ_p[X]`. The analytic part is controlled by the
+identity `p^{-t} D(a + p z) · g(a + p z)^{an} = p^{-t}(Num(a + p z) - ∑_{r ≡ a} d_r ⋯)` and a
 top-coefficient argument, since `p^{-t} D(a + p z)` is a unit times a monic polynomial of degree
-`t` modulo `p`.
+`t` modulo `p`. For the Gram entries `x⁷ (D_N⁷ E_{a,i} E_{b,j})(-x²)` the class degrees and pole
+counts give exactly the exponents (50)-(51) (`numDeg_sub`), and the comparison with the
+half-weights covers cases (i)-(iv) and the mixed cases with a zero-class row (`comparison`).
 -/
 
 namespace ZetaSeven
