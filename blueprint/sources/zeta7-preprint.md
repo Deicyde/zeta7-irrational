@@ -120,14 +120,23 @@ dispute in open question 5 is separate.
 1. Section 4.2.1, (53): the claim that `A` is integral at every prime
    is false as written. In the monomial basis, pole values
    `j^6 H^(7)_j` with `p < j ≤ K`, `p ∤ j`, can have valuation `-7`,
-   and at `n = 1`,
-   `p = 17` the `X`-free coefficients of `A` reach valuation `-10`.
-   Proposition 4.6 still holds: at `n = 1` the exact `Δ_K` meets
-   `γ^out_p` at every prime satisfying (52), and the
+   and by exact rational computation at `n = 1`, `p = 17`, the
+   `X`-free coefficients of `A` reach valuation `-10`. Proposition
+   4.6 itself is not contradicted: at `n = 1` the exact `Δ_K` meets
+   `γ^out_p` at every prime satisfying (52). The
    [outer range estimate](../roadmap/local-arithmetic/outer-estimate.md)
-   proves it through a class basis with weights instead of (53).
-2. Section 6.4, (99): the coefficient `13/10` is false; the bound fails
-   already at `t = 5`. The correct bound past 2 is
+   plans to prove it through a class basis with weights instead of
+   (53). That route is a reconstruction checked numerically, not yet
+   a proof: the exact `Δ_K` valuations at `n = 1`, the rank
+   decomposition at `n = 1`, the class basis and the entry
+   valuations at every `n ≤ 5`, and the weight sum for every
+   `n ≤ 60`.
+2. Section 6.4, (99): the coefficient `13/10` is false. Recomputing
+   `2U_ρ(t) - V(t)` at 40 significant digits from Table 1, (109), and
+   (113), the bound first fails near `t ≈ 3.535` and fails at every
+   larger `t` checked (up to `3·10^7`); at `t = 4` the left side is
+   about `-10.7226` and the right side about `-10.7633`. The correct
+   bound past 2 is
    `2U_ρ(t) - V(t) ≤ (29/20) log t + 8α^3/t - 2π√t`, with
    `29/20 = 2λ - 1 + 8α`, proved in the
    [potential inequality](../roadmap/real-bound/potential-inequality.md)
@@ -145,12 +154,14 @@ dispute in open question 5 is separate.
 4. Appendix A.3, below (113): `V(0) = -16α log α - 2 + 16α`, not
    `-8α log α - 2 + 16α`.
 5. Section 6.2 and Appendix A.3: the reported numerical values do not
-   match Table 1. The true maximum of `2U_ρ - V` on `[0, 2]` is about
-   `-6.613`, near `t ≈ 0.214` (Section 6.2 prints `-5.4719` at
-   `t ≈ 0.2648`); the worst interval bound before `L_1` is about
-   `-6.186` on `[0.3, 0.4]` (printed `-5.865`), and after subdividing
-   `[L_1, 2]` about `-6.555` (printed `-5.689`). (94) holds with more
-   margin than reported.
+   match Table 1. Recomputed at 40 significant digits from Table 1,
+   (109), and (113): the true maximum of `2U_ρ - V` on `[0, 2]` is
+   about `-6.613`, near `t ≈ 0.214` (Section 6.2 prints `-5.4719` at
+   `t ≈ 0.2648`, where the value is about `-6.620`); the worst
+   interval bound (115) before `L_1` is about `-6.186` on
+   `[0.3, 0.4]` (printed `-5.865`), and after subdividing `[L_1, 2]`
+   into eight pieces about `-6.555`, on the first piece (printed
+   `-5.689`). (94) holds with more margin than reported.
 6. Section 3.3, proof of Lemma 3.5: the sentence "`τ(f) ∈ ℤ_p` when
    `‖f‖ ≤ 1`, by Lemma 3.4" is false. Lemma 3.4 gives only
    `|τ(f)|_p ≤ p‖f‖`, and `κ_41` at `p = 7` has `v_7(κ_41) = -1`
@@ -160,3 +171,16 @@ dispute in open question 5 is separate.
    `j ≥ 1` terms carry the factor `p^j`; the
    [p-adic completion](../roadmap/local-arithmetic/completion.md) node
    is proved.
+7. Section 4.2, proof of Proposition 4.6, case `p > K`: the sentence
+   "the residues are `p`-integral" is false as written. For poles
+   `a` and `p - a` both in `(N, K]`, the factor
+   `(p - a)^2 - a^2 = p(p - 2a)` of the derivative of `D_K/D_N` puts
+   a `p` in the denominator of each of the two residues; only their
+   sum is `p`-integral, and since the two pole values are congruent
+   modulo `p`, so is the pair's contribution. By exact rational computation
+   at `n = 1`, `p = 41`, for `a = 4, 10, 20` and `i + j = 0, 5`, each
+   residue has `v_41 = -1`, while each pair sum of residues and each
+   pair contribution to the entry has `v_41 = 0`. The conclusion
+   `v^G_p(Δ_K) ≥ 0` is not contradicted; the
+   [large-prime integrality](../roadmap/local-arithmetic/large-prime-integrality.md)
+   node plans to prove it with this pairing.
