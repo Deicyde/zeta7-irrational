@@ -547,7 +547,7 @@ private lemma poleCoeffs_sum_eq {M : Type*} [AddCommMonoid M] (n i j : ℕ) (g :
     (h0 : ∀ a, g a 0 = 0) (hadd : ∀ a b₁ b₂, g a (b₁ + b₂) = g a b₁ + g a b₂) :
     (poleCoeffs n i j).sum g = ∑ a ∈ Finset.Icc (N n + 1) (K n), g a (resCoeff n i j a) := by
   unfold poleCoeffs
-  rw [Finsupp.sum_finsetSum_index h0 hadd]
+  rw [← Finsupp.sum_finsetSum_index h0 hadd]
   exact Finset.sum_congr rfl fun a _ => Finsupp.sum_single_index (h0 a)
 
 /-- The pole data of `G_K` has no pole at `t = 0`: it is supported on `N < a ≤ K`. -/
@@ -674,7 +674,7 @@ private lemma integrable_moment_sum (p : Polynomial ℚ) :
 private lemma integrable_pole_sum (c : ℕ →₀ ℚ) (hc : c 0 = 0) :
     IntegrableOn (fun y : ℝ =>
       ∑ j ∈ c.support, (c j : ℝ) * (1 / (y ^ 2 + (j : ℝ) ^ 2) * w7 y)) (Ioi 0) :=
-  integrable_finsetSum _ fun j hj => Integrable.const_mul
+  integrable_finsetSum _ fun _ hj => Integrable.const_mul
     (integral_pole_w7 (Nat.cast_pos.mpr (pos_of_mem_support hc hj))).1 _
 
 private lemma integral_muIntegrand (p : Polynomial ℚ) (c : ℕ →₀ ℚ) (hc : c 0 = 0) :
@@ -686,7 +686,7 @@ private lemma integral_muIntegrand (p : Polynomial ℚ) (c : ℕ →₀ ℚ) (hc
   rw [setIntegral_congr_fun measurableSet_Ioi fun y _ => muIntegrand_eq p c y,
     integral_add (integrable_moment_sum p) (integrable_pole_sum c hc),
     integral_finsetSum _ fun e _ => Integrable.const_mul (integral_moment_w7 e).1 _,
-    integral_finsetSum _ fun j hj => Integrable.const_mul
+    integral_finsetSum _ fun _ hj => Integrable.const_mul
       (integral_pole_w7 (Nat.cast_pos.mpr (pos_of_mem_support hc hj))).1 _]
   congr 1
   · refine Finset.sum_congr rfl fun e _ => ?_
@@ -729,9 +729,10 @@ private lemma aeval_Gentry_zeta (n i j : ℕ) :
 
 private lemma integrableOn_gramIntegrand (n i j : ℕ) :
     IntegrableOn (fun y => gramIntegrand n i j y) (Ioi 0) :=
-  (integrableOn_muIntegrand _ _ (poleCoeffs_apply_zero n i j)).congr_fun
-    (fun y _ => by rw [gramIntegrand, aeval_polyPart_add_poleCoeffs n i j (sq_nonneg y)])
-    measurableSet_Ioi
+  (integrableOn_muIntegrand (polyPart n i j) (poleCoeffs n i j)
+    (poleCoeffs_apply_zero n i j)).congr_fun (fun y _ => by
+      beta_reduce
+      rw [gramIntegrand, aeval_polyPart_add_poleCoeffs n i j (sq_nonneg y)]) measurableSet_Ioi
 
 private lemma Gentry_symm (n i j : ℕ) : Gentry n i j = Gentry n j i := by
   unfold Gentry polyPart poleCoeffs resCoeff Rnum
@@ -756,8 +757,9 @@ private lemma gramQuad_eq (n : ℕ) (x : Fin (hDim n) → ℝ) (y : ℝ) :
 
 private lemma integrableOn_gramQuad (n : ℕ) (x : Fin (hDim n) → ℝ) :
     IntegrableOn (fun y => gramQuad n x y) (Ioi 0) :=
-  IntegrableOn.congr_fun (integrable_finsetSum _ fun i _ => integrable_finsetSum _ fun j _ =>
-    Integrable.const_mul (integrableOn_gramIntegrand n i j) (x i * x j))
+  IntegrableOn.congr_fun (integrable_finsetSum _ fun (i : Fin (hDim n)) _ =>
+    integrable_finsetSum _ fun (j : Fin (hDim n)) _ =>
+      Integrable.const_mul (integrableOn_gramIntegrand n i j) (x i * x j))
     (fun y _ => gramQuad_eq n x y) measurableSet_Ioi
 
 private lemma gramQuad_nonneg (n : ℕ) (x : Fin (hDim n) → ℝ) {y : ℝ} (hy : 0 < y) :
@@ -787,9 +789,9 @@ private lemma integral_gramQuad_pos (n : ℕ) {x : Fin (hDim n) → ℝ} (hx : x
   have hcoeff : ∀ i : Fin (hDim n), Q.coeff (2 * i.val) = x i := by
     intro i
     rw [hQ, finsetSum_coeff, Finset.sum_eq_single i]
-    · rw [coeff_C_mul, coeff_X_pow, if_pos rfl, mul_one]
+    · rw [coeff_C_mul, coeff_X_pow, ite_eq_left rfl, mul_one]
     · intro k _ hk
-      rw [coeff_C_mul, coeff_X_pow, if_neg, mul_zero]
+      rw [coeff_C_mul, coeff_X_pow, ite_eq_right, mul_zero]
       intro h
       exact hk (Fin.ext (by omega))
     · intro h
@@ -814,15 +816,16 @@ private lemma integral_gramQuad_pos (n : ℕ) {x : Fin (hDim n) → ℝ} (hx : x
     exact Set.mem_inter (gramQuad_pos n hy' hq).ne' hy
 
 private lemma quadForm_Gmat_zeta (n : ℕ) (x : Fin (hDim n) → ℝ) :
-    star x ⬝ᵥ ((Gmat n).map (aeval (riemannZeta 7).re) *ᵥ x) =
+    dotProduct (star x) (Matrix.mulVec ((Gmat n).map (aeval (riemannZeta 7).re)) x) =
       ∫ y in Ioi (0 : ℝ), gramQuad n x y := by
   rw [← setIntegral_congr_fun measurableSet_Ioi fun y _ => gramQuad_eq n x y,
-    integral_finsetSum _ fun i _ => integrable_finsetSum _ fun j _ =>
-      Integrable.const_mul (integrableOn_gramIntegrand n i j) (x i * x j)]
+    integral_finsetSum _ fun (i : Fin (hDim n)) _ =>
+      integrable_finsetSum _ fun (j : Fin (hDim n)) _ =>
+        Integrable.const_mul (integrableOn_gramIntegrand n i j) (x i * x j)]
   simp only [dotProduct, Matrix.mulVec, Pi.star_apply, star_trivial, Matrix.map_apply, Gmat,
     Matrix.of_apply, aeval_Gentry_zeta, Finset.mul_sum]
   refine Finset.sum_congr rfl fun i _ => ?_
-  rw [integral_finsetSum _ fun j _ =>
+  rw [integral_finsetSum _ fun (j : Fin (hDim n)) _ =>
     Integrable.const_mul (integrableOn_gramIntegrand n i j) (x i * x j)]
   refine Finset.sum_congr rfl fun j _ => ?_
   rw [integral_const_mul]
