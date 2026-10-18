@@ -4,6 +4,7 @@ import ZetaSeven.Basic
 import ZetaSeven.Andreief
 import ZetaSeven.BernoulliMult
 import ZetaSeven.ComparisonMeasure
+import ZetaSeven.Completion
 import ZetaSeven.DegreeLemma
 import ZetaSeven.Enclosures
 import ZetaSeven.EnergyComputation
