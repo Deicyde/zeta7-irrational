@@ -1448,7 +1448,7 @@ theorem eBasis_eq_sum (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n 
     eBasis ℚ n M p ε ρ.1 ρ.2
       = ∑ i : Fin (hDim n), C ((eBasis ℚ n M p ε ρ.1 ρ.2).coeff i) * X ^ (i : ℕ) := by
   conv_lhs => rw [as_sum_range_C_mul_X_pow' _ (eBasis_natDegree_lt ℚ hR hε ρ)]
-  rw [← Fin.sum_univ_eq_sum_range (fun i => C ((eBasis ℚ n M p ε ρ.1 ρ.2).coeff i) * X ^ i)]
+  rw [← Fin.sum_univ_eq_sum_range (fun i : ℕ => C ((eBasis ℚ n M p ε ρ.1 ρ.2).coeff i) * X ^ i)]
 
 /-- The Gram entries in the `E`-basis are the bilinear combinations of the entries of `G_K`. -/
 theorem gram_entry (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
@@ -1490,7 +1490,8 @@ theorem gram_matrix (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M 
   simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.map_apply, eMat, Matrix.of_apply,
     Gmat, Finset.sum_mul]
   conv_lhs => rw [Finset.sum_comm]
-  refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+  refine Finset.sum_congr rfl fun i _ => ?_
+  refine Finset.sum_congr rfl fun j _ => ?_
   rw [C_mul]
   ring
 
@@ -1610,7 +1611,7 @@ theorem prod_denSet (n : ℕ) :
   rw [denSet, Finset.prod_union (denSet_disjoint n),
     Finset.prod_image (fun x _ y _ h => by exact_mod_cast h),
     Finset.prod_image (fun x _ y _ h => by simpa using h), ← Finset.prod_mul_distrib, Dtail,
-    prod_comp, ← hcard, ← Finset.prod_const, ← Finset.prod_mul_distrib]
+    Polynomial.prod_comp, ← hcard, ← Finset.prod_const, ← Finset.prod_mul_distrib]
   refine Finset.prod_congr rfl fun j _ => ?_
   rw [add_comp, X_comp, C_comp]
   simp only [Int.cast_natCast, Int.cast_neg, C_neg, C_pow]
@@ -1646,7 +1647,7 @@ theorem algebraMap_mul_pullbackRatFunc (n : ℕ) (Q : ℚ[X]) :
     intro a
     refine RatFunc.algebraMap_ne_zero fun h => ?_
     have := congrArg (fun q : ℚ[X] => q.coeff 2) h
-    simp at this
+    norm_num [coeff_X_pow, coeff_C] at this
   have hterm : ∀ a ∈ Icc (N n + 1) (K n),
       algebraMap ℚ[X] (RatFunc ℚ) ((Dtail n).comp (-X ^ 2))
         * (algebraMap ℚ[X] (RatFunc ℚ) (C (tailRes n Q a))
@@ -1719,5 +1720,202 @@ theorem pfNum_pullback (n : ℕ) (Q : ℚ[X]) :
     algebraMap_mul_pullbackRatFunc]
 
 end Numerator
+
+/-! ## Class degrees of the pullback numerator -/
+
+section ClassNumer
+
+variable {p : ℕ} [Fact p.Prime]
+
+/-- `[r ≡ a] + [-r ≡ a] (mod p)`: the class degree at `a` of `-x² + r²`. -/
+def classMult (p a : ℕ) (r : ℤ) : ℕ :=
+  (if (p : ℤ) ∣ r - a then 1 else 0) + (if (p : ℤ) ∣ -r - a then 1 else 0)
+
+theorem ClassDeg.of_eq {a n n' : ℕ} {Q : ℚ[X]} (h : ClassDeg p a n Q) (hn : n = n') :
+    ClassDeg p a n' Q := hn ▸ h
+
+theorem ClassDeg.neg_one_pow_mul {a n : ℕ} {Q : ℚ[X]} (hQ : ClassDeg p a n Q) (k : ℕ) :
+    ClassDeg p a n ((-1) ^ k * Q) := by
+  rcases neg_one_pow_eq_or ℚ[X] k with h | h
+  · rw [h, one_mul]; exact hQ
+  · rw [h, neg_one_mul]; exact hQ.neg
+
+theorem classDeg_negSq (a : ℕ) (r : ℤ) :
+    ClassDeg p a (classMult p a r) (-X ^ 2 + C ((r : ℚ) ^ 2)) := by
+  have h : (-X ^ 2 + C ((r : ℚ) ^ 2) : ℚ[X]) = -((X - C (r : ℚ)) * (X - C ((-r : ℤ) : ℚ))) := by
+    rw [Int.cast_neg, C_neg, C_pow]; ring
+  rw [h]
+  exact ((classDeg_X_sub_C a r).mul (classDeg_X_sub_C a (-r))).neg
+
+theorem classDeg_negSq_nat (a c : ℕ) :
+    ClassDeg p a (classMult p a c) (-X ^ 2 + C ((c : ℚ) ^ 2)) := by
+  have h := classDeg_negSq (p := p) a (c : ℤ)
+  rwa [Int.cast_natCast] at h
+
+theorem classDeg_X (a : ℕ) : ClassDeg p a (if (p : ℤ) ∣ 0 - a then 1 else 0) (X : ℚ[X]) := by
+  have h := classDeg_X_sub_C (p := p) a 0
+  rwa [Int.cast_zero, C_0, sub_zero] at h
+
+theorem classDeg_Dpoly_comp (a m : ℕ) :
+    ClassDeg p a (∑ j ∈ range m, classMult p a ((j : ℤ) + 1)) ((Dpoly m).comp (-X ^ 2)) := by
+  rw [Dpoly, Polynomial.prod_comp]
+  refine ClassDeg.prod _ _ _ fun j _ => ?_
+  rw [add_comp, X_comp, C_comp]
+  have h := classDeg_negSq_nat (p := p) a (j + 1)
+  rwa [Nat.cast_add, Nat.cast_one] at h
+
+/-- The class degree of `E_{b,i}(-x²)` at `a`. -/
+def eDeg (n M p : ℕ) (ε : ℕ → ℕ) (b i a : ℕ) : ℕ :=
+  (∑ c ∈ (range (mHalf p + 1)).erase b, classMult p a c * allocL n M p ε c)
+    + classMult p a b * i
+
+theorem classDeg_eBasis_comp (a n M : ℕ) (ε : ℕ → ℕ) (b i : ℕ) :
+    ClassDeg p a (eDeg n M p ε b i a) ((eBasis ℚ n M p ε b i).comp (-X ^ 2)) := by
+  rw [eBasis, mul_comp, Polynomial.prod_comp]
+  refine (ClassDeg.prod _ _ _ fun c _ => ?_).mul ?_
+  · rw [pow_comp, add_comp, X_comp, C_comp]
+    exact (classDeg_negSq_nat a c).pow _
+  · rw [pow_comp, add_comp, X_comp, C_comp]
+    exact (classDeg_negSq_nat a b).pow _
+
+/-- The class degree at `a` of the numerator `(-1)^h x⁷ (D_N⁷ E_{b,i} E_{b',i'})(-x²)`. -/
+def numDeg (n M p : ℕ) (ε : ℕ → ℕ) (b i b' i' a : ℕ) : ℕ :=
+  7 * (if (p : ℤ) ∣ 0 - a then 1 else 0)
+    + 7 * (∑ j ∈ range (N n), classMult p a ((j : ℤ) + 1))
+    + eDeg n M p ε b i a + eDeg n M p ε b' i' a
+
+theorem classDeg_numer (a n M : ℕ) (ε : ℕ → ℕ) (b i b' i' : ℕ) :
+    ClassDeg p a (numDeg n M p ε b i b' i' a) ((-1) ^ hDim n * (X ^ 7
+      * (Dpoly (N n) ^ 7 * eBasis ℚ n M p ε b i * eBasis ℚ n M p ε b' i').comp (-X ^ 2))) := by
+  refine ClassDeg.neg_one_pow_mul ?_ _
+  rw [mul_comp, mul_comp, pow_comp]
+  refine (((classDeg_X a).pow 7).mul ((((classDeg_Dpoly_comp a (N n)).pow 7).mul
+    (classDeg_eBasis_comp a n M ε b i)).mul (classDeg_eBasis_comp a n M ε b' i'))).of_eq ?_
+  unfold numDeg
+  ring
+
+end ClassNumer
+
+/-! ## Class arithmetic -/
+
+section ClassArith
+
+variable {p : ℕ}
+
+/-- The class `c ∈ [0, m]` of a residue `a ∈ [0, p)`, with `a ≡ ±c (mod p)`. -/
+def cls (p a : ℕ) : ℕ := if a ≤ mHalf p then a else p - a
+
+theorem cls_le (hp : 2 * mHalf p + 1 = p) {a : ℕ} (ha : a < p) : cls p a ≤ mHalf p := by
+  unfold cls
+  split_ifs <;> omega
+
+theorem dvd_iff_eq_zero_of_lt {q : ℕ} {x : ℤ} (h1 : -(q : ℤ) < x) (h2 : x < q) :
+    (q : ℤ) ∣ x ↔ x = 0 :=
+  ⟨fun h => int_eq_zero_of_dvd_of_lt h h1 h2, fun h => h ▸ dvd_zero _⟩
+
+theorem classMult_eq (hp : 2 * mHalf p + 1 = p) {a c : ℕ} (ha : a < p) (hc : c ≤ mHalf p) :
+    classMult p a c = if c = cls p a then (if a = 0 then 2 else 1) else 0 := by
+  unfold classMult cls
+  by_cases ham : a ≤ mHalf p
+  · have hD1 : (p : ℤ) ∣ (c : ℤ) - a ↔ c = a := by
+      rw [dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
+    have hD2 : (p : ℤ) ∣ -(c : ℤ) - a ↔ c = 0 ∧ a = 0 := by
+      rw [dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
+    simp only [hD1, hD2, ham, ite_true]
+    split_ifs <;> omega
+  · have hD1 : (p : ℤ) ∣ (c : ℤ) - a ↔ False := by
+      rw [dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
+    have hD2 : (p : ℤ) ∣ -(c : ℤ) - a ↔ c = p - a := by
+      rw [← dvd_add_left (dvd_refl (p : ℤ)), dvd_iff_eq_zero_of_lt (by omega) (by omega)]; omega
+    simp only [hD1, hD2, ham, ite_false]
+    split_ifs <;> omega
+
+/-- For `1 ≤ c ≤ m`, `ℓ_A(c)` counts the residues `c` and `-c` separately. -/
+theorem ell_eq_card_add (hp : 2 * mHalf p + 1 = p) (A c : ℕ) (hc1 : 1 ≤ c) (hcm : c ≤ mHalf p) :
+    ell p A c = ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) - c).card
+      + ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) + c).card := by
+  rw [ell, Finset.filter_or, Finset.card_union_of_disjoint]
+  rw [Finset.disjoint_filter]
+  intro j _ h1 h2
+  have h3 := dvd_sub h2 h1
+  rw [show (j : ℤ) + c - (j - c) = 2 * c by ring] at h3
+  have := Int.le_of_dvd (by omega) h3
+  omega
+
+theorem sum_classMult_eq_card (s : Finset ℕ) (a : ℕ) :
+    ∑ j ∈ s, classMult p a j = (s.filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) - a).card
+      + (s.filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) + a).card := by
+  unfold classMult
+  rw [Finset.sum_add_distrib, Finset.card_filter, Finset.card_filter]
+  congr 1
+  refine Finset.sum_congr rfl fun j _ => ?_
+  have h : (p : ℤ) ∣ -(j : ℤ) - a ↔ (p : ℤ) ∣ (j : ℤ) + a := by
+    rw [show -(j : ℤ) - a = -((j : ℤ) + a) by ring, dvd_neg]
+  simp only [h]
+
+/-- The class counts in terms of `classMult`: `∑_{j=1}^A ([j ≡ a] + [-j ≡ a])` is `2⌊A/p⌋` for
+`a = 0` and `ℓ_A(c)` for `a ≡ ±c`, `1 ≤ c ≤ m`. -/
+theorem sum_classMult_Icc (hp : 2 * mHalf p + 1 = p) (A : ℕ) {a : ℕ} (ha : a < p) :
+    ∑ j ∈ Icc 1 A, classMult p a j = if a = 0 then 2 * (A / p) else ell p A (cls p a) := by
+  rw [sum_classMult_eq_card]
+  split_ifs with h0
+  · subst h0
+    have hdiv : ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) - ((0 : ℕ) : ℤ)).card = A / p := by
+      rw [← Nat.Ioc_filter_dvd_card_eq_div A p, ← Finset.Icc_add_one_left_eq_Ioc, zero_add]
+      congr 1
+      ext j
+      simp only [Finset.mem_filter, Nat.cast_zero, sub_zero, Int.natCast_dvd_natCast]
+    have hdiv' : ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) + ((0 : ℕ) : ℤ)).card
+        = A / p := by
+      rw [← hdiv]
+      congr 1
+      ext j
+      simp only [Finset.mem_filter, Nat.cast_zero, sub_zero, add_zero]
+    rw [hdiv, hdiv']
+    ring
+  · unfold cls
+    by_cases ham : a ≤ mHalf p
+    · rw [ite_eq_left ham, ell_eq_card_add hp A a (by omega) ham]
+    · rw [ite_eq_right ham, ell_eq_card_add hp A (p - a) (by omega) (by omega), add_comm]
+      congr 2
+      · ext j
+        have h : (p : ℤ) ∣ (j : ℤ) + a ↔ (p : ℤ) ∣ (j : ℤ) - (p - a : ℕ) := by
+          rw [Nat.cast_sub ha.le, show (j : ℤ) - (p - a) = (j : ℤ) + a - p by ring,
+            dvd_sub_self_right]
+        simp only [h]
+      · ext j
+        have h : (p : ℤ) ∣ (j : ℤ) - a ↔ (p : ℤ) ∣ (j : ℤ) + (p - a : ℕ) := by
+          rw [Nat.cast_sub ha.le, show (j : ℤ) + (p - a) = (j : ℤ) - a + p by ring,
+            dvd_add_self_right]
+        simp only [h]
+
+theorem sum_range_classMult (A a : ℕ) :
+    ∑ j ∈ range A, classMult p a ((j : ℤ) + 1) = ∑ j ∈ Icc 1 A, classMult p a j := by
+  have h := Finset.sum_Ico_add' (fun j : ℕ => classMult p a (j : ℤ)) 0 A 1
+  simp only [zero_add, Nat.cast_add, Nat.cast_one, Finset.Ico_add_one_right_eq_Icc] at h
+  rw [Finset.range_eq_Ico, h]
+
+/-- The number `t` of poles `r ∈ den` with `r ≡ a (mod p)`. -/
+theorem card_denSet_filter (n a : ℕ) :
+    ((denSet n).filter fun r => (p : ℤ) ∣ r - a).card
+      = ∑ j ∈ Icc (N n + 1) (K n), classMult p a j := by
+  rw [sum_classMult_eq_card, denSet, Finset.filter_union,
+    Finset.card_union_of_disjoint (Finset.disjoint_filter_filter (denSet_disjoint n)),
+    Finset.filter_image, Finset.filter_image,
+    Finset.card_image_of_injective _ (fun x y h => by exact_mod_cast h),
+    Finset.card_image_of_injective _ (fun x y h => by simpa using h)]
+  congr 1
+  congr 1
+  ext j
+  have h : (p : ℤ) ∣ -(j : ℤ) - a ↔ (p : ℤ) ∣ (j : ℤ) + a := by
+    rw [show -(j : ℤ) - a = -((j : ℤ) + a) by ring, dvd_neg]
+  simp only [Finset.mem_filter, h]
+
+theorem sum_Icc_split (f : ℕ → ℕ) {N' K' : ℕ} (h : N' ≤ K') :
+    ∑ j ∈ Icc 1 K', f j = ∑ j ∈ Icc 1 N', f j + ∑ j ∈ Icc (N' + 1) K', f j := by
+  rw [← Finset.Ico_add_one_right_eq_Icc, ← Finset.Ico_add_one_right_eq_Icc,
+    ← Finset.Ico_add_one_right_eq_Icc, Finset.sum_Ico_consecutive _ (by omega) (by omega)]
+
+end ClassArith
 
 end ZetaSeven
