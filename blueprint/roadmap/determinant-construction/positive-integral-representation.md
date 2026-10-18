@@ -29,11 +29,11 @@ nonnegative, almost-everywhere-positive integrand.
 
 - [Functional mu](functional-mu.md)
 - [Matrix and determinant](matrix-determinant.md)
+- [Hermite integral for Hurwitz zeta](hermite-hurwitz.md)
 
 ## Proof depends on
 
 - [Euler formula for even zeta values](euler-even-zeta.md)
-- [Hermite integral for Hurwitz zeta](hermite-hurwitz.md)
 
 ## Sources
 
