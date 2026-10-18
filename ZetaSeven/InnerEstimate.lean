@@ -82,15 +82,15 @@ theorem ClassDeg.mul {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q) (hR : 
     refine ⟨?_, fun hk => ?_⟩
     · calc _ ≤ (p : ℝ) ^ (-(n : ℤ)) * (p : ℝ) ^ (-(m : ℤ)) :=
             mul_le_mul (hQ x.1).1 (hR x.2).1 (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
     · by_cases h1 : n < x.1
       · calc _ ≤ (p : ℝ) ^ (-(n : ℤ) - 1) * (p : ℝ) ^ (-(m : ℤ)) :=
               mul_le_mul ((hQ x.1).2 h1) (hR x.2).1 (norm_nonneg _) (hnn _)
-          _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
+          _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
       · have h2 : m < x.2 := by omega
         calc _ ≤ (p : ℝ) ^ (-(n : ℤ)) * (p : ℝ) ^ (-(m : ℤ) - 1) :=
               mul_le_mul (hQ x.1).1 ((hR x.2).2 h2) (norm_nonneg _) (hnn _)
-          _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
+          _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
   exact ⟨IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _) fun x hx => (hterm x hx).1,
     fun hk => IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _)
       fun x hx => (hterm x hx).2 hk⟩
@@ -187,7 +187,7 @@ theorem ClassDeg.mul_lead {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q)
   have hmain : ‖(((Q.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff n
         * (R.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff m : ℚ) : ℚ_[p])‖
       = (p : ℝ) ^ (-((n + m : ℕ) : ℤ)) := by
-    rw [Rat.cast_mul, norm_mul, hQn, hRm, ← zpow_add₀ hp0]; congr 1; push_cast; ring
+    rw [Rat.cast_mul, norm_mul, hQn, hRm, ← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
   have hrest : ‖∑ x ∈ (antidiagonal (n + m)).erase (n, m),
         (((Q.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.1
           * (R.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.2 : ℚ) : ℚ_[p])‖
@@ -199,14 +199,14 @@ theorem ClassDeg.mul_lead {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q)
     by_cases h1 : n < x.1
     · calc _ ≤ (p : ℝ) ^ (-(n : ℤ) - 1) * (p : ℝ) ^ (-(m : ℤ)) :=
             mul_le_mul ((hQ x.1).2 h1) (hR x.2).1 (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
     · have h2 : m < x.2 := by
         rcases Nat.lt_or_ge m x.2 with h | h
         · exact h
         · exact absurd (Prod.ext (by show x.1 = n; omega) (by show x.2 = m; omega)) hne
       calc _ ≤ (p : ℝ) ^ (-(n : ℤ)) * (p : ℝ) ^ (-(m : ℤ) - 1) :=
             mul_le_mul (hQ x.1).1 ((hR x.2).2 h2) (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
   have hlt : ‖∑ x ∈ (antidiagonal (n + m)).erase (n, m),
         (((Q.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.1
           * (R.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.2 : ℚ) : ℚ_[p])‖
@@ -372,7 +372,7 @@ theorem norm_substPrincipal_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset �
       ≤ (p : ℝ) ^ (((den.filter fun j => (p : ℤ) ∣ j - a).card : ℤ) - 1 - n)
           * (p : ℝ) ^ (1 : ℤ) := by
         rw [zpow_one]; exact mul_le_mul_of_nonneg_right hres (Nat.cast_nonneg p)
-    _ = _ := by rw [← zpow_add₀ hp0]; congr 1; ring
+    _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> ring
 
 /-! ## The top-coefficient argument -/
 
@@ -412,7 +412,6 @@ theorem top_coeff_bound {W : Polynomial ℚ_[p]} {G : PowerSeries ℚ_[p]} {t D 
         refine hle.trans_lt ?_
         obtain ⟨hxne, hx⟩ := Finset.mem_erase.mp hx
         rw [Finset.HasAntidiagonal.mem_antidiagonal] at hx
-        dsimp only
         rw [norm_mul, Polynomial.coeff_coe]
         rcases lt_trichotomy x.1 t with h | h | h
         · have h2 : m < x.2 := by omega
@@ -588,8 +587,8 @@ theorem W_mul_substAnalytic (a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : F
     rw [Finset.sum_filter, ← Finset.sum_subset hsupp]
     · refine Finset.sum_congr rfl fun r hr => ?_
       by_cases hq : (p : ℤ) ∣ r - a
-      · rw [if_pos hq, if_neg (not_not.mpr hq), mul_zero]
-      · rw [if_neg hq, if_pos hq, hpole r (hsupp hr) hq]
+      · rw [ite_eq_left hq, ite_eq_right (not_not.mpr hq), mul_zero]
+      · rw [ite_eq_right hq, ite_eq_left hq, hpole r (hsupp hr) hq]
     · intro r _ hrs
       rw [Finsupp.notMem_support_iff.mp hrs]
       simp
@@ -649,11 +648,11 @@ theorem norm_coeff_rPoly_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ}
     · calc _ ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - 1 - n)
             * (p : ℝ) ^ (-(((den.filter fun r => (p : ℤ) ∣ r - a).card - 1 : ℕ) : ℤ)) :=
             mul_le_mul hres (hcd k).1 (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast [ht1]; ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast [ht1] <;> ring
     · calc _ ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - 1 - n)
             * (p : ℝ) ^ (-(((den.filter fun r => (p : ℤ) ∣ r - a).card - 1 : ℕ) : ℤ) - 1) :=
             mul_le_mul hres ((hcd k).2 hk) (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast [ht1]; ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast [ht1] <;> ring
   have hsub : ∀ {x y : ℚ_[p]} {B : ℝ}, ‖x‖ ≤ B → ‖y‖ ≤ B → ‖x - y‖ ≤ B := fun hx hy => by
     rw [sub_eq_add_neg]
     exact (Padic.nonarchimedean _ _).trans (max_le hx (by rwa [norm_neg]))
@@ -664,7 +663,7 @@ theorem norm_coeff_rPoly_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ}
           mul_le_mul_of_nonneg_left (hsub (hN k).1
             (IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _)
               fun r hr => (hterm r hr).1)) (hnn _)
-      _ = _ := by rw [← zpow_add₀ hp0]; congr 1; ring
+      _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> ring
   · have hkn : n < k := lt_of_le_of_lt (le_max_left _ _) hk
     have hkt : (den.filter fun r => (p : ℤ) ∣ r - a).card - 1 < k :=
       lt_of_le_of_lt (le_max_right _ _) hk
@@ -673,7 +672,7 @@ theorem norm_coeff_rPoly_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ}
           mul_le_mul_of_nonneg_left (hsub ((hN k).2 hkn)
             (IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _)
               fun r hr => (hterm r hr).2 hkt)) (hnn _)
-      _ = _ := by rw [← zpow_add₀ hp0]; congr 1; ring
+      _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> ring
 
 /-- `|τ(G)|_p ≤ p^e` for `G ∈ p^e ℤ_p⟦z⟧` whose coefficients above degree `D ≤ p + 4` lie in
 `p^{e+1} ℤ_p` (Lemma 3.4: `κ_d ∈ ℤ_p` for `d ≤ p + 4` and `v_p(κ_d) ≥ -1` always). -/
