@@ -1270,8 +1270,7 @@ theorem isCoprime_X_add_C_sq (hR : InnerRange n M p) [Fact p.Prime] {a c : ℕ}
 
 /-- Definition 4.2: modulo `p` the `E`-basis is linearly independent (the Chinese remainder
 decomposition by the pairwise coprime powers of `t + c²`). -/
-theorem eBasis_linearIndependent (hR : InnerRange n M p) [Fact p.Prime]
-    (hε : ExtraRows n M p ε) :
+theorem eBasis_linearIndependent (hR : InnerRange n M p) [Fact p.Prime] :
     LinearIndependent (ZMod p) fun ρ : eIdx n M p ε => eBasis (ZMod p) n M p ε ρ.1 ρ.2 := by
   rw [Fintype.linearIndependent_iff]
   intro g hg ρ0
@@ -1337,7 +1336,7 @@ theorem eBasis_det_ne_zero (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRo
   rw [← isUnit_iff_ne_zero, ← Matrix.isUnit_iff_isUnit_det,
     ← Matrix.linearIndependent_rows_iff_isUnit, Fintype.linearIndependent_iff]
   intro g hg k
-  have hli := Fintype.linearIndependent_iff.mp (eBasis_linearIndependent hR hε) (fun ρ => g (e ρ))
+  have hli := Fintype.linearIndependent_iff.mp (eBasis_linearIndependent (ε := ε) hR) (fun ρ => g (e ρ))
   have hzero : ∑ ρ : eIdx n M p ε, g (e ρ) • eBasis (ZMod p) n M p ε ρ.1 ρ.2 = 0 := by
     ext l
     rw [finsetSum_coeff, coeff_zero]
@@ -1462,14 +1461,17 @@ theorem gram_entry (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p
       = ∑ i : Fin (hDim n), ∑ j : Fin (hDim n),
           ((eBasis ℚ n M p ε ρ.1 ρ.2).coeff i * (eBasis ℚ n M p ε σ.1 σ.2).coeff j)
             • Rnum n i j := by
-    conv_lhs => rw [eBasis_eq_sum hR hε ρ, eBasis_eq_sum hR hε σ]
-    simp only [Finset.mul_sum, Finset.sum_mul]
-    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    conv_lhs => rw [eBasis_eq_sum hR hε ρ, eBasis_eq_sum hR hε σ, mul_assoc,
+      Finset.sum_mul_sum, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun j _ => ?_
     rw [smul_eq_C_mul, Rnum, C_mul, pow_add]
     ring
   rw [h]
   change muTailLin n _ = _
-  simp only [map_sum, map_smul, smul_eq_C_mul]
+  simp only [map_sum, map_smul]
+  simp only [smul_eq_C_mul]
   rfl
 
 /-- The `E`-basis coefficient matrix (over `ℚ`, as constant polynomials). -/
@@ -1482,7 +1484,7 @@ theorem gram_matrix (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M 
     (e : eIdx n M p ε ≃ Fin (hDim n)) :
     (Matrix.of fun k l : Fin (hDim n) => muTail n (Dpoly (N n) ^ 7
         * eBasis ℚ n M p ε (e.symm k).1 (e.symm k).2 * eBasis ℚ n M p ε (e.symm l).1 (e.symm l).2))
-      = (eMat n M p ε e).map C * Gmat n * ((eMat n M p ε e).map C)ᵀ := by
+      = (eMat n M p ε e).map C * Gmat n * Matrix.transpose ((eMat n M p ε e).map C) := by
   ext k l
   rw [Matrix.of_apply, gram_entry hR hε, Matrix.mul_apply]
   simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.map_apply, eMat, Matrix.of_apply,
@@ -1519,5 +1521,203 @@ theorem norm_det_eMat (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n 
     (not_lt.mp fun hlt => h (Padic.norm_intCast_lt_one_iff.mp hlt))
 
 end Gram
+
+/-! ## The pullback numerator `x⁷ Q(-x²)` -/
+
+section Numerator
+
+/-- Partial fractions over a nodal polynomial (as in `ZetaSeven.partialFraction_spec`). -/
+theorem lagrange_spec_aux (s : Finset ℕ) (v : ℕ → ℚ) (hinj : Set.InjOn v s) (U : ℚ[X]) :
+    U = U /ₘ Lagrange.nodal s v * Lagrange.nodal s v
+      + ∑ r ∈ s, C (U.eval (v r) / (derivative (Lagrange.nodal s v)).eval (v r))
+          * Lagrange.nodal (s.erase r) v := by
+  have hmonic : (Lagrange.nodal s v).Monic := Lagrange.nodal_monic
+  have hrem := Lagrange.eq_interpolate hinj
+    ((degree_modByMonic_lt U hmonic).trans_eq Lagrange.degree_nodal)
+  rw [Lagrange.interpolate_eq_nodalWeight_mul_nodal_div_X_sub_C] at hrem
+  have hsum : ∀ i ∈ s, C (Lagrange.nodalWeight s v i)
+        * (Lagrange.nodal s v / (X - C (v i)))
+        * C (eval (v i) (U %ₘ Lagrange.nodal s v))
+      = C (U.eval (v i) / (derivative (Lagrange.nodal s v)).eval (v i))
+          * Lagrange.nodal (s.erase i) v := by
+    intro i hi
+    rw [← Lagrange.nodal_erase_eq_nodal_div hi, Lagrange.nodalWeight_eq_eval_derivative_nodal hi,
+      modByMonic_eq_sub_mul_div, eval_sub, eval_mul, Lagrange.eval_nodal_at_node hi, zero_mul,
+      sub_zero, div_eq_mul_inv, C_mul]
+    ring
+  conv_lhs => rw [← modByMonic_add_div U (Lagrange.nodal s v)]
+  rw [hrem, Finset.sum_congr rfl hsum]
+  ring
+
+/-- The residues `Q(-a²)/D_tail'(-a²)` of `Q/D_tail`. -/
+noncomputable def tailRes (n : ℕ) (Q : ℚ[X]) (a : ℕ) : ℚ :=
+  Q.eval (-(a : ℚ) ^ 2) / (derivative (Dtail n)).eval (-(a : ℚ) ^ 2)
+
+/-- The pole coefficients of `Q/D_tail`, supported on `N < a ≤ K`. -/
+noncomputable def tailCoeffs (n : ℕ) (Q : ℚ[X]) : ℕ →₀ ℚ :=
+  ∑ a ∈ Icc (N n + 1) (K n), Finsupp.single a (tailRes n Q a)
+
+theorem muTail_eq (n : ℕ) (Q : ℚ[X]) :
+    muTail n Q = muFunctional (Q.div (Dtail n)) (tailCoeffs n Q) := rfl
+
+theorem Dtail_eq_nodal (n : ℕ) :
+    Dtail n = Lagrange.nodal (Icc (N n + 1) (K n)) fun j : ℕ => -((j : ℚ) ^ 2) := by
+  unfold Dtail Lagrange.nodal
+  refine Finset.prod_congr rfl fun j _ => ?_
+  rw [C_neg, sub_neg_eq_add]
+
+/-- Partial fractions over `D_tail` (proof of Lemma 2.3, (11)). -/
+theorem muTail_lagrange (n : ℕ) (Q : ℚ[X]) :
+    Q = Q.div (Dtail n) * Dtail n + ∑ a ∈ Icc (N n + 1) (K n),
+      C (tailRes n Q a) * ∏ j ∈ (Icc (N n + 1) (K n)).erase a, (X + C ((j : ℚ) ^ 2)) := by
+  have hinj : Set.InjOn (fun j : ℕ => -((j : ℚ) ^ 2)) (Icc (N n + 1) (K n)) := by
+    intro x _ y _ h
+    have h' : (x : ℚ) ^ 2 = (y : ℚ) ^ 2 := neg_inj.mp h
+    exact_mod_cast (sq_eq_sq₀ (Nat.cast_nonneg x) (Nat.cast_nonneg y)).mp h'
+  have h := lagrange_spec_aux _ _ hinj Q
+  have herase : ∀ a, Lagrange.nodal ((Icc (N n + 1) (K n)).erase a)
+      (fun j : ℕ => -((j : ℚ) ^ 2)) = ∏ j ∈ (Icc (N n + 1) (K n)).erase a, (X + C ((j : ℚ) ^ 2)) :=
+    fun a => by
+      unfold Lagrange.nodal
+      refine Finset.prod_congr rfl fun j _ => ?_
+      rw [C_neg, sub_neg_eq_add]
+  rw [← Dtail_eq_nodal] at h
+  simp only [herase] at h
+  rw [div_Dtail]
+  exact h
+
+/-- The poles `±j`, `N < j ≤ K`, of `x⁷ R(-x²)`. -/
+noncomputable def denSet (n : ℕ) : Finset ℤ :=
+  (Icc (N n + 1) (K n)).image (fun j : ℕ => (j : ℤ))
+    ∪ (Icc (N n + 1) (K n)).image (fun j : ℕ => -(j : ℤ))
+
+theorem denSet_disjoint (n : ℕ) :
+    Disjoint ((Icc (N n + 1) (K n)).image fun j : ℕ => (j : ℤ))
+      ((Icc (N n + 1) (K n)).image fun j : ℕ => -(j : ℤ)) := by
+  rw [Finset.disjoint_left]
+  intro r hr hr'
+  obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp hr
+  obtain ⟨j', hj', h⟩ := Finset.mem_image.mp hr'
+  have h1 := (Finset.mem_Icc.mp hj).1
+  have h2 := (Finset.mem_Icc.mp hj').1
+  omega
+
+/-- `∏_{r ∈ den} (x - r) = (-1)^h D_tail(-x²)`. -/
+theorem prod_denSet (n : ℕ) :
+    ∏ r ∈ denSet n, (X - C (r : ℚ)) = (-1) ^ hDim n * (Dtail n).comp (-X ^ 2) := by
+  have hcard : (Icc (N n + 1) (K n)).card = hDim n := by
+    rw [Nat.card_Icc]; unfold N K hDim; omega
+  rw [denSet, Finset.prod_union (denSet_disjoint n),
+    Finset.prod_image (fun x _ y _ h => by exact_mod_cast h),
+    Finset.prod_image (fun x _ y _ h => by simpa using h), ← Finset.prod_mul_distrib, Dtail,
+    prod_comp, ← hcard, ← Finset.prod_const, ← Finset.prod_mul_distrib]
+  refine Finset.prod_congr rfl fun j _ => ?_
+  rw [add_comp, X_comp, C_comp]
+  simp only [Int.cast_natCast, Int.cast_neg, C_neg, C_pow]
+  ring
+
+/-- Clearing the denominators of `g = P + ∑_r d_r/(x - r)`. -/
+theorem algebraMap_pfNum (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ} (hsupp : d.support ⊆ den) :
+    algebraMap ℚ[X] (RatFunc ℚ) (pfNum P d den)
+      = algebraMap ℚ[X] (RatFunc ℚ) (∏ r ∈ den, (X - C (r : ℚ))) * tauRatFunc P d := by
+  unfold tauRatFunc pfNum
+  rw [Finsupp.sum_of_support_subset d hsupp _ (fun r _ => by simp), mul_add, Finset.mul_sum,
+    map_add, map_mul, map_sum]
+  congr 1
+  · ring
+  · refine Finset.sum_congr rfl fun r hr => ?_
+    have hne : algebraMap ℚ[X] (RatFunc ℚ) (X - C (r : ℚ)) ≠ 0 :=
+      RatFunc.algebraMap_ne_zero (X_sub_C_ne_zero _)
+    rw [← Finset.mul_prod_erase den (fun j : ℤ => X - C (j : ℚ)) hr, map_mul, map_mul]
+    field_simp
+
+/-- `∏_{r ∈ den} (x - r) · x⁷ R(-x²) = (-1)^h x⁷ Q(-x²)` for `R = Q/D_tail`. -/
+theorem algebraMap_mul_pullbackRatFunc (n : ℕ) (Q : ℚ[X]) :
+    algebraMap ℚ[X] (RatFunc ℚ) (∏ r ∈ denSet n, (X - C (r : ℚ)))
+        * pullbackRatFunc (Q.div (Dtail n)) (tailCoeffs n Q)
+      = algebraMap ℚ[X] (RatFunc ℚ) ((-1) ^ hDim n * (X ^ 7 * Q.comp (-X ^ 2))) := by
+  have hQ : Q.comp (-X ^ 2) = (Q.div (Dtail n)).comp (-X ^ 2) * (Dtail n).comp (-X ^ 2)
+      + ∑ a ∈ Icc (N n + 1) (K n), C (tailRes n Q a)
+        * (∏ j ∈ (Icc (N n + 1) (K n)).erase a, (X + C ((j : ℚ) ^ 2))).comp (-X ^ 2) := by
+    conv_lhs => rw [muTail_lagrange n Q]
+    rw [add_comp, mul_comp, finset_sum_comp']
+    simp only [mul_comp, C_comp]
+  have hne : ∀ a : ℕ, algebraMap ℚ[X] (RatFunc ℚ) (-X ^ 2 + C ((a : ℚ) ^ 2)) ≠ 0 := by
+    intro a
+    refine RatFunc.algebraMap_ne_zero fun h => ?_
+    have := congrArg (fun q : ℚ[X] => q.coeff 2) h
+    simp at this
+  have hterm : ∀ a ∈ Icc (N n + 1) (K n),
+      algebraMap ℚ[X] (RatFunc ℚ) ((Dtail n).comp (-X ^ 2))
+        * (algebraMap ℚ[X] (RatFunc ℚ) (C (tailRes n Q a))
+          / algebraMap ℚ[X] (RatFunc ℚ) (-X ^ 2 + C ((a : ℚ) ^ 2)))
+      = algebraMap ℚ[X] (RatFunc ℚ) (C (tailRes n Q a)
+          * (∏ j ∈ (Icc (N n + 1) (K n)).erase a, (X + C ((j : ℚ) ^ 2))).comp (-X ^ 2)) := by
+    intro a ha
+    have hL := hne a
+    rw [Dtail, ← Finset.mul_prod_erase _ _ ha, mul_comp, add_comp, X_comp, C_comp, map_mul,
+      map_mul]
+    field_simp
+  rw [prod_denSet, hQ]
+  unfold pullbackRatFunc tailCoeffs
+  rw [← Finsupp.sum_finsetSum_index (fun j => by simp)
+    (fun j b₁ b₂ => by rw [C_add, map_add, add_div])]
+  simp only [Finsupp.sum_single_index, map_zero, zero_div]
+  calc algebraMap ℚ[X] (RatFunc ℚ) ((-1) ^ hDim n * (Dtail n).comp (-X ^ 2))
+        * (algebraMap ℚ[X] (RatFunc ℚ) X ^ 7
+          * (algebraMap ℚ[X] (RatFunc ℚ) ((Q.div (Dtail n)).comp (-X ^ 2))
+            + ∑ a ∈ Icc (N n + 1) (K n), algebraMap ℚ[X] (RatFunc ℚ) (C (tailRes n Q a))
+              / algebraMap ℚ[X] (RatFunc ℚ) (-X ^ 2 + C ((a : ℚ) ^ 2))))
+      = algebraMap ℚ[X] (RatFunc ℚ) ((-1) ^ hDim n) * algebraMap ℚ[X] (RatFunc ℚ) X ^ 7
+          * (algebraMap ℚ[X] (RatFunc ℚ) ((Dtail n).comp (-X ^ 2))
+              * algebraMap ℚ[X] (RatFunc ℚ) ((Q.div (Dtail n)).comp (-X ^ 2))
+            + ∑ a ∈ Icc (N n + 1) (K n), algebraMap ℚ[X] (RatFunc ℚ) ((Dtail n).comp (-X ^ 2))
+              * (algebraMap ℚ[X] (RatFunc ℚ) (C (tailRes n Q a))
+                / algebraMap ℚ[X] (RatFunc ℚ) (-X ^ 2 + C ((a : ℚ) ^ 2)))) := by
+        rw [map_mul, ← Finset.mul_sum]
+        ring
+    _ = algebraMap ℚ[X] (RatFunc ℚ) ((-1) ^ hDim n) * algebraMap ℚ[X] (RatFunc ℚ) X ^ 7
+          * (algebraMap ℚ[X] (RatFunc ℚ) ((Dtail n).comp (-X ^ 2))
+              * algebraMap ℚ[X] (RatFunc ℚ) ((Q.div (Dtail n)).comp (-X ^ 2))
+            + ∑ a ∈ Icc (N n + 1) (K n), algebraMap ℚ[X] (RatFunc ℚ) (C (tailRes n Q a)
+              * (∏ j ∈ (Icc (N n + 1) (K n)).erase a, (X + C ((j : ℚ) ^ 2))).comp (-X ^ 2))) := by
+        rw [Finset.sum_congr rfl hterm]
+    _ = _ := by
+        simp only [map_mul, map_add, map_sum, map_pow]
+        ring
+
+theorem tailCoeffs_support (n : ℕ) (Q : ℚ[X]) : (tailCoeffs n Q).support ⊆ Icc (N n + 1) (K n) := by
+  intro a ha
+  have h := Finsupp.support_finsetSum ha
+  simp only [Finset.mem_biUnion] at h
+  obtain ⟨b, hb, hab⟩ := h
+  rw [Finset.mem_singleton.mp (Finsupp.support_single_subset hab)]
+  exact hb
+
+theorem pullbackPoles_support_subset (n : ℕ) (Q : ℚ[X]) :
+    (pullbackPoles (tailCoeffs n Q)).support ⊆ denSet n := by
+  intro r hr
+  unfold pullbackPoles at hr
+  have h2 := Finsupp.support_sum hr
+  simp only [Finset.mem_biUnion] at h2
+  obtain ⟨j, hj, hrj⟩ := h2
+  have hj' := tailCoeffs_support n Q hj
+  rcases Finset.mem_union.mp (Finsupp.support_add hrj) with h | h
+  · rw [Finset.mem_singleton.mp (Finsupp.support_single_subset h)]
+    exact Finset.mem_union_left _ (Finset.mem_image_of_mem _ hj')
+  · rw [Finset.mem_singleton.mp (Finsupp.support_single_subset h)]
+    exact Finset.mem_union_right _ (Finset.mem_image_of_mem _ hj')
+
+/-- The numerator of `x⁷ R(-x²)` over `∏_{r ∈ den} (x - r)`, for `R = Q/D_tail`, is
+`(-1)^h x⁷ Q(-x²)`. -/
+theorem pfNum_pullback (n : ℕ) (Q : ℚ[X]) :
+    pfNum (pullbackPoly (Q.div (Dtail n)) (tailCoeffs n Q)) (pullbackPoles (tailCoeffs n Q))
+        (denSet n)
+      = (-1) ^ hDim n * (X ^ 7 * Q.comp (-X ^ 2)) := by
+  apply IsFractionRing.injective ℚ[X] (RatFunc ℚ)
+  rw [algebraMap_pfNum _ _ (pullbackPoles_support_subset n Q), tauRatFunc_pullbackData,
+    algebraMap_mul_pullbackRatFunc]
+
+end Numerator
 
 end ZetaSeven
