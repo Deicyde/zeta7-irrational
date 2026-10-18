@@ -18,13 +18,16 @@ outer-range estimate that isolates the residue terms from a polynomial
 correction via a rank lemma. Together they feed the normalization
 factor of the next chapter.
 
-The paper's outer-range proof defers its basis, weights, and weight
-count to the zeta(5) predecessor, and its claim (53) that the
-corrected matrix is integral is false as written. The outer range is
-therefore assembled from reconstructed steps: the rank decomposition,
-a class basis adapted to the residue classes, weighted entry
-valuations in that basis, a Gauss-valuation form of the rank lemma,
-and the weight count that yields the exponent (59).
+The paper's outer-range proof defers its basis, the zero-class
+weights, and the weight count to the zeta(5) predecessor; its claim
+(53) that the corrected matrix is integral is false as written, and
+so is its claim that each residue is `p`-integral when `p > K`. The
+outer range is therefore assembled from reconstructed steps: the rank
+decomposition, the paired-pole congruence, large-prime integrality, a
+class basis adapted to the residue classes with its zero-class
+weights, weighted entry valuations in that basis, a Gauss-valuation
+form of the rank lemma, and the weight count that yields the
+exponent (59).
 
 ## Local functional
 
