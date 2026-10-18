@@ -302,11 +302,7 @@ theorem unitCircle_mul_conj_self (θ : ℝ) : circleMap 0 1 θ * conj (circleMap
 /-- On the unit circle, `z + z̄ = 2 cos θ`. -/
 theorem unitCircle_add_conj_self (θ : ℝ) :
     circleMap 0 1 θ + conj (circleMap 0 1 θ) = 2 * (Real.cos θ : ℂ) := by
-  first
-    | rw [Complex.add_conj, circleMap_zero_re, one_mul, Complex.ofReal_mul,
-        Complex.ofReal_ofNat]
-    | (rw [Complex.add_conj, circleMap_zero_re]; push_cast; ring)
-    | simp [Complex.add_conj, circleMap_zero_re]
+  rw [Complex.add_conj, circleMap_zero_re, one_mul, Complex.ofReal_mul, Complex.ofReal_ofNat]
 
 /-- The factorization behind (109): if `t - L/2 = (L/4) (w + w⁻¹)` and `z = e^{iθ}`, then
 `|t - L (1 + cos θ) / 2| = (L/4) |z - w| |z - w̄| / |w|`. -/
@@ -326,7 +322,8 @@ theorem abs_sub_arcsineParam_eq {L : ℝ} (hL : 0 < L) {w : ℂ} (hw : w ≠ 0) 
   have hconj : ‖w - conj (circleMap 0 1 θ)‖ = ‖circleMap 0 1 θ - conj w‖ := by
     rw [← Complex.norm_conj (w - conj (circleMap 0 1 θ)), map_sub, Complex.conj_conj,
       norm_sub_rev]
-  have hnorm : ‖((t - L * (1 + Real.cos θ) / 2 : ℝ) : ℂ)‖ = |t - L * (1 + Real.cos θ) / 2| := by
+  have hnorm :
+      ‖((t - L * (1 + Real.cos θ) / 2 : ℝ) : ℂ)‖ = |t - L * (1 + Real.cos θ) / 2| := by
     rw [Complex.norm_real, Real.norm_eq_abs]
   have hL4 : ‖(L : ℂ) / 4‖ = L / 4 := by
     rw [norm_div, Complex.norm_real, Real.norm_eq_abs, abs_of_pos hL, Complex.norm_ofNat]
@@ -398,11 +395,8 @@ theorem integral_log_abs_sub_arcsineParam {L : ℝ} (hL : 0 < L) {w : ℂ} (hw :
     circleIntegrable_log_norm_sub_const 1
   have h2 : CircleIntegrable (fun z => Real.log ‖z - conj w‖) 0 1 :=
     circleIntegrable_log_norm_sub_const 1
-  have h12 : CircleIntegrable (fun z => Real.log ‖z - w‖ + Real.log ‖z - conj w‖) 0 1 := by
-    first
-      | exact h1.fun_add h2
-      | exact h1.add h2
-      | fun_prop
+  have h12 : CircleIntegrable (fun z => Real.log ‖z - w‖ + Real.log ‖z - conj w‖) 0 1 :=
+    h1.fun_add h2
   have hF : Real.circleAverage (fun z => Real.log (L / 4) - Real.log ‖w‖ +
       (Real.log ‖z - w‖ + Real.log ‖z - conj w‖)) 0 1 =
       Real.log (L / 4) - Real.log ‖w‖ + 2 * Real.posLog ‖w‖ := by
@@ -506,16 +500,16 @@ theorem integrable_log_abs_sub_arcsineMeasure {L : ℝ} (hL : 0 < L) (t : ℝ) :
       Set.Ioo_subset_Ioc_self)
 
 /-- Equation (109): the potential `U_{ω_{[0,L]}}(t) = ∫ log |t - u| dω_{[0,L]}(u)` of the unit
-arcsine measure equals `log (L/4)` for `0 ≤ t ≤ L` and `log ((t - L/2 + √(t (t - L))) / 2)` for
-`t > L`. -/
+arcsine measure equals `log (L/4)` for `0 ≤ t ≤ L` and
+`log ((t - L/2 + √(t (t - L))) / 2)` for `t > L`. -/
 theorem Ulog_arcsineMeasure {L t : ℝ} (hL : 0 < L) (ht : 0 ≤ t) :
     Ulog (arcsineMeasure L) t = arcsinePotential L t := by
   rw [Ulog, integral_arcsineMeasure hL, ← integral_Ioc_eq_integral_Ioo,
     ← intervalIntegral.integral_of_le Real.pi_pos.le, arcsinePotential]
   by_cases htL : t ≤ L
-  · rw [if_pos htL, integral_log_abs_sub_arcsineParam_of_le hL ht htL,
+  · rw [ite_eq_left htL, integral_log_abs_sub_arcsineParam_of_le hL ht htL,
       inv_mul_cancel_left₀ Real.pi_ne_zero]
-  · rw [if_neg htL, integral_log_abs_sub_arcsineParam_of_lt hL (not_le.1 htL),
+  · rw [ite_eq_right htL, integral_log_abs_sub_arcsineParam_of_lt hL (not_le.1 htL),
       inv_mul_cancel_left₀ Real.pi_ne_zero]
 
 /-- `u ↦ log |t - u|` is integrable against the comparison measure `ρ` for every `t`. -/
