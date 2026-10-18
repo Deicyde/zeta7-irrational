@@ -2,6 +2,9 @@
 article_id: af_c0e261bb8665c49de5320960
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.tau_pullback ZetaSeven.tauFunctional ZetaSeven.tauPoly ZetaSeven.bernoulliL ZetaSeven.dIndex ZetaSeven.tauPole ZetaSeven.tauRatFunc ZetaSeven.pullbackRatFunc ZetaSeven.tauRatFunc_inj ZetaSeven.tauRatFunc_pullbackData
 ---
 
 # Tau pullback identity
