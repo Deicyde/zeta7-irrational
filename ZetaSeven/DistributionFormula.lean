@@ -400,7 +400,7 @@ theorem norm_tail_le (hp7 : 7 ≤ p) {s : ℚ} (hs : 1 < ‖(s : ℚ_[p])‖) :
     (norm_nonneg _) (by positivity)
 
 theorem norm_natCast_eq_one_of_lt {a : ℕ} (ha0 : 0 < a) (hap : a < p) : ‖(a : ℚ_[p])‖ = 1 :=
-  Padic.norm_natCast_eq_one_iff.mpr (Nat.coprime_of_lt_prime ha0 hap Fact.out)
+  Padic.norm_natCast_eq_one_iff.mpr (Nat.coprime_of_lt_prime ha0.ne' hap Fact.out)
 
 theorem norm_neg_div_p {a : ℕ} (ha0 : 0 < a) (hap : a < p) :
     ‖((-((a : ℚ) / p) : ℚ) : ℚ_[p])‖ = p := by
@@ -416,7 +416,7 @@ theorem sum_range_zmod_pow (i : ℕ) :
     ∑ a ∈ range p, (a : ZMod p) ^ i = ∑ x : ZMod p, x ^ i :=
   Finset.sum_nbij' (fun a : ℕ => (a : ZMod p)) (fun x => x.val) (fun _ _ => Finset.mem_univ _)
     (fun x _ => Finset.mem_range.mpr (ZMod.val_lt x))
-    (fun a ha => ZMod.val_cast_of_lt (Finset.mem_range.mp ha))
+    (fun _ ha => ZMod.val_cast_of_lt (Finset.mem_range.mp ha))
     (fun x _ => ZMod.natCast_zmod_val x) (fun _ _ => rfl)
 
 /-- `p ∣ ∑_{a=1}^{p-1} a^{p-7}` for `p ≥ 11`, since `0 < p - 7 < p - 1`. -/
@@ -429,7 +429,7 @@ theorem prime_dvd_sum_pow (hp11 : 11 ≤ p) :
     Finset.sum_range_eq_add_Ico (fun a : ℕ => (a : ZMod p) ^ (p - 7)) (by omega)
   rw [Nat.cast_zero, zero_pow (by omega : p - 7 ≠ 0), zero_add, sum_range_zmod_pow] at h0
   rw [← h0]
-  exact FiniteField.sum_pow_lt_card_sub_one (p - 7) (by rw [ZMod.card]; omega)
+  exact FiniteField.sum_pow_lt_card_sub_one (ZMod p) (p - 7) (by rw [ZMod.card]; omega)
 
 /-- Proof of Lemma 3.6, the `e = 0` term: `∑_{a=1}^{p-1} a⁻⁶ ≡ ∑_a a^{p-7} ≡ 0 (mod p)` for
 `p ≥ 11`. -/
@@ -576,7 +576,7 @@ theorem laurent_pole_expansion {p : ℚ} (hp : p ≠ 0) (c : ℚ) {t : ℚ} (ht 
   simp only [Polynomial.coe_C, Polynomial.coe_mul, Polynomial.coe_sub, Polynomial.coe_X]
   linear_combination (-(PowerSeries.C (c / p) * PowerSeries.C p)) * h - hC
 
-theorem principal_eq {p : ℚ} (hp : p ≠ 0) (c t : ℚ) :
+theorem principal_eq (p c t : ℚ) :
     algebraMap ℚ[X] (RatFunc ℚ) (C c) / algebraMap ℚ[X] (RatFunc ℚ) (C p * (X - C t))
       = algebraMap ℚ[X] (RatFunc ℚ) (C (c / p)) / algebraMap ℚ[X] (RatFunc ℚ) (X - C t) := by
   rw [map_mul, ← div_div, RatFunc.algebraMap_C, RatFunc.algebraMap_C, RatFunc.algebraMap_C,
@@ -622,7 +622,7 @@ theorem substData_spec {p : ℕ} (hp : (p : ℚ) ≠ 0) (a : ℕ) (P : ℚ[X]) (
   split_ifs with h
   · have hs : ((((r - a) / p : ℤ)) : ℚ) = ((r - a : ℤ) : ℚ) / p := by
       rw [Int.cast_div h hpZ, Int.cast_natCast]
-    rw [map_zero, zero_add, principal_eq hp, substPrincipal, Int.mul_ediv_cancel' h,
+    rw [map_zero, zero_add, principal_eq, substPrincipal, Int.mul_ediv_cancel' h,
       add_sub_cancel, hs]
   · have ht : ((r - a : ℤ) : ℚ) / p ≠ 0 := by
       have hr : r - (a : ℤ) ≠ 0 := fun h0 => h (by rw [h0]; exact dvd_zero _)
