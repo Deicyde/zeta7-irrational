@@ -6,12 +6,13 @@ origin: bridged
 
 # Outer class basis
 
-Assume (52): `p ≥ 11`, `K/3 < p ≤ K`, `p^2 > 2K`, `7N ≤ 2p - 2`,
-and put `m = (p-1)/2`. For `0 ≤ c ≤ m` let
+Let `p` satisfy the outer-range hypothesis (52), and take `m`,
+the class counts `ℓ_K(c)`, and the class indicators `δ_c` from the
+outer range data. For `0 ≤ c ≤ m` let
 `S_c = {N < j ≤ K : j ≡ ±c (mod p)}`, so `S_0` is the set of
 multiples of `p` in `(N, K]`, and `F_c(t) = ∏_{j ∈ S_c} (t + j^2)`.
-For `1 ≤ c ≤ m` let `ℓ = ℓ_K(c)` be the class count (43) and
-`δ = 1` if `c ≤ N`, `δ = 0` otherwise, so `|S_c| = ℓ - δ`; put
+For `1 ≤ c ≤ m` write `ℓ = ℓ_K(c)` and `δ = δ_c`, so
+`|S_c| = ℓ - δ`; put
 `E_c(t) = ∏_{j ∈ S_c, j > p} (t + j^2)`, of degree `ℓ - 2`,
 `P_c = ∏_{0 ≤ d ≤ m, d ≠ c} F_d`, and
 `q_{c,i} = (t + c^2)^i` for `0 ≤ i < ℓ - 2`,
@@ -35,7 +36,7 @@ reduced rows are triangular with unit diagonal, hence an
 
 ## Depends on
 
-- [Functional mu](../determinant-construction/functional-mu.md)
+- [Outer range data](outer-range-data.md)
 
 ## Sources
 

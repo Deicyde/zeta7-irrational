@@ -6,17 +6,11 @@ origin: bridged
 
 # Outer weight sum
 
-Assume (52) and put `m = (p-1)/2`. For each class `1 ≤ a ≤ m`
-with `ℓ = ℓ_K(a)` and `δ = 1_{a ≤ N}`, take the `ℓ - δ` outer
-weights (56), `w^out_{a,i} = min(0, i + 4δ - (ℓ + 6)/2)` for
-`i < ℓ - 2` and `0` for `ℓ - 2 ≤ i < ℓ - δ`; add the zero-class
-weight `-1/2` when `K < 2p`, or the two zero-class weights `-3/2`
-and `0` when `K ≥ 2p`. This gives `h` weights. Let `z` be the
-number of zero weights, `r_p = min(h, max(0, K + 6N - 3p + 4))`,
-`v = K - p⌊K/p⌋`, `u = max(0, N + v - p + 1)`,
-`t_p = min(N, v) + u`, and let `γ^out_p` be given by (59):
-`-9(K - p) + 8t_p - 1 - min(r_p, p - 1 - N + u)` when `K < 2p`,
-and `-9(K - p) + 3 + 16N + 7t_p - min(r_p, p + u)` when `K ≥ 2p`.
+Let `p` satisfy the outer-range hypothesis (52), and take from
+the outer range data the outer weight family `w` (the outer
+weights (56) of the classes `1 ≤ a ≤ m` and the zero-class
+weights), the rank correction `r_p`, and the outer exponent
+`γ^out_p`. Let `z` be the number of zero weights in the family.
 Then `2 ∑ w - min(r_p, z) ≥ γ^out_p`.
 
 The proof counts by classes. Under (52), `N < p/3`, so the only
@@ -35,7 +29,7 @@ and with a margin of 3 when `K ≥ 2p`.
 
 ## Depends on
 
-- [Functional mu](../determinant-construction/functional-mu.md)
+- [Outer range data](outer-range-data.md)
 
 ## Sources
 

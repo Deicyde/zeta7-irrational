@@ -6,14 +6,9 @@ origin: cited
 
 # Outer range estimate
 
-Assume (52): `p ≥ 11`, `K/3 < p ≤ K`, `p^2 > 2K`, `7N ≤ 2p - 2`.
-With `r_p = min(h, max(0, K + 6N - 3p + 4))` (54),
-`v = K - p⌊K/p⌋`, `u = max(0, N + v - p + 1)` and
-`t_p = min(N, v) + u` (58), put
-`γ^out_p = -9(K - p) + 8t_p - 1 - min(r_p, p - 1 - N + u)` when
-`K < 2p` and
-`γ^out_p = -9(K - p) + 3 + 16N + 7t_p - min(r_p, p + u)` when
-`K ≥ 2p` (59). Then `v^G_p(Δ_K) ≥ γ^out_p`. For every prime
+Let `p` be a prime satisfying the outer-range hypothesis (52) of
+the outer range data, and let `γ^out_p` be the outer exponent (59)
+defined there. Then `v^G_p(Δ_K) ≥ γ^out_p`. For every prime
 `p > K`, `v^G_p(Δ_K) ≥ 0`.
 
 The case `p > K` is the large-prime integrality. Under (52), the
@@ -24,8 +19,8 @@ monomial basis; `det U` is prime to `p`, and
 `U G_K U^T = A' + p^{-1} U L U^T`, where
 `A'_{rs} = μ_0(r s D_N^7 / D_tail)` and `U L U^T` is integral of
 rank at most `r_p`. The entry valuations give
-`v^G_p(A'_{rs}) ≥ w_r + w_s` with the outer weights (56) on the
-class rows and the zero-class weights, the Gauss-valuation rank
+`v^G_p(A'_{rs}) ≥ w_r + w_s` with the outer weight family on the
+class rows and the zero-class rows, the Gauss-valuation rank
 lemma gives `v^G_p det(U G_K U^T) ≥ 2∑w - min(r_p, z)`, and the
 weight sum bounds this below by `γ^out_p`. Since
 `det(U G_K U^T) = (det U)^2 Δ_K` with `det U` a `p`-unit, the
@@ -38,6 +33,7 @@ bound in the class basis.
 ## Depends on
 
 - [Matrix and determinant](../determinant-construction/matrix-determinant.md)
+- [Outer range data](outer-range-data.md)
 
 ## Proof depends on
 

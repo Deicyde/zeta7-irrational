@@ -40,6 +40,7 @@ and the weight count that yields the exponent (59).
 
 ## Outer range
 
+- [Outer range data](outer-range-data.md) — class counts, the outer-range hypothesis, the rank correction, the weights, and the exponent (59).
 - [Outer moments and rank decomposition](outer-rank-decomposition.md) — moment integrality and the low-rank correction.
 - [Large-prime integrality](large-prime-integrality.md) — the determinant is integral above `K`.
 - [Outer class basis](outer-class-basis.md) — the unimodular basis adapted to residue classes.

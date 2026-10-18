@@ -18,8 +18,8 @@ on the simple poles `1/(t + a^2)`. Write
 `D_N(t)^8 t^{i+j} / D_K(t) = P_{ij}(t) + ∑_{N<a≤K} ρ_{ij,a}/(t + a^2)`
 with `P_{ij} ∈ ℤ[t]`. Then `G_K = A + p^{-1} L`, where
 `A_{ij} = μ_0(D_N^8 t^{i+j}/D_K)` and `L_{ij} = ∑_e c_e [t^e] P_{ij}`,
-and `L` is an integer matrix with
-`rank_ℚ L ≤ r_p = min(h, max(0, K + 6N - 3p + 4))` (54).
+and `L` is an integer matrix with `rank_ℚ L ≤ r_p`, the rank
+correction (54) of the outer range data.
 Nothing is claimed about the integrality of `A`: the paper's (53)
 asserts it, but it fails in the monomial basis, and the outer
 estimate uses a weighted bound in the class basis instead.
@@ -38,6 +38,7 @@ quotient `P_{ij}` has integer coefficients and degree
 ## Depends on
 
 - [Matrix and determinant](../determinant-construction/matrix-determinant.md)
+- [Outer range data](outer-range-data.md)
 
 ## Proof depends on
 
