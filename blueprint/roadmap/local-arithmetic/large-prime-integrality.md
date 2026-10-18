@@ -45,3 +45,9 @@ congruent modulo `p` because
   fails for the paired poles `a`, `p - a`; this statement and
   proof are reconstructed by this project, because the paper
   defers the outer-range argument to its zeta(5) predecessor [5].
+  It is labeled bridged, not cited, because the outer range
+  estimate is the cited target for Proposition 4.6 and restates
+  this conclusion, while the entrywise statement and the paired
+  proof here are the project's.
+- [Source-map erratum 7](../../sources/zeta7-preprint.md#errata-found-during-formalization)
+  records the paired-pole finding.

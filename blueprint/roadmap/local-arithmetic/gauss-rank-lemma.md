@@ -44,3 +44,6 @@ None. Self-contained linear algebra.
   gives no proof or precise form of this extension; this statement
   is reconstructed by this project, because the paper defers the
   outer-range argument that uses it to its zeta(5) predecessor [5].
+  It is labeled bridged, not cited, because the source states only
+  that one-sentence claim, and the precise statement here is the
+  project's, placed between the cited Lemma 4.5 and Proposition 4.6.
