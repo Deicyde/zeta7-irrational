@@ -6,10 +6,12 @@ import ZetaSeven.BernoulliMult
 import ZetaSeven.ComparisonMeasure
 import ZetaSeven.DegreeLemma
 import ZetaSeven.Enclosures
+import ZetaSeven.EnergyComputation
 import ZetaSeven.ExternalField
 import ZetaSeven.FunctionalMu
 import ZetaSeven.IntegerValued
 import ZetaSeven.MatrixDet
+import ZetaSeven.PotentialInequality
 import ZetaSeven.PrimeNumberTheorem
 import ZetaSeven.RankLemma
 import ZetaSeven.ReflectionDifference
