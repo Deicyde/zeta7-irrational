@@ -1489,8 +1489,7 @@ theorem gram_matrix (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M 
   rw [Matrix.of_apply, gram_entry hR hε, Matrix.mul_apply]
   simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.map_apply, eMat, Matrix.of_apply,
     Gmat, Finset.sum_mul]
-  symm
-  rw [Finset.sum_comm]
+  refine Eq.trans ?_ Finset.sum_comm
   refine Finset.sum_congr rfl ?_
   intro i _
   refine Finset.sum_congr rfl ?_
@@ -2433,8 +2432,7 @@ theorem exists_extraRows (hR : InnerRange n M p) [Fact p.Prime] : ∃ ε, ExtraR
         · exact hmono a ha haS' b hb
   obtain ⟨S, hS, hcard, hmono⟩ := key (allocE n M p) hE.le
   refine ⟨fun a => if a ∈ S then 1 else 0, fun a _ => ?_, ?_, ?_⟩
-  · dsimp only
-    split_ifs <;> omega
+  · split_ifs <;> omega
   · rw [← hcard]
     congr 1
     ext a
@@ -2447,7 +2445,6 @@ theorem exists_extraRows (hR : InnerRange n M p) [Fact p.Prime] : ∃ ε, ExtraR
     · intro h
       exact ⟨hS h, by rw [ite_eq_left h]⟩
   · intro a ha b hb ha0 hb1
-    dsimp only at ha0 hb1
     have haS : a ∉ S := fun h => by rw [ite_eq_left h] at ha0; omega
     have hbS : b ∈ S := by
       by_contra h
