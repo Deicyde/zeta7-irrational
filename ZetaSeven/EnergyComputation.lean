@@ -149,6 +149,8 @@ theorem compMeasure_prod_compMeasure :
     rfl
   rw [h, Measure.prod_sum, Measure.sum_fintype, Fintype.sum_prod_type]
   simp only [Measure.prod_smul_left, Measure.prod_smul_right, smul_smul]
+  refine Finset.sum_congr rfl fun j _ => Finset.sum_congr rfl fun k _ => ?_
+  rw [mul_comm]
 
 /-- Each pair of components, weighted by `c_j c_k`, integrates the kernel `log |t - u|`. -/
 theorem integrable_log_abs_sub_smul_prod_arcsineMeasure (j k : Fin 16) :
