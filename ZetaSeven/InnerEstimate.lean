@@ -1489,7 +1489,8 @@ theorem gram_matrix (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M 
   rw [Matrix.of_apply, gram_entry hR hε, Matrix.mul_apply]
   simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.map_apply, eMat, Matrix.of_apply,
     Gmat, Finset.sum_mul]
-  conv_lhs => rw [Finset.sum_comm]
+  symm
+  rw [Finset.sum_comm]
   refine Finset.sum_congr rfl ?_
   intro i _
   refine Finset.sum_congr rfl ?_
@@ -1872,6 +1873,7 @@ theorem sum_classMult_Icc (hp : 2 * mHalf p + 1 = p) (A : ℕ) {a : ℕ} (ha : a
     have hdiv' : ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) + ((0 : ℕ) : ℤ)).card
         = A / p := by
       rw [← hdiv]
+      congr 1
     rw [hdiv, hdiv']
     ring
   · unfold cls
@@ -1934,13 +1936,13 @@ theorem weight2_zero_le (i : ℕ) :
     weight2 n M p ε 0 i ≤ 4 * (i : ℤ) + 16 * mN n p - 2 * mK n p + 1 := by
   unfold weight2
   rw [ite_eq_left rfl]
-  exact Finset.fold_min_le.mpr (Or.inl le_rfl)
+  exact (Finset.fold_min_le _).mpr (Or.inl le_rfl)
 
 theorem weight2_zero_le' (i : ℕ) {c : ℕ} (hc : c ∈ Icc 1 (mHalf p)) :
     weight2 n M p ε 0 i ≤ 2 * (allocZ n M p ε c : ℤ) - ell p (K n) c - 6 := by
   unfold weight2
   rw [ite_eq_left rfl]
-  exact Finset.fold_min_le.mpr (Or.inr ⟨c, hc, le_rfl⟩)
+  exact (Finset.fold_min_le _).mpr (Or.inr ⟨c, hc, le_rfl⟩)
 
 theorem allocL_eq (hR : InnerRange n M p) [Fact p.Prime] {a : ℕ} (ha1 : 1 ≤ a)
     (ham : a ≤ mHalf p) :
@@ -2020,7 +2022,7 @@ theorem comparison (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p
     have hcI : c ∈ Icc 1 (mHalf p) := Finset.mem_Icc.mpr ⟨hc1, hc⟩
     have hLc := allocL_eq (ε := ε) hR hc1 hc
     have hεc := hε.le_one c hcI
-    have hZc : (allocZ n M p ε c : ℤ) = allocT n M p + ε c := by unfold allocZ; push_cast; ring
+    have hZc : (allocZ n M p ε c : ℤ) = allocT n M p + ε c := by unfold allocZ; omega
     by_cases hac : a = c
     · rw [ite_eq_left hac]
       have hWa : weight2 n M p ε a i
@@ -2158,6 +2160,7 @@ theorem normSqLe_det [Fact p.Prime] {ι : Type*} [Fintype ι] [DecidableEq ι]
   refine NormSqLe.sum _ _ fun σ _ => ?_
   have h := NormSqLe.prod Finset.univ (fun i => w (σ i) + w i) (fun i => A (σ i) i)
     fun i _ => hA (σ i) i
+  beta_reduce at h
   have hsum : ∑ i, (w (σ i) + w i) = 2 * ∑ i, w i := by
     rw [Finset.sum_add_distrib, Equiv.sum_comp σ w]
     ring
@@ -2181,12 +2184,13 @@ theorem denSet_not_dvd (hR : InnerRange n M p) [Fact p.Prime] {r j : ℤ} (hr : 
   obtain ⟨hj1, hj2⟩ := mem_denSet_bound hj
   have hK := hR.K_lt
   have hpM := hR.p_gt
+  have hp0 : 0 < p := (Fact.out : p.Prime).pos
   have hp2 : 2 * (K n : ℤ) < (p : ℤ) ^ 2 := by
     have h1 : 200 * K n < p * p := by nlinarith
     have h2 : 2 * K n < p ^ 2 := by nlinarith
     exact_mod_cast h2
   have h0 := int_eq_zero_of_dvd_of_lt (q := p ^ 2) (x := r - j) (by exact_mod_cast hdvd)
-    (by push_cast; omega) (by push_cast; omega)
+    (by push_cast; linarith) (by push_cast; linarith)
   omega
 
 /-- `d((r - a)/p) < p` for the poles `r ≡ a (mod p)`. -/
@@ -2214,9 +2218,13 @@ theorem eDeg_eq (hR : InnerRange n M p) [Fact p.Prime] {b i a : ℕ} (hb : b ≤
   have hm := hR.two_mul_mHalf
   have hcl := cls_le hm ha
   unfold eDeg
-  rw [classMult_eq hm ha hb, Finset.sum_congr rfl fun c hc => by
-    rw [classMult_eq hm ha (by
-      have := Finset.mem_range.mp (Finset.mem_of_mem_erase hc); omega)]]
+  have hsum : ∑ c ∈ (range (mHalf p + 1)).erase b, classMult p a c * allocL n M p ε c
+      = ∑ c ∈ (range (mHalf p + 1)).erase b,
+          (if c = cls p a then (if a = 0 then 2 else 1) else 0) * allocL n M p ε c :=
+    Finset.sum_congr rfl fun c hc => by
+      rw [classMult_eq hm ha (by
+        have := Finset.mem_range.mp (Finset.mem_of_mem_erase hc); omega)]
+  rw [hsum, classMult_eq hm ha hb]
   simp only [ite_mul, zero_mul]
   rw [Finset.sum_ite_eq']
   by_cases hbc : b = cls p a
@@ -2307,7 +2315,7 @@ theorem normSqLe_gram (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n 
   have hp1 := prime_cast_one_lt_real (p := p)
   have hρ : (ρ.1 : ℕ) ≤ mHalf p := Nat.lt_succ_iff.mp ρ.1.isLt
   have hσ : (σ.1 : ℕ) ≤ mHalf p := Nat.lt_succ_iff.mp σ.1.isLt
-  set Q := Dpoly (N n) ^ 7 * eBasis ℚ n M p ε ρ.1 ρ.2 * eBasis ℚ n M p ε σ.1 σ.2 with hQ
+  set Q := Dpoly (N n) ^ 7 * eBasis ℚ n M p ε ρ.1 ρ.2 * eBasis ℚ n M p ε σ.1 σ.2
   set P := pullbackPoly (Q.div (Dtail n)) (tailCoeffs n Q) with hP
   set d := pullbackPoles (tailCoeffs n Q) with hd
   have h1 := congrArg (fun F : Polynomial ℚ_[p] => F.coeff k) (distribution_formula hp11 P d)
@@ -2371,22 +2379,81 @@ theorem inner_estimate (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n
       * eBasis ℚ n M p ε (e.symm l).1 (e.symm l).2))
     (fun k => weight2 n M p ε (e.symm k).1 (e.symm k).2)
     (fun k l => normSqLe_gram hR hε (e.symm k) (e.symm l)) k
+  beta_reduce at hbound
   rw [det_gram hR hε e, coeff_C_mul, Rat.cast_mul, norm_mul, mul_pow, Rat.cast_pow, norm_pow,
     norm_det_eMat hR hε e, one_pow, one_pow, one_mul] at hbound
   have hsum : ∑ k : Fin (hDim n), weight2 n M p ε (e.symm k).1 (e.symm k).2
       = gammaIn n M p ε := by
-    rw [Equiv.sum_comp e.symm (fun ρ => weight2 n M p ε ρ.1 ρ.2), Fintype.sum_sigma]
-    unfold gammaIn
-    rw [← Fin.sum_univ_eq_sum_range
-      (fun a => ∑ i ∈ range (allocL n M p ε a), weight2 n M p ε a i)]
-    refine Finset.sum_congr rfl fun a _ => ?_
-    rw [← Fin.sum_univ_eq_sum_range (fun i => weight2 n M p ε a i)]
+    calc ∑ k : Fin (hDim n), weight2 n M p ε (e.symm k).1 (e.symm k).2
+        = ∑ ρ : eIdx n M p ε, weight2 n M p ε ρ.1 ρ.2 :=
+          Equiv.sum_comp e.symm (fun ρ : eIdx n M p ε => weight2 n M p ε ρ.1 ρ.2)
+      _ = ∑ a : Fin (mHalf p + 1), ∑ i : Fin (allocL n M p ε a), weight2 n M p ε a i :=
+          Fintype.sum_sigma _
+      _ = gammaIn n M p ε := by
+          unfold gammaIn
+          rw [← Fin.sum_univ_eq_sum_range
+            (fun a => ∑ i ∈ range (allocL n M p ε a), weight2 n M p ε a i)]
+          refine Finset.sum_congr rfl fun a _ => ?_
+          exact Fin.sum_univ_eq_sum_range (fun i => weight2 n M p ε a i) _
   rw [hsum] at hbound
-  rw [Padic.norm_eq_zpow_neg_valuation (by exact_mod_cast hk), Padic.valuation_ratCast,
+  rw [Padic.norm_eq_zpow_neg_valuation (x := (((DeltaK n).coeff k : ℚ) : ℚ_[p]))
+      (by exact_mod_cast hk), Padic.valuation_ratCast,
     ← zpow_natCast, ← zpow_mul] at hbound
   have := (zpow_le_zpow_iff_right₀ prime_cast_one_lt_real).mp hbound
   push_cast at this
   omega
+
+/-- Definition 4.1 is not vacuous: admissible extra rows exist (order the classes by decreasing
+`ℓ_K` and give the first `E` of them an extra row). -/
+theorem exists_extraRows (hR : InnerRange n M p) [Fact p.Prime] : ∃ ε, ExtraRows n M p ε := by
+  have hE := (alloc_eq hR).2
+  have key : ∀ e ≤ mHalf p, ∃ S ⊆ Icc 1 (mHalf p), S.card = e ∧
+      ∀ a ∈ Icc 1 (mHalf p), a ∉ S → ∀ b ∈ S, ell p (K n) a ≤ ell p (K n) b := by
+    intro e he
+    induction e with
+    | zero => exact ⟨∅, Finset.empty_subset _, rfl, fun a _ _ b hb => by simp at hb⟩
+    | succ e ih =>
+      obtain ⟨S, hS, hcard, hmono⟩ := ih (by omega)
+      have hne : ((Icc 1 (mHalf p)).filter fun a => a ∉ S).Nonempty := by
+        by_contra hne
+        have hsub : Icc 1 (mHalf p) ⊆ S := fun a ha => by
+          by_contra haS
+          exact hne ⟨a, Finset.mem_filter.mpr ⟨ha, haS⟩⟩
+        have := Finset.card_le_card hsub
+        rw [Nat.card_Icc] at this
+        omega
+      obtain ⟨x, hx, hxmax⟩ := Finset.exists_max_image _ (fun a => ell p (K n) a) hne
+      obtain ⟨hxI, hxS⟩ := Finset.mem_filter.mp hx
+      refine ⟨insert x S, Finset.insert_subset hxI hS, ?_, ?_⟩
+      · rw [Finset.card_insert_of_notMem hxS, hcard]
+      · intro a ha haS b hb
+        have haS' : a ∉ S := fun h => haS (Finset.mem_insert_of_mem h)
+        rcases Finset.mem_insert.mp hb with rfl | hb
+        · exact hxmax a (Finset.mem_filter.mpr ⟨ha, haS'⟩)
+        · exact hmono a ha haS' b hb
+  obtain ⟨S, hS, hcard, hmono⟩ := key (allocE n M p) hE.le
+  refine ⟨fun a => if a ∈ S then 1 else 0, fun a _ => ?_, ?_, ?_⟩
+  · dsimp only
+    split_ifs <;> omega
+  · rw [← hcard]
+    congr 1
+    ext a
+    simp only [Finset.mem_filter]
+    constructor
+    · rintro ⟨-, h⟩
+      by_contra haS
+      rw [ite_eq_right haS] at h
+      omega
+    · intro h
+      exact ⟨hS h, by rw [ite_eq_left h]⟩
+  · intro a ha b hb ha0 hb1
+    dsimp only at ha0 hb1
+    have haS : a ∉ S := fun h => by rw [ite_eq_left h] at ha0; omega
+    have hbS : b ∈ S := by
+      by_contra h
+      rw [ite_eq_right h] at hb1
+      omega
+    exact hmono a ha haS b hbS
 
 end Assembly
 
