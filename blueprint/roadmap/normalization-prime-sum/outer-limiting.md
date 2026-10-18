@@ -6,14 +6,16 @@ origin: cited
 
 # Outer limiting functions
 
-Define the outer limit `R_0`, the zero-weight correction `d`,
-and the outer integral `I_out` in the variable `y = p/K`,
-with the scalar contribution from the continuum limit of
-`-v_p(S_K)/K`.
+Define the outer limit `R_0` of `-γ^out_p/K`, for the outer
+exponent (59) of the outer range data, the zero-weight
+correction `d`, and the outer integral `I_out` in the variable
+`y = p/K`, with the scalar contribution from the continuum limit
+of `-v_p(S_K)/K`.
 
 ## Depends on
 
-- [Outer range estimate](../local-arithmetic/outer-estimate.md)
+- [Outer range data](../local-arithmetic/outer-range-data.md)
+- [Matrix and determinant](../determinant-construction/matrix-determinant.md)
 
 ## Sources
 

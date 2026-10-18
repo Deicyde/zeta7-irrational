@@ -6,10 +6,11 @@ origin: cited
 
 # Normalization and integrality
 
-Define the branch exponents `L_p(K,M)` from the inner, outer,
-and crude bounds, the positive rational normalization factor
-`m_{K,M}` as the product of `p^{-L_p}` over `p ≤ 2h`, and the
-final polynomial `Q_{K,M} = m_{K,M} F_K`. Then `Q_{K,M}` has
+Define the branch exponents `L_p(K,M)` from the inner exponent
+`γ^in_p`, the outer exponent `γ^out_p` (59) of the outer range
+data, and the crude bound, the positive rational normalization
+factor `m_{K,M}` as the product of `p^{-L_p}` over `p ≤ 2h`, and
+the final polynomial `Q_{K,M} = m_{K,M} F_K`. Then `Q_{K,M}` has
 integer coefficients.
 
 The proof checks `v_p(Q_{K,M}) ≥ 0` prime by prime: each of
@@ -22,8 +23,12 @@ node.
 
 - [Matrix and determinant](../determinant-construction/matrix-determinant.md)
 - [Inner range estimate](../local-arithmetic/inner-estimate.md)
-- [Outer range estimate](../local-arithmetic/outer-estimate.md)
+- [Outer range data](../local-arithmetic/outer-range-data.md)
 - [Small-prime estimate](../local-arithmetic/small-prime-estimate.md)
+
+## Proof depends on
+
+- [Outer range estimate](../local-arithmetic/outer-estimate.md)
 
 ## Sources
 
