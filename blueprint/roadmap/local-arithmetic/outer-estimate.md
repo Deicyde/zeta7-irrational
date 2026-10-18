@@ -8,12 +8,16 @@ origin: cited
 
 Let `p` be a prime satisfying the outer-range hypothesis (52) of
 the outer range data, and let `γ^out_p` be the outer exponent (59)
-defined there. Then `v^G_p(Δ_K) ≥ γ^out_p`. For every prime
-`p > K`, `v^G_p(Δ_K) ≥ 0`.
+defined there. Then `v^G_p(Δ_K) ≥ γ^out_p`. Also
+`v^G_p(Δ_K) ≥ 0` for every prime `p > K`: this second clause of
+Proposition 4.6 is the conclusion of the large-prime integrality
+node, restated here unchanged so that this node mirrors the cited
+proposition.
 
-The case `p > K` is the large-prime integrality. Under (52), the
-rank decomposition writes `G_K = A + p^{-1} L` with the modified
-functional `μ_0` and an integral `L` of rank at most `r_p`. Let
+The second clause is the large-prime integrality itself. Under
+(52), the rank decomposition writes `G_K = A + p^{-1} L` with the
+modified functional `μ_0` and an integral `L` of rank at most
+`r_p`. Let
 `U` be the integer matrix of the outer class basis in the
 monomial basis; `det U` is prime to `p`, and
 `U G_K U^T = A' + p^{-1} U L U^T`, where
