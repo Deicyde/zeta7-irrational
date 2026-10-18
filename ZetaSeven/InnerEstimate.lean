@@ -77,7 +77,7 @@ theorem ClassDeg.mul {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q) (hR : 
           * (R.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.2 : ℚ) : ℚ_[p])‖
         ≤ (p : ℝ) ^ (-((n + m : ℕ) : ℤ) - 1)) := by
     intro x hx
-    rw [mem_antidiagonal] at hx
+    rw [Finset.HasAntidiagonal.mem_antidiagonal] at hx
     rw [Rat.cast_mul, norm_mul]
     refine ⟨?_, fun hk => ?_⟩
     · calc _ ≤ (p : ℝ) ^ (-(n : ℤ)) * (p : ℝ) ^ (-(m : ℤ)) :=
@@ -112,6 +112,7 @@ theorem ClassDeg.prod {ι : Type*} (s : Finset ι) {a : ℕ} (n : ι → ℕ) (Q
     exact (h i (Finset.mem_insert_self i s)).mul
       (ih fun j hj => h j (Finset.mem_insert_of_mem hj))
 
+omit [Fact p.Prime] in
 theorem comp_affine_X_sub_C' (a : ℕ) (r : ℤ) :
     (X - C (r : ℚ)).comp (C (a : ℚ) + C (p : ℚ) * X) = C (((a - r : ℤ) : ℚ)) + C (p : ℚ) * X := by
   rw [sub_comp, X_comp, C_comp, Int.cast_sub, Int.cast_natCast, C_sub]
@@ -180,8 +181,8 @@ theorem ClassDeg.mul_lead {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q)
   have hp0 : (p : ℝ) ≠ 0 := prime_cast_pos_real.ne'
   have hp1 := prime_cast_one_lt_real (p := p)
   have hnn : ∀ e : ℤ, (0 : ℝ) ≤ (p : ℝ) ^ e := fun e => zpow_nonneg (Nat.cast_nonneg p) e
-  rw [mul_comp, coeff_mul, Rat.cast_sum, ← Finset.add_sum_erase _ _
-    (show (n, m) ∈ antidiagonal (n + m) from mem_antidiagonal.mpr rfl)]
+  rw [mul_comp, coeff_mul, Rat.cast_sum, ← Finset.add_sum_erase _ _ (show (n, m) ∈ antidiagonal
+    (n + m) from Finset.HasAntidiagonal.mem_antidiagonal.mpr rfl)]
   dsimp only
   have hmain : ‖(((Q.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff n
         * (R.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff m : ℚ) : ℚ_[p])‖
@@ -193,7 +194,7 @@ theorem ClassDeg.mul_lead {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q)
       ≤ (p : ℝ) ^ (-((n + m : ℕ) : ℤ) - 1) := by
     refine IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _) fun x hx => ?_
     obtain ⟨hne, hx⟩ := Finset.mem_erase.mp hx
-    rw [mem_antidiagonal] at hx
+    rw [Finset.HasAntidiagonal.mem_antidiagonal] at hx
     rw [Rat.cast_mul, norm_mul]
     by_cases h1 : n < x.1
     · calc _ ≤ (p : ℝ) ^ (-(n : ℤ) - 1) * (p : ℝ) ^ (-(m : ℤ)) :=
@@ -304,8 +305,8 @@ theorem norm_prod_sub_ge {den : Finset ℤ} {a : ℕ} {r : ℤ} (hr : r ∈ den)
     obtain ⟨hj, hja⟩ := Finset.mem_filter.mp hj
     obtain ⟨hjr, hj⟩ := Finset.mem_erase.mp hj
     rw [hcast]
-    by_contra hlt
-    push_neg at hlt
+    by_contra hlt'
+    have hlt := not_le.mp hlt'
     have h2 : ‖((r - j : ℤ) : ℚ_[p])‖ ≤ (p : ℝ) ^ (-((2 : ℕ) : ℤ)) := by
       rw [show (-((2 : ℕ) : ℤ)) = -2 by norm_num, Padic.norm_le_pow_iff_norm_lt_pow_add_one,
         show (-2 : ℤ) + 1 = -1 by norm_num, zpow_neg_one]
@@ -368,7 +369,8 @@ theorem norm_substPrincipal_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset �
   have hres := norm_residue_le P d hN hrd hra fun j hj hrj hja => hinc r hrd j hj hrj hra hja
   rw [substPrincipal, hra', Rat.cast_div, norm_div, norm_ratCast_p, zpow_neg_one, div_inv_eq_mul]
   calc ‖((d r : ℚ) : ℚ_[p])‖ * p
-      ≤ (p : ℝ) ^ (((den.filter fun j => (p : ℤ) ∣ j - a).card : ℤ) - 1 - n) * (p : ℝ) ^ (1 : ℤ) := by
+      ≤ (p : ℝ) ^ (((den.filter fun j => (p : ℤ) ∣ j - a).card : ℤ) - 1 - n)
+          * (p : ℝ) ^ (1 : ℤ) := by
         rw [zpow_one]; exact mul_le_mul_of_nonneg_right hres (Nat.cast_nonneg p)
     _ = _ := by rw [← zpow_add₀ hp0]; congr 1; ring
 
@@ -393,8 +395,8 @@ theorem top_coeff_bound {W : Polynomial ℚ_[p]} {G : PowerSeries ℚ_[p]} {t D 
       0 < ‖PowerSeries.coeff m G‖ →
       ‖PowerSeries.coeff (m + t) ((W : PowerSeries ℚ_[p]) * G)‖ = ‖PowerSeries.coeff m G‖ := by
     intro m hmax hlt hpos
-    rw [PowerSeries.coeff_mul, ← Finset.add_sum_erase _ _
-      (show (t, m) ∈ antidiagonal (m + t) from mem_antidiagonal.mpr (add_comm t m))]
+    rw [PowerSeries.coeff_mul, ← Finset.add_sum_erase _ _ (show (t, m) ∈ antidiagonal (m + t) from
+      Finset.HasAntidiagonal.mem_antidiagonal.mpr (add_comm t m))]
     dsimp only
     have hmain : ‖PowerSeries.coeff t (W : PowerSeries ℚ_[p]) * PowerSeries.coeff m G‖
         = ‖PowerSeries.coeff m G‖ := by
@@ -409,7 +411,7 @@ theorem top_coeff_bound {W : Polynomial ℚ_[p]} {G : PowerSeries ℚ_[p]} {t D 
           (fun x : ℕ × ℕ => PowerSeries.coeff x.1 (W : PowerSeries ℚ_[p]) * PowerSeries.coeff x.2 G)
         refine hle.trans_lt ?_
         obtain ⟨hxne, hx⟩ := Finset.mem_erase.mp hx
-        rw [mem_antidiagonal] at hx
+        rw [Finset.HasAntidiagonal.mem_antidiagonal] at hx
         dsimp only
         rw [norm_mul, Polynomial.coeff_coe]
         rcases lt_trichotomy x.1 t with h | h | h
@@ -467,8 +469,8 @@ theorem top_coeff_bound {W : Polynomial ℚ_[p]} {G : PowerSeries ℚ_[p]} {t D 
   have hpos : ∀ e' : ℤ, (0 : ℝ) < (p : ℝ) ^ e' := fun e' => zpow_pos prime_cast_pos_real e'
   have part1 : ∀ j, ‖PowerSeries.coeff j G‖ ≤ (p : ℝ) ^ e := by
     intro j0
-    by_contra hbig
-    push_neg at hbig
+    by_contra hbig'
+    have hbig := not_le.mp hbig'
     obtain ⟨m, hm1, hm2, -, hm4⟩ := hmaxex _ ((hpos e).trans hbig) j0 le_rfl
     have := key m hm1 hm2 (((hpos e).trans hbig).trans_le hm4)
     have h5 := hR (m + t)
@@ -486,6 +488,307 @@ theorem top_coeff_bound {W : Polynomial ℚ_[p]} {G : PowerSeries ℚ_[p]} {t D 
   have h5 := hRD (m + t) (by omega)
   rw [this, hmB] at h5
   exact absurd h5 (not_le.mpr (zpow_lt_zpow_right₀ hp1 (by omega)))
+
+/-! ## The analytic part of `g(a + p z)` -/
+
+theorem finset_sum_comp' {ι : Type*} (s : Finset ι) (f : ι → ℚ[X]) (q : ℚ[X]) :
+    (∑ i ∈ s, f i).comp q = ∑ i ∈ s, (f i).comp q := by
+  have h := map_sum (Polynomial.compRingHom q) f s
+  simp only [coe_compRingHom_apply] at h
+  exact h
+
+theorem coe_finset_sum' {ι : Type*} (s : Finset ι) (f : ι → ℚ[X]) :
+    ((∑ i ∈ s, f i : ℚ[X]) : PowerSeries ℚ) = ∑ i ∈ s, (f i : PowerSeries ℚ) := by
+  have h := map_sum (Polynomial.coeToPowerSeries.ringHom (R := ℚ)) f s
+  simp only [Polynomial.coeToPowerSeries.ringHom_apply] at h
+  exact h
+
+theorem norm_inv_p_pow (t : ℕ) : ‖((((p : ℚ) ^ t)⁻¹ : ℚ) : ℚ_[p])‖ = (p : ℝ) ^ (t : ℤ) := by
+  rw [Rat.cast_inv, Rat.cast_pow, Rat.cast_natCast, norm_inv, norm_pow, Padic.norm_p, inv_pow,
+    inv_inv, zpow_natCast]
+
+/-- `W = p^{-t} D(a + p z)`, with `D = ∏_{r ∈ den} (x - r)` and `t` the number of poles
+`r ≡ a (mod p)`. Modulo `p` it is a unit times a monic polynomial of degree `t`. -/
+noncomputable def wPoly (p a : ℕ) (den : Finset ℤ) : ℚ[X] :=
+  C (((p : ℚ) ^ (den.filter fun r => (p : ℤ) ∣ r - a).card)⁻¹)
+    * (∏ r ∈ den, (X - C (r : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X)
+
+/-- `p^{-t} (Num(a + p z) - ∑_{r ≡ a} d_r D_r(a + p z))`, with `D_r = D/(x - r)`: the product of
+`wPoly` with the analytic part of `g(a + p z)` (`W_mul_substAnalytic`). -/
+noncomputable def rPoly (p a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) (den : Finset ℤ) : ℚ[X] :=
+  C (((p : ℚ) ^ (den.filter fun r => (p : ℤ) ∣ r - a).card)⁻¹)
+    * ((pfNum P d den).comp (C (a : ℚ) + C (p : ℚ) * X)
+      - ∑ r ∈ den.filter (fun r => (p : ℤ) ∣ r - a),
+          C (d r) * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X))
+
+theorem norm_coeff_wPoly (a : ℕ) (den : Finset ℤ) (i : ℕ) :
+    ‖(((wPoly p a den).coeff i : ℚ) : ℚ_[p])‖ ≤ 1 ∧
+      ((den.filter fun r => (p : ℤ) ∣ r - a).card < i →
+        ‖(((wPoly p a den).coeff i : ℚ) : ℚ_[p])‖ ≤ (p : ℝ)⁻¹) ∧
+      (i = (den.filter fun r => (p : ℤ) ∣ r - a).card →
+        ‖(((wPoly p a den).coeff i : ℚ) : ℚ_[p])‖ = 1) := by
+  have hp0 : (p : ℝ) ≠ 0 := prime_cast_pos_real.ne'
+  have hc := classDeg_prod_X_sub_C (p := p) a den
+  have hl := norm_lead_prod_X_sub_C (p := p) a den
+  rw [wPoly, coeff_C_mul, Rat.cast_mul, norm_mul, norm_inv_p_pow]
+  set t := (den.filter fun r => (p : ℤ) ∣ r - a).card with ht
+  refine ⟨?_, fun hi => ?_, fun hi => ?_⟩
+  · calc _ ≤ (p : ℝ) ^ (t : ℤ) * (p : ℝ) ^ (-(t : ℤ)) :=
+          mul_le_mul_of_nonneg_left (hc i).1 (zpow_nonneg (Nat.cast_nonneg p) _)
+      _ = 1 := by rw [← zpow_add₀ hp0, add_neg_cancel, zpow_zero]
+  · calc _ ≤ (p : ℝ) ^ (t : ℤ) * (p : ℝ) ^ (-(t : ℤ) - 1) :=
+          mul_le_mul_of_nonneg_left ((hc i).2 hi) (zpow_nonneg (Nat.cast_nonneg p) _)
+      _ = (p : ℝ)⁻¹ := by
+          rw [← zpow_add₀ hp0, show (t : ℤ) + (-(t : ℤ) - 1) = -1 by ring, zpow_neg_one]
+  · subst hi
+    rw [hl, ← zpow_add₀ hp0, add_neg_cancel, zpow_zero]
+
+/-- The identity behind the analytic bound: `p^{-t} D(a + p z)` times the analytic part of
+`g(a + p z)` is the polynomial `rPoly`. Each pole `r ≢ a` contributes
+`(d_r/p) · 1/(z - (r - a)/p)`, and `D(a + p z) = p (z - (r - a)/p) D_r(a + p z)`. -/
+theorem W_mul_substAnalytic (a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ}
+    (hsupp : d.support ⊆ den) :
+    ((wPoly p a den : ℚ[X]) : PowerSeries ℚ) * substAnalytic p a P d
+      = ((rPoly p a P d den : ℚ[X]) : PowerSeries ℚ) := by
+  have hp : (p : ℚ) ≠ 0 := by exact_mod_cast (Fact.out : p.Prime).ne_zero
+  rw [wPoly, rPoly]
+  set c : ℚ := ((p : ℚ) ^ (den.filter fun r => (p : ℤ) ∣ r - a).card)⁻¹ with hc
+  have hpole : ∀ r ∈ den, ¬ (p : ℤ) ∣ r - a →
+      ((C c * (∏ j ∈ den, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X) : ℚ[X])
+          : PowerSeries ℚ) * (PowerSeries.C (d r / p) * poleSeries (((r - a : ℤ) : ℚ) / p))
+        = ((C c * (C (d r) * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp
+            (C (a : ℚ) + C (p : ℚ) * X)) : ℚ[X]) : PowerSeries ℚ) := by
+    intro r hr hra
+    have hσ : (((r - a : ℤ) : ℚ) / p) ≠ 0 := by
+      have h1 : (r - a : ℤ) ≠ 0 := fun h => hra (by rw [h]; exact dvd_zero _)
+      exact div_ne_zero (by exact_mod_cast h1) hp
+    have hprod : (∏ j ∈ den, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X)
+        = C (p : ℚ) * (X - C (((r - a : ℤ) : ℚ) / p))
+          * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X) := by
+      rw [← Finset.mul_prod_erase den (fun j : ℤ => X - C (j : ℚ)) hr, mul_comp,
+        comp_affine_X_sub_C hp a r]
+    have hpm := poleSeries_mul hσ
+    have hC : PowerSeries.C (p : ℚ) * PowerSeries.C (d r / p) = PowerSeries.C (d r) := by
+      rw [← map_mul, mul_div_cancel₀ _ hp]
+    rw [hprod]
+    simp only [Polynomial.coe_mul, Polynomial.coe_C, Polynomial.coe_sub, Polynomial.coe_X]
+    linear_combination (PowerSeries.C c * PowerSeries.C (d r / p) * PowerSeries.C (p : ℚ)
+        * (((∏ j ∈ den.erase r, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X) : ℚ[X])
+          : PowerSeries ℚ)) * hpm
+      + (PowerSeries.C c * (((∏ j ∈ den.erase r, (X - C (j : ℚ))).comp
+          (C (a : ℚ) + C (p : ℚ) * X) : ℚ[X]) : PowerSeries ℚ)) * hC
+  have hsum : ∑ r ∈ d.support,
+      ((C c * (∏ j ∈ den, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X) : ℚ[X])
+          : PowerSeries ℚ)
+        * (if (p : ℤ) ∣ r - a then 0
+          else PowerSeries.C (d r / p) * poleSeries (((r - a : ℤ) : ℚ) / p))
+      = ∑ r ∈ den.filter (fun r => ¬ (p : ℤ) ∣ r - a),
+          ((C c * (C (d r) * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp
+            (C (a : ℚ) + C (p : ℚ) * X)) : ℚ[X]) : PowerSeries ℚ) := by
+    rw [Finset.sum_filter, ← Finset.sum_subset hsupp]
+    · refine Finset.sum_congr rfl fun r hr => ?_
+      by_cases hq : (p : ℤ) ∣ r - a
+      · rw [if_pos hq, if_neg (not_not.mpr hq), mul_zero]
+      · rw [if_neg hq, if_pos hq, hpole r (hsupp hr) hq]
+    · intro r _ hrs
+      rw [Finsupp.notMem_support_iff.mp hrs]
+      simp
+  have hnum : (pfNum P d den).comp (C (a : ℚ) + C (p : ℚ) * X)
+      = P.comp (C (a : ℚ) + C (p : ℚ) * X)
+          * (∏ j ∈ den, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X)
+        + ∑ r ∈ den, C (d r)
+          * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X) := by
+    rw [pfNum, add_comp, mul_comp, finset_sum_comp']
+    simp only [mul_comp, C_comp]
+  have hsplit := Finset.sum_filter_add_sum_filter_not den (fun r => (p : ℤ) ∣ r - a)
+    (fun r => C (d r) * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X))
+  have hpoly : C c * (∏ j ∈ den, (X - C (j : ℚ))).comp (C (a : ℚ) + C (p : ℚ) * X)
+        * P.comp (C (a : ℚ) + C (p : ℚ) * X)
+      + ∑ r ∈ den.filter (fun r => ¬ (p : ℤ) ∣ r - a),
+          C c * (C (d r) * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp
+            (C (a : ℚ) + C (p : ℚ) * X))
+      = C c * ((pfNum P d den).comp (C (a : ℚ) + C (p : ℚ) * X)
+          - ∑ r ∈ den.filter (fun r => (p : ℤ) ∣ r - a),
+              C (d r) * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp
+                (C (a : ℚ) + C (p : ℚ) * X)) := by
+    rw [hnum, ← hsplit, ← Finset.mul_sum]
+    ring
+  rw [substAnalytic, mul_add, Finset.mul_sum, hsum, ← hpoly]
+  simp only [Polynomial.coe_add, Polynomial.coe_mul, coe_finset_sum']
+
+/-- Coefficient bounds for `rPoly`: all in `p^{t - n} ℤ_p`, and in `p^{t - n + 1} ℤ_p` above
+degree `max(n, t - 1)`. -/
+theorem norm_coeff_rPoly_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ} {a n : ℕ}
+    (hN : ClassDeg p a n (pfNum P d den))
+    (hinc : ∀ r ∈ den, ∀ j ∈ den, r ≠ j → (p : ℤ) ∣ r - a → (p : ℤ) ∣ j - a →
+      ¬ (p : ℤ) ^ 2 ∣ r - j) (k : ℕ) :
+    ‖(((rPoly p a P d den).coeff k : ℚ) : ℚ_[p])‖
+        ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - n) ∧
+      (max n ((den.filter fun r => (p : ℤ) ∣ r - a).card - 1) < k →
+        ‖(((rPoly p a P d den).coeff k : ℚ) : ℚ_[p])‖
+          ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - n - 1)) := by
+  have hp0 : (p : ℝ) ≠ 0 := prime_cast_pos_real.ne'
+  have hnn : ∀ e : ℤ, (0 : ℝ) ≤ (p : ℝ) ^ e := fun e => zpow_nonneg (Nat.cast_nonneg p) e
+  have hterm : ∀ r ∈ den.filter (fun r => (p : ℤ) ∣ r - a),
+      ‖(((C (d r) * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp
+          (C (a : ℚ) + C (p : ℚ) * X)).coeff k : ℚ) : ℚ_[p])‖ ≤ (p : ℝ) ^ (-(n : ℤ)) ∧
+      ((den.filter fun r => (p : ℤ) ∣ r - a).card - 1 < k →
+        ‖(((C (d r) * (∏ j ∈ den.erase r, (X - C (j : ℚ))).comp
+          (C (a : ℚ) + C (p : ℚ) * X)).coeff k : ℚ) : ℚ_[p])‖ ≤ (p : ℝ) ^ (-(n : ℤ) - 1)) := by
+    intro r hr
+    obtain ⟨hrd, hra⟩ := Finset.mem_filter.mp hr
+    have hres := norm_residue_le P d hN hrd hra fun j hj hrj hja => hinc r hrd j hj hrj hra hja
+    have hcd := classDeg_prod_X_sub_C (p := p) a (den.erase r)
+    have hcard : ((den.erase r).filter fun j => (p : ℤ) ∣ j - a).card
+        = (den.filter fun r => (p : ℤ) ∣ r - a).card - 1 := by
+      rw [Finset.filter_erase, Finset.card_erase_of_mem hr]
+    rw [hcard] at hcd
+    have ht1 : 1 ≤ (den.filter fun r => (p : ℤ) ∣ r - a).card := Finset.card_pos.mpr ⟨r, hr⟩
+    rw [coeff_C_mul, Rat.cast_mul, norm_mul]
+    refine ⟨?_, fun hk => ?_⟩
+    · calc _ ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - 1 - n)
+            * (p : ℝ) ^ (-(((den.filter fun r => (p : ℤ) ∣ r - a).card - 1 : ℕ) : ℤ)) :=
+            mul_le_mul hres (hcd k).1 (norm_nonneg _) (hnn _)
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast [ht1]; ring
+    · calc _ ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - 1 - n)
+            * (p : ℝ) ^ (-(((den.filter fun r => (p : ℤ) ∣ r - a).card - 1 : ℕ) : ℤ) - 1) :=
+            mul_le_mul hres ((hcd k).2 hk) (norm_nonneg _) (hnn _)
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast [ht1]; ring
+  have hsub : ∀ {x y : ℚ_[p]} {B : ℝ}, ‖x‖ ≤ B → ‖y‖ ≤ B → ‖x - y‖ ≤ B := fun hx hy => by
+    rw [sub_eq_add_neg]
+    exact (Padic.nonarchimedean _ _).trans (max_le hx (by rwa [norm_neg]))
+  rw [rPoly, coeff_C_mul, coeff_sub, finsetSum_coeff, Rat.cast_mul, norm_mul, norm_inv_p_pow,
+    Rat.cast_sub, Rat.cast_sum]
+  refine ⟨?_, fun hk => ?_⟩
+  · calc _ ≤ (p : ℝ) ^ ((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) * (p : ℝ) ^ (-(n : ℤ)) :=
+          mul_le_mul_of_nonneg_left (hsub (hN k).1
+            (IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _)
+              fun r hr => (hterm r hr).1)) (hnn _)
+      _ = _ := by rw [← zpow_add₀ hp0]; congr 1; ring
+  · have hkn : n < k := lt_of_le_of_lt (le_max_left _ _) hk
+    have hkt : (den.filter fun r => (p : ℤ) ∣ r - a).card - 1 < k :=
+      lt_of_le_of_lt (le_max_right _ _) hk
+    calc _ ≤ (p : ℝ) ^ ((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ)
+          * (p : ℝ) ^ (-(n : ℤ) - 1) :=
+          mul_le_mul_of_nonneg_left (hsub ((hN k).2 hkn)
+            (IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _)
+              fun r hr => (hterm r hr).2 hkt)) (hnn _)
+      _ = _ := by rw [← zpow_add₀ hp0]; congr 1; ring
+
+/-- `|τ(G)|_p ≤ p^e` for `G ∈ p^e ℤ_p⟦z⟧` whose coefficients above degree `D ≤ p + 4` lie in
+`p^{e+1} ℤ_p` (Lemma 3.4: `κ_d ∈ ℤ_p` for `d ≤ p + 4` and `v_p(κ_d) ≥ -1` always). -/
+theorem norm_tateTau_le_of_coeff (hp7 : 7 ≤ p) {G : PowerSeries ℚ_[p]} {e : ℤ} {D : ℕ}
+    (hD : D ≤ p + 4) (h1 : ∀ j, ‖PowerSeries.coeff j G‖ ≤ (p : ℝ) ^ e)
+    (h2 : ∀ j, D < j → ‖PowerSeries.coeff j G‖ ≤ (p : ℝ) ^ (e - 1)) :
+    ‖tateTau G‖ ≤ (p : ℝ) ^ e := by
+  have hp0 : (p : ℝ) ≠ 0 := prime_cast_pos_real.ne'
+  have hnn : ∀ e' : ℤ, (0 : ℝ) ≤ (p : ℝ) ^ e' := fun e' => zpow_nonneg (Nat.cast_nonneg p) e'
+  unfold tateTau
+  refine IsUltrametricDist.norm_tsum_le_of_forall_le_of_nonneg (hnn e) fun j => ?_
+  rw [norm_mul]
+  by_cases hj : j ≤ p + 4
+  · calc _ ≤ (p : ℝ) ^ e * 1 :=
+          mul_le_mul (h1 j) (norm_kappa_le_one hp7 hj) (norm_nonneg _) (hnn e)
+      _ = _ := mul_one _
+  · calc _ ≤ (p : ℝ) ^ (e - 1) * p :=
+          mul_le_mul (h2 j (by omega)) (norm_kappa_le hp7 j) (norm_nonneg _) (hnn _)
+      _ = _ := by rw [zpow_sub_one₀ hp0, mul_assoc, inv_mul_cancel₀ hp0, mul_one]
+
+theorem norm_coeff_C_sub_distY_le (hp11 : 11 ≤ p) {h : ℚ_[p]} (hh : ‖h‖ ≤ 1) (k : ℕ) :
+    ‖(C h - distY p).coeff k‖ ≤ 1 := by
+  have hcP : ‖cP p‖ ≤ 1 :=
+    (norm_cP_le hp11).trans (pow_le_one₀ (by positivity) inv_prime_lt_one.le)
+  have hp7 : ‖(p : ℚ_[p]) ^ 7‖ ≤ 1 := by
+    rw [norm_pow, Padic.norm_p]
+    exact pow_le_one₀ (by positivity) inv_prime_lt_one.le
+  rcases Nat.lt_or_ge k 2 with hk | hk
+  · interval_cases k
+    · rw [distY, coeff_sub, coeff_add, coeff_C_mul, coeff_X_zero, mul_zero, zero_add,
+        coeff_C_zero, coeff_C_zero, sub_eq_add_neg]
+      exact (Padic.nonarchimedean _ _).trans (max_le hh (by rwa [norm_neg]))
+    · rw [distY, coeff_sub, coeff_add, coeff_C_mul, coeff_X_one, mul_one,
+        coeff_C_of_ne_zero one_ne_zero, coeff_C_of_ne_zero one_ne_zero, add_zero, zero_sub,
+        norm_neg]
+      exact hp7
+  · rw [distY, coeff_sub, coeff_add, coeff_C_mul, coeff_X_of_ne_one (by omega), mul_zero,
+      zero_add, coeff_C_of_ne_zero (by omega), coeff_C_of_ne_zero (by omega), sub_zero, norm_zero]
+    exact zero_le_one
+
+/-- Coefficients of `τ^ext_Y(f + ∑_s c_s/(z - s))` for `Y = p⁷ X + C_p`, given `τ(f)` and the
+principal parts in `p^e ℤ_p` and `d(s) < p`. -/
+theorem norm_coeff_tauExt_le (hp11 : 11 ≤ p) {S : Finset ℤ} (hS : ∀ s ∈ S, dIndex s < p)
+    {f : PowerSeries ℚ_[p]} {c : ℤ → ℚ_[p]} {e : ℤ} (hf : ‖tateTau f‖ ≤ (p : ℝ) ^ e)
+    (hc : ∀ s ∈ S, ‖c s‖ ≤ (p : ℝ) ^ e) (k : ℕ) :
+    ‖(tauExt (distY p) S f c).coeff k‖ ≤ (p : ℝ) ^ e := by
+  have he : (0 : ℝ) ≤ (p : ℝ) ^ e := zpow_nonneg (Nat.cast_nonneg p) e
+  rw [tauExt, coeff_add, finsetSum_coeff]
+  refine (Padic.nonarchimedean _ _).trans (max_le ?_ ?_)
+  · rw [coeff_C]
+    split_ifs
+    · exact hf
+    · rw [norm_zero]; exact he
+  · refine IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg he fun s hs => ?_
+    rw [coeff_C_mul, norm_mul]
+    calc _ ≤ (p : ℝ) ^ e * 1 :=
+          mul_le_mul (hc s hs) (norm_coeff_C_sub_distY_le hp11 (norm_H7_le_one (hS s hs)) k)
+            (norm_nonneg _) he
+      _ = _ := mul_one _
+
+/-- **Class-local residue bound** (the content of (50)-(51)). Let `g = P + ∑_r d_r/(x - r)` have
+its simple poles in `den`, and let `t` be the number of poles `r ≡ a (mod p)`. If the numerator
+`pfNum P d den` has class degree `n ≤ p + 4` at `a` and the poles `≡ a (mod p)` are pairwise
+incongruent modulo `p²` with `d((r - a)/p) < p`, then `τ^ext_Y(g(a + p z)) ∈ p^{n - t} ℤ_p[X]`
+for `Y = p⁷ X + C_p` (`distY`), with `g(a + p z)` the element of `B_T` of the distribution
+formula. -/
+theorem tauExt_subst_norm_le (hp11 : 11 ≤ p) (a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) (den : Finset ℤ)
+    (hsupp : d.support ⊆ den) {n : ℕ} (hN : ClassDeg p a n (pfNum P d den))
+    (hinc : ∀ r ∈ den, ∀ j ∈ den, r ≠ j → (p : ℤ) ∣ r - a → (p : ℤ) ∣ j - a →
+      ¬ (p : ℤ) ^ 2 ∣ r - j)
+    (hd : ∀ r ∈ den, (p : ℤ) ∣ r - a → dIndex ((r - a) / p) < p) (hdeg : n ≤ p + 4)
+    (k : ℕ) :
+    ‖(tauExt (distY p) (substPoles p a d)
+        (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+        (fun s => (substPrincipal p a d s : ℚ_[p]))).coeff k‖
+      ≤ (p : ℝ) ^ (-((n : ℤ) - (den.filter fun r => (p : ℤ) ∣ r - a).card)) := by
+  have hp7 : 7 ≤ p := by omega
+  have hexp : -((n : ℤ) - (den.filter fun r => (p : ℤ) ∣ r - a).card)
+      = ((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - n := by ring
+  rw [hexp]
+  have hres := substAnalytic_isRestricted (p := p) a P d
+  have hidp : (((wPoly p a den).map (Rat.castHom ℚ_[p]) : Polynomial ℚ_[p]) : PowerSeries ℚ_[p])
+      * PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d)
+      = (((rPoly p a P d den).map (Rat.castHom ℚ_[p]) : Polynomial ℚ_[p])
+          : PowerSeries ℚ_[p]) := by
+    rw [Polynomial.polynomial_map_coe, Polynomial.polynomial_map_coe, ← map_mul,
+      W_mul_substAnalytic a P d hsupp]
+  have hcW : ∀ i, ((wPoly p a den).map (Rat.castHom ℚ_[p])).coeff i
+      = (((wPoly p a den).coeff i : ℚ) : ℚ_[p]) := fun i => by
+    rw [coeff_map, Rat.coe_castHom]
+  have hcR : ∀ k, PowerSeries.coeff k
+      ((((wPoly p a den).map (Rat.castHom ℚ_[p]) : Polynomial ℚ_[p]) : PowerSeries ℚ_[p])
+        * PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+      = (((rPoly p a P d den).coeff k : ℚ) : ℚ_[p]) := fun k => by
+    rw [hidp, Polynomial.coeff_coe, coeff_map, Rat.coe_castHom]
+  obtain ⟨hb1, hb2⟩ := top_coeff_bound (t := (den.filter fun r => (p : ℤ) ∣ r - a).card)
+    (D := n + (den.filter fun r => (p : ℤ) ∣ r - a).card)
+    (e := ((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - n) hres
+    (by rw [hcW]; exact (norm_coeff_wPoly a den _).2.2 rfl)
+    (fun i => by rw [hcW]; exact (norm_coeff_wPoly a den i).1)
+    (fun i hi => by rw [hcW]; exact (norm_coeff_wPoly a den i).2.1 hi)
+    (fun k => by rw [hcR]; exact (norm_coeff_rPoly_le P d hN hinc k).1)
+    (fun k hk => by
+      rw [hcR]
+      exact (norm_coeff_rPoly_le P d hN hinc k).2 (max_lt (by omega) (by omega)))
+  have htau : ‖tateTau (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))‖
+      ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - n) :=
+    norm_tateTau_le_of_coeff hp7 hdeg hb1 fun j hj => hb2 j (by omega)
+  refine norm_coeff_tauExt_le hp11 ?_ htau ?_ k
+  · intro s hs
+    obtain ⟨r, hr, rfl⟩ := Finset.mem_image.mp hs
+    obtain ⟨hrs, hra⟩ := Finset.mem_filter.mp hr
+    exact hd r (hsupp hrs) hra
+  · intro s hs
+    exact norm_substPrincipal_le P d hsupp hN hinc hs
 
 end ClassLocal
 
