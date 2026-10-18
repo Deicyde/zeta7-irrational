@@ -148,6 +148,18 @@ theorem sum_choose_mul_kappa (n : ℕ) :
   rw [h2, kappa]
   ring
 
+theorem kappa_eq_zero_of_lt {d : ℕ} (hd : d < 5) : kappa d = 0 := by
+  rw [kappa_eq, Nat.descFactorial_eq_zero_iff_lt.mpr hd, Nat.cast_zero, zero_mul, zero_div]
+
+theorem kappa_five : kappa 5 = 1 / 6 := by
+  rw [kappa_eq, show Nat.descFactorial 5 5 = 120 from rfl, Nat.sub_self, _root_.bernoulli_zero]
+  norm_num
+
+theorem kappa_six : kappa 6 = -1 / 2 := by
+  rw [kappa_eq, show Nat.descFactorial 6 5 = 720 from rfl, show 6 - 5 = 1 from rfl,
+    _root_.bernoulli_one]
+  norm_num
+
 /-! ## `τ` on the Tate algebra: linearity and the analytic pole values `τ^an` -/
 
 section Padic
@@ -231,7 +243,7 @@ theorem summable_of_norm_le_geom {f : ℕ × ℕ → ℚ_[p]} {ρ M : ℝ} (hρ0
   rw [Filter.eventually_cofinite]
   refine (Finset.range N ×ˢ Finset.range N : Finset (ℕ × ℕ)).finite_toSet.subset ?_
   rintro ⟨n, k⟩ hx
-  simp only [Set.mem_setOf_eq, Real.dist_eq, sub_zero, abs_norm, not_lt] at hx
+  simp only [Set.mem_ofPred_eq, Real.dist_eq, sub_zero, abs_norm, not_lt] at hx
   have hkn : k ≤ n := by
     by_contra h
     rw [hzero n k (by omega), norm_zero] at hx
@@ -331,6 +343,527 @@ theorem tauAn_sub_one (hp7 : 7 ≤ p) {s : ℚ} (hs : 1 < ‖(s : ℚ_[p])‖) :
       rw [ite_eq_right (Ne.symm hn), Rat.cast_zero, mul_zero]
   rw [hL, hFsum.tsum_comm, tsum_congr hrow, hA.tsum_add hB, hT, hB']
   ring
+
+/-! ## Equation (34), equation (35) and Lemma 3.6 -/
+
+/-- (34): `C_p = ∑_{a=1}^{p-1} τ^an(1/(x + a/p))`. -/
+noncomputable def cP (p : ℕ) [Fact p.Prime] : ℚ_[p] :=
+  ∑ a ∈ Finset.Ico 1 p, tauAn p (-((a : ℚ) / p))
+
+/-- (34): the parameter `Y = p⁷ X + C_p` (here `X` is the indeterminate of `ℚ_p[X]`). -/
+noncomputable def distY (p : ℕ) [Fact p.Prime] : Polynomial ℚ_[p] :=
+  C ((p : ℚ_[p]) ^ 7) * X + C (cP p)
+
+/-- Equation (35): for `v_p(s) < 0`,
+`τ^an(1/(x - s)) = -(1/720) ∑_{e ≥ 0} ((e + 5)!/e!) B_e / s^{e+6}`. -/
+theorem tauAn_eq (hp7 : 7 ≤ p) {s : ℚ} (hs : 1 < ‖(s : ℚ_[p])‖) :
+    tauAn p s = -(1 / 720) * ∑' e : ℕ,
+      (((((e + 5).factorial : ℚ) / e.factorial * _root_.bernoulli e / s ^ (e + 6) : ℚ)) :
+        ℚ_[p]) := by
+  have hz : ∑ d ∈ range 5, -(((s⁻¹ : ℚ) : ℚ_[p]) ^ (d + 1)) * ((kappa d : ℚ) : ℚ_[p]) = 0 :=
+    Finset.sum_eq_zero fun d hd => by
+      rw [kappa_eq_zero_of_lt (Finset.mem_range.mp hd), Rat.cast_zero, mul_zero]
+  rw [tauAn_eq_tsum, ← (summable_tauAn hp7 hs).sum_add_tsum_nat_add 5, hz, zero_add,
+    ← tsum_mul_left]
+  refine tsum_congr fun e => ?_
+  have h := Nat.factorial_mul_descFactorial (show 5 ≤ e + 5 by omega)
+  rw [Nat.add_sub_cancel] at h
+  have hdesc : ((e + 5).factorial : ℚ) / e.factorial = ((e + 5).descFactorial 5 : ℚ) := by
+    rw [← h, Nat.cast_mul,
+      mul_div_cancel_left₀ _ (Nat.cast_ne_zero.mpr (Nat.factorial_ne_zero e))]
+  rw [hdesc, kappa_eq, Nat.add_sub_cancel]
+  push_cast
+  rw [inv_pow]
+  ring
+
+/-- `τ^an(1/(x - s)) = -s⁻⁶/6 + s⁻⁷/2 + ∑_e (-s^{-(e+8)}) κ_{e+7}`, using `κ_d = 0` for `d < 5`,
+`κ₅ = 1/6` and `κ₆ = -1/2`. -/
+theorem tauAn_split (hp7 : 7 ≤ p) {s : ℚ} (hs : 1 < ‖(s : ℚ_[p])‖) :
+    tauAn p s = -(((s⁻¹ : ℚ) : ℚ_[p]) ^ 6) / 6 + ((s⁻¹ : ℚ) : ℚ_[p]) ^ 7 / 2
+      + ∑' e : ℕ, -(((s⁻¹ : ℚ) : ℚ_[p]) ^ (e + 7 + 1)) * ((kappa (e + 7) : ℚ) : ℚ_[p]) := by
+  rw [tauAn_eq_tsum, ← (summable_tauAn hp7 hs).sum_add_tsum_nat_add 7]
+  congr 1
+  simp only [Finset.sum_range_succ, Finset.sum_range_zero, kappa_five, kappa_six,
+    kappa_eq_zero_of_lt (show 0 < 5 by norm_num), kappa_eq_zero_of_lt (show 1 < 5 by norm_num),
+    kappa_eq_zero_of_lt (show 2 < 5 by norm_num), kappa_eq_zero_of_lt (show 3 < 5 by norm_num),
+    kappa_eq_zero_of_lt (show 4 < 5 by norm_num)]
+  push_cast
+  ring
+
+theorem norm_tail_le (hp7 : 7 ≤ p) {s : ℚ} (hs : 1 < ‖(s : ℚ_[p])‖) :
+    ‖∑' e : ℕ, -(((s⁻¹ : ℚ) : ℚ_[p]) ^ (e + 7 + 1)) * ((kappa (e + 7) : ℚ) : ℚ_[p])‖
+      ≤ p * ‖((s⁻¹ : ℚ) : ℚ_[p])‖ ^ 8 := by
+  have hw := (norm_inv_lt_one hs).le
+  refine IsUltrametricDist.norm_tsum_le_of_forall_le_of_nonneg (by positivity) fun e => ?_
+  rw [norm_mul, norm_neg, norm_pow, mul_comm (p : ℝ)]
+  exact mul_le_mul (pow_le_pow_of_le_one (norm_nonneg _) hw (by omega)) (norm_kappa_le hp7 _)
+    (norm_nonneg _) (by positivity)
+
+theorem norm_natCast_eq_one_of_lt {a : ℕ} (ha0 : 0 < a) (hap : a < p) : ‖(a : ℚ_[p])‖ = 1 :=
+  Padic.norm_natCast_eq_one_iff.mpr (Nat.coprime_of_lt_prime ha0 hap Fact.out)
+
+theorem norm_neg_div_p {a : ℕ} (ha0 : 0 < a) (hap : a < p) :
+    ‖((-((a : ℚ) / p) : ℚ) : ℚ_[p])‖ = p := by
+  rw [Rat.cast_neg, norm_neg, Rat.cast_div, Rat.cast_natCast, Rat.cast_natCast, norm_div,
+    norm_natCast_eq_one_of_lt ha0 hap, Padic.norm_p, one_div, inv_inv]
+
+theorem norm_int_le_inv_of_dvd {k : ℤ} (hk : (p : ℤ) ∣ k) : ‖(k : ℚ_[p])‖ ≤ (p : ℝ)⁻¹ := by
+  obtain ⟨m, rfl⟩ := hk
+  rw [Int.cast_mul, Int.cast_natCast, norm_mul, Padic.norm_p]
+  exact mul_le_of_le_one_right (inv_nonneg.mpr (Nat.cast_nonneg p)) (Padic.norm_int_le_one m)
+
+theorem sum_range_zmod_pow (i : ℕ) :
+    ∑ a ∈ range p, (a : ZMod p) ^ i = ∑ x : ZMod p, x ^ i :=
+  Finset.sum_nbij' (fun a : ℕ => (a : ZMod p)) (fun x => x.val) (fun _ _ => Finset.mem_univ _)
+    (fun x _ => Finset.mem_range.mpr (ZMod.val_lt x))
+    (fun a ha => ZMod.val_cast_of_lt (Finset.mem_range.mp ha))
+    (fun x _ => ZMod.natCast_zmod_val x) (fun _ _ => rfl)
+
+/-- `p ∣ ∑_{a=1}^{p-1} a^{p-7}` for `p ≥ 11`, since `0 < p - 7 < p - 1`. -/
+theorem prime_dvd_sum_pow (hp11 : 11 ≤ p) :
+    (p : ℤ) ∣ ∑ a ∈ Finset.Ico 1 p, (a : ℤ) ^ (p - 7) := by
+  rw [← ZMod.intCast_zmod_eq_zero_iff_dvd]
+  push_cast
+  have h0 : ∑ a ∈ range p, (a : ZMod p) ^ (p - 7)
+      = ((0 : ℕ) : ZMod p) ^ (p - 7) + ∑ a ∈ Finset.Ico 1 p, (a : ZMod p) ^ (p - 7) :=
+    Finset.sum_range_eq_add_Ico (fun a : ℕ => (a : ZMod p) ^ (p - 7)) (by omega)
+  rw [Nat.cast_zero, zero_pow (by omega : p - 7 ≠ 0), zero_add, sum_range_zmod_pow] at h0
+  rw [← h0]
+  exact FiniteField.sum_pow_lt_card_sub_one (p - 7) (by rw [ZMod.card]; omega)
+
+/-- Proof of Lemma 3.6, the `e = 0` term: `∑_{a=1}^{p-1} a⁻⁶ ≡ ∑_a a^{p-7} ≡ 0 (mod p)` for
+`p ≥ 11`. -/
+theorem norm_sum_inv_pow_six_le (hp11 : 11 ≤ p) :
+    ‖((∑ a ∈ Finset.Ico 1 p, (a : ℚ)⁻¹ ^ 6 : ℚ) : ℚ_[p])‖ ≤ (p : ℝ)⁻¹ := by
+  have hpp : p.Prime := Fact.out
+  have hid : ∀ a ∈ Finset.Ico 1 p, (a : ℚ)⁻¹ ^ 6
+      = (((a : ℤ) ^ (p - 7) : ℤ) : ℚ) + (((1 - (a : ℤ) ^ (p - 1) : ℤ) : ℚ)) * (a : ℚ)⁻¹ ^ 6 := by
+    intro a ha
+    have ha1 := (Finset.mem_Ico.mp ha).1
+    have ha0 : (a : ℚ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
+    have hpow : (a : ℚ) ^ (p - 1) = (a : ℚ) ^ (p - 7) * (a : ℚ) ^ 6 := by
+      rw [← pow_add]
+      congr 1
+      omega
+    push_cast
+    rw [hpow, sub_mul, one_mul, mul_assoc, ← mul_pow, mul_inv_cancel₀ ha0, one_pow, mul_one]
+    ring
+  rw [Finset.sum_congr rfl hid, Finset.sum_add_distrib, Rat.cast_add, ← Int.cast_sum,
+    Rat.cast_intCast]
+  refine (IsUltrametricDist.norm_add_le_max _ _).trans (max_le ?_ ?_)
+  · exact norm_int_le_inv_of_dvd (prime_dvd_sum_pow hp11)
+  · rw [Rat.cast_sum]
+    refine IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg
+      (inv_nonneg.mpr (Nat.cast_nonneg p)) fun a ha => ?_
+    obtain ⟨ha1, hap⟩ := Finset.mem_Ico.mp ha
+    have hdvd : (p : ℤ) ∣ 1 - (a : ℤ) ^ (p - 1) :=
+      (Int.ModEq.pow_card_sub_one_eq_one hpp
+        (Nat.isCoprime_iff_coprime.mpr (Nat.coprime_of_lt_prime (by omega) hap hpp).symm)).dvd
+    rw [Rat.cast_mul, Rat.cast_intCast, norm_mul, Rat.cast_pow, Rat.cast_inv, Rat.cast_natCast,
+      norm_pow, norm_inv, norm_natCast_eq_one_of_lt (by omega) hap, inv_one, one_pow, mul_one]
+    exact norm_int_le_inv_of_dvd hdvd
+
+theorem norm_split_le {u v T : ℚ_[p]} {B : ℝ} (hv : ‖v / 2‖ ≤ B) (hT : ‖T‖ ≤ B) :
+    ‖-u / 6 + v / 2 + T + u / 6‖ ≤ B := by
+  rw [show -u / 6 + v / 2 + T + u / 6 = v / 2 + T by ring]
+  exact (IsUltrametricDist.norm_add_le_max _ _).trans (max_le hv hT)
+
+/-- **Lemma 3.6** in norm form: `|C_p|_p ≤ p⁻⁷` for every prime `p ≥ 11`. The `e = 0` terms
+`-p⁶/(6a⁶)` sum to `0` mod `p⁷` (`norm_sum_inv_pow_six_le`), the `e = 1` terms are `-p⁷/(2a⁷)`,
+and the `e ≥ 2` terms have valuation `≥ e + 6 - 1 ≥ 7` by Lemma 3.4. -/
+theorem norm_cP_le (hp11 : 11 ≤ p) : ‖cP p‖ ≤ (p : ℝ)⁻¹ ^ 7 := by
+  have hp7 : 7 ≤ p := by omega
+  have hpp : p.Prime := Fact.out
+  have hp0 : (0 : ℝ) < p := by exact_mod_cast hpp.pos
+  have hpinv : (0 : ℝ) ≤ (p : ℝ)⁻¹ := inv_nonneg.mpr hp0.le
+  have hcop : ∀ n : ℕ, n ≤ 6 → 0 < n → ‖(n : ℚ_[p])‖ = 1 := fun n hn hn0 =>
+    norm_natCast_eq_one_of_lt hn0 (by omega)
+  have h2 : ‖(2 : ℚ_[p])‖ = 1 := by exact_mod_cast hcop 2 (by norm_num) (by norm_num)
+  have h6 : ‖(6 : ℚ_[p])‖ = 1 := by exact_mod_cast hcop 6 (by norm_num) (by norm_num)
+  have hterm : ∀ a ∈ Finset.Ico 1 p,
+      ‖tauAn p (-((a : ℚ) / p)) + (p : ℚ_[p]) ^ 6 * (((a : ℚ)⁻¹ ^ 6 : ℚ) : ℚ_[p]) / 6‖
+        ≤ (p : ℝ)⁻¹ ^ 7 := by
+    intro a ha
+    obtain ⟨ha1, hap⟩ := Finset.mem_Ico.mp ha
+    have hs := norm_neg_div_p (p := p) (by omega : 0 < a) hap
+    have hs1 : 1 < ‖((-((a : ℚ) / p) : ℚ) : ℚ_[p])‖ := by
+      rw [hs]
+      exact_mod_cast hpp.one_lt
+    have hw : ‖(((-((a : ℚ) / p))⁻¹ : ℚ) : ℚ_[p])‖ = (p : ℝ)⁻¹ := by
+      rw [Rat.cast_inv, norm_inv, hs]
+    have hq : ((-((a : ℚ) / p))⁻¹) ^ 6 = (p : ℚ) ^ 6 * (a : ℚ)⁻¹ ^ 6 := by
+      rw [inv_neg, Even.neg_pow ⟨3, rfl⟩, inv_div, div_pow, div_eq_mul_inv, inv_pow]
+    have hw6 : (((-((a : ℚ) / p))⁻¹ : ℚ) : ℚ_[p]) ^ 6
+        = (p : ℚ_[p]) ^ 6 * (((a : ℚ)⁻¹ ^ 6 : ℚ) : ℚ_[p]) := by
+      exact_mod_cast hq
+    rw [tauAn_split hp7 hs1, ← hw6]
+    refine norm_split_le ?_ ?_
+    · rw [norm_div, norm_pow, hw, h2, div_one]
+    · refine (norm_tail_le hp7 hs1).trans (le_of_eq ?_)
+      rw [hw, show (p : ℝ) * (p : ℝ)⁻¹ ^ 8 = (p : ℝ)⁻¹ ^ 7 * ((p : ℝ) * (p : ℝ)⁻¹) by ring,
+        mul_inv_cancel₀ hp0.ne', mul_one]
+  have hcP : cP p = ∑ a ∈ Finset.Ico 1 p, (tauAn p (-((a : ℚ) / p))
+        + (p : ℚ_[p]) ^ 6 * (((a : ℚ)⁻¹ ^ 6 : ℚ) : ℚ_[p]) / 6)
+      + -((p : ℚ_[p]) ^ 6 * (((∑ a ∈ Finset.Ico 1 p, (a : ℚ)⁻¹ ^ 6 : ℚ)) : ℚ_[p]) / 6) := by
+    rw [cP, Finset.sum_add_distrib, Rat.cast_sum, Finset.mul_sum, Finset.sum_div]
+    ring
+  rw [hcP]
+  refine (IsUltrametricDist.norm_add_le_max _ _).trans (max_le ?_ ?_)
+  · exact IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (pow_nonneg hpinv 7) hterm
+  · rw [norm_neg, norm_div, norm_mul, norm_pow, Padic.norm_p, h6, div_one]
+    calc (p : ℝ)⁻¹ ^ 6 * ‖((∑ a ∈ Finset.Ico 1 p, (a : ℚ)⁻¹ ^ 6 : ℚ) : ℚ_[p])‖
+        ≤ (p : ℝ)⁻¹ ^ 6 * (p : ℝ)⁻¹ :=
+          mul_le_mul_of_nonneg_left (norm_sum_inv_pow_six_le hp11) (pow_nonneg hpinv 6)
+      _ = (p : ℝ)⁻¹ ^ 7 := by ring
+
+/-- **Lemma 3.6**: `C_p ∈ p⁷ ℤ_p` for every prime `p ≥ 11`. -/
+theorem cP_mem (hp11 : 11 ≤ p) : ∃ c : ℤ_[p], cP p = (p : ℚ_[p]) ^ 7 * c := by
+  have hp0 : (0 : ℝ) < p := by exact_mod_cast (Fact.out : p.Prime).pos
+  have hp0' : (p : ℚ_[p]) ≠ 0 := by exact_mod_cast (Fact.out : p.Prime).ne_zero
+  have hnorm : ‖cP p / (p : ℚ_[p]) ^ 7‖ ≤ 1 := by
+    rw [norm_div, norm_pow, Padic.norm_p, div_le_one (pow_pos (inv_pos.mpr hp0) 7)]
+    exact norm_cP_le hp11
+  refine ⟨⟨cP p / (p : ℚ_[p]) ^ 7, hnorm⟩, ?_⟩
+  show cP p = (p : ℚ_[p]) ^ 7 * (cP p / (p : ℚ_[p]) ^ 7)
+  rw [mul_div_cancel₀ _ (pow_ne_zero 7 hp0')]
+
+end Padic
+
+/-! ## The element `g(a + p z)` of `B_T` -/
+
+/-- Analytic part of `g(a + p z)` for `g = P + ∑_r d_r/(x - r)`: the polynomial `P(a + p z)` plus,
+for each pole `r ≢ a (mod p)`, the expansion at `z = 0` of
+`d_r/(a - r + p z) = (d_r/p) · 1/(z - (r - a)/p)` (in the Tate algebra since `p ∤ r - a`). -/
+noncomputable def substAnalytic (p a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) : PowerSeries ℚ :=
+  ((P.comp (C (a : ℚ) + C (p : ℚ) * X) : ℚ[X]) : PowerSeries ℚ)
+    + ∑ r ∈ d.support, if (p : ℤ) ∣ r - a then 0
+        else PowerSeries.C (d r / p) * poleSeries (((r - a : ℤ) : ℚ) / p)
+
+/-- Integer poles of `g(a + p z)`: `s = (r - a)/p` for the poles `r ≡ a (mod p)` of `g`. -/
+noncomputable def substPoles (p a : ℕ) (d : ℤ →₀ ℚ) : Finset ℤ :=
+  (d.support.filter fun r => (p : ℤ) ∣ r - a).image fun r => (r - a) / (p : ℤ)
+
+/-- Principal part of `g(a + p z)` at the integer `s`: `d_r/(a + p z - r) = (d_r/p)/(z - s)` for
+`r = a + p s`. -/
+noncomputable def substPrincipal (p a : ℕ) (d : ℤ →₀ ℚ) (s : ℤ) : ℚ :=
+  d (a + p * s) / p
+
+theorem comp_affine_X_sub_C {p : ℕ} (hp : (p : ℚ) ≠ 0) (a : ℕ) (r : ℤ) :
+    (X - C (r : ℚ)).comp (C (a : ℚ) + C (p : ℚ) * X)
+      = C (p : ℚ) * (X - C (((r - a : ℤ) : ℚ) / p)) := by
+  have h : (((r - a : ℤ) : ℚ)) = (r : ℚ) - a := by rw [Int.cast_sub, Int.cast_natCast]
+  rw [sub_comp, X_comp, C_comp, mul_sub, ← C_mul, mul_div_cancel₀ _ hp, h, C_sub]
+  ring
+
+section Laurent
+
+open scoped RatFunc
+
+/-- The expansion at `z = 0` of `c/(p (z - t))` for `t ≠ 0` is `(c/p) · poleSeries t`. -/
+theorem laurent_pole_expansion {p : ℚ} (hp : p ≠ 0) (c : ℚ) {t : ℚ} (ht : t ≠ 0) :
+    algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
+        (algebraMap ℚ[X] (RatFunc ℚ) (C c) / algebraMap ℚ[X] (RatFunc ℚ) (C p * (X - C t)))
+      = HahnSeries.ofPowerSeries ℤ ℚ (PowerSeries.C (c / p) * poleSeries t) := by
+  have hne : algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
+      (algebraMap ℚ[X] (RatFunc ℚ) (C p * (X - C t))) ≠ 0 :=
+    (_root_.map_ne_zero _).2 (RatFunc.algebraMap_ne_zero
+      (mul_ne_zero (C_ne_zero.mpr hp) (X_sub_C_ne_zero t)))
+  have h := poleSeries_mul ht
+  have hC : PowerSeries.C (c / p) * PowerSeries.C p = PowerSeries.C c := by
+    rw [← map_mul, div_mul_cancel₀ _ hp]
+  rw [map_div₀, div_eq_iff hne, laurent_algebraMap, laurent_algebraMap, ← map_mul]
+  congr 1
+  simp only [Polynomial.coe_C, Polynomial.coe_mul, Polynomial.coe_sub, Polynomial.coe_X]
+  linear_combination (-(PowerSeries.C (c / p) * PowerSeries.C p)) * h - hC
+
+theorem principal_eq {p : ℚ} (hp : p ≠ 0) (c t : ℚ) :
+    algebraMap ℚ[X] (RatFunc ℚ) (C c) / algebraMap ℚ[X] (RatFunc ℚ) (C p * (X - C t))
+      = algebraMap ℚ[X] (RatFunc ℚ) (C (c / p)) / algebraMap ℚ[X] (RatFunc ℚ) (X - C t) := by
+  rw [map_mul, ← div_div, RatFunc.algebraMap_C, RatFunc.algebraMap_C, RatFunc.algebraMap_C,
+    ← map_div₀]
+
+/-- The data `(substAnalytic, substPoles, substPrincipal)` represents `g(a + p z)`: the Laurent
+expansion at `z = 0` of the rational function `g(a + p z)` (`ratFuncAffine`) is the analytic part
+plus the expansion of the principal parts `∑_s c_s/(z - s)`. -/
+theorem substData_spec {p : ℕ} (hp : (p : ℚ) ≠ 0) (a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) :
+    algebraMap (RatFunc ℚ) (LaurentSeries ℚ) (ratFuncAffine (a : ℚ) hp (tauRatFunc P d))
+      = HahnSeries.ofPowerSeries ℤ ℚ (substAnalytic p a P d)
+        + algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
+            (∑ s ∈ substPoles p a d, algebraMap ℚ[X] (RatFunc ℚ) (C (substPrincipal p a d s))
+              / algebraMap ℚ[X] (RatFunc ℚ) (X - C (s : ℚ))) := by
+  have hpZ : ((p : ℤ) : ℚ) ≠ 0 := by exact_mod_cast hp
+  have hL : algebraMap (RatFunc ℚ) (LaurentSeries ℚ) (ratFuncAffine (a : ℚ) hp (tauRatFunc P d))
+      = HahnSeries.ofPowerSeries ℤ ℚ ((P.comp (C (a : ℚ) + C (p : ℚ) * X) : ℚ[X]) : PowerSeries ℚ)
+        + ∑ r ∈ d.support, algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
+            (algebraMap ℚ[X] (RatFunc ℚ) (C (d r))
+              / algebraMap ℚ[X] (RatFunc ℚ) (C (p : ℚ) * (X - C (((r - a : ℤ) : ℚ) / p)))) := by
+    rw [tauRatFunc, Finsupp.sum, map_add, map_sum, ratFuncAffine_algebraMap, map_add, map_sum,
+      laurent_algebraMap]
+    congr 1
+    refine Finset.sum_congr rfl fun r _ => ?_
+    congr 1
+    rw [map_div₀, ratFuncAffine_algebraMap, ratFuncAffine_algebraMap, C_comp,
+      comp_affine_X_sub_C hp]
+  have hinj : Set.InjOn (fun r : ℤ => (r - a) / (p : ℤ))
+      ↑(d.support.filter fun r => (p : ℤ) ∣ r - a) := by
+    intro x hx y hy hxy
+    have h1 := Int.mul_ediv_cancel' (Finset.mem_filter.mp (Finset.mem_coe.mp hx)).2
+    have h2 := Int.mul_ediv_cancel' (Finset.mem_filter.mp (Finset.mem_coe.mp hy)).2
+    have hxy' : (x - a) / (p : ℤ) = (y - a) / p := hxy
+    rw [hxy'] at h1
+    linarith
+  rw [hL]
+  unfold substAnalytic
+  simp only [map_add, map_sum]
+  rw [add_assoc]
+  congr 1
+  rw [substPoles, Finset.sum_image hinj, Finset.sum_filter, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl fun r _ => ?_
+  split_ifs with h
+  · have hs : ((((r - a) / p : ℤ)) : ℚ) = ((r - a : ℤ) : ℚ) / p := by
+      rw [Int.cast_div h hpZ, Int.cast_natCast]
+    rw [map_zero, zero_add, principal_eq hp, substPrincipal, Int.mul_ediv_cancel' h,
+      add_sub_cancel, hs]
+  · have ht : ((r - a : ℤ) : ℚ) / p ≠ 0 := by
+      have hr : r - (a : ℤ) ≠ 0 := fun h0 => h (by rw [h0]; exact dvd_zero _)
+      exact div_ne_zero (by exact_mod_cast hr) hp
+    rw [add_zero, laurent_pole_expansion hp _ ht]
+
+end Laurent
+
+/-! ## Lemma 3.7 -/
+
+section Padic
+
+variable {p : ℕ} [Fact p.Prime]
+
+theorem one_lt_norm_intCast_div {m : ℤ} (h : ¬ (p : ℤ) ∣ m) :
+    1 < ‖((((m : ℚ) / p) : ℚ) : ℚ_[p])‖ := by
+  have hm1 : ‖(m : ℚ_[p])‖ = 1 := le_antisymm (Padic.norm_int_le_one m)
+    (not_lt.mp fun hlt => h (Padic.norm_intCast_lt_one_iff.mp hlt))
+  rw [Rat.cast_div, Rat.cast_intCast, Rat.cast_natCast, norm_div, hm1, Padic.norm_p, one_div,
+    inv_inv]
+  exact_mod_cast (Fact.out : p.Prime).one_lt
+
+theorem isRestricted_substTerm (a : ℕ) (d : ℤ →₀ ℚ) (r : ℤ) :
+    (PowerSeries.map (Rat.castHom ℚ_[p]) (if (p : ℤ) ∣ r - a then 0
+      else PowerSeries.C (d r / p) * poleSeries (((r - a : ℤ) : ℚ) / p))).IsRestricted 1 := by
+  split_ifs with h
+  · rw [map_zero]
+    exact PowerSeries.isRestricted_zero 1
+  · rw [map_mul, PowerSeries.map_C]
+    exact PowerSeries.isRestricted.mul 1 (PowerSeries.isRestricted_C 1 _)
+      (poleSeries_isRestricted (one_lt_norm_intCast_div h))
+
+/-- The analytic part of `g(a + p z)` lies in the Tate algebra `ℚ_p⟨z⟩`. -/
+theorem substAnalytic_isRestricted (a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) :
+    (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d)).IsRestricted 1 := by
+  unfold substAnalytic
+  rw [map_add, ← Polynomial.polynomial_map_coe, map_sum]
+  exact PowerSeries.isRestricted.add 1 (isRestricted_coe _)
+    (isRestricted_sum _ _ fun r _ => isRestricted_substTerm a d r)
+
+theorem tateTau_substAnalytic (hp7 : 7 ≤ p) (a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) :
+    tateTau (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+      = ((tauPoly (P.comp (C (a : ℚ) + C (p : ℚ) * X)) : ℚ) : ℚ_[p])
+        + ∑ r ∈ d.support, if (p : ℤ) ∣ r - a then 0
+            else ((d r / p : ℚ) : ℚ_[p]) * tauAn p (((r - a : ℤ) : ℚ) / p) := by
+  have hres : ∀ r ∈ d.support, (PowerSeries.map (Rat.castHom ℚ_[p])
+      (if (p : ℤ) ∣ r - a then 0
+        else PowerSeries.C (d r / p) * poleSeries (((r - a : ℤ) : ℚ) / p))).IsRestricted 1 :=
+    fun r _ => isRestricted_substTerm a d r
+  unfold substAnalytic
+  rw [map_add, ← Polynomial.polynomial_map_coe, map_sum,
+    tateTau_add hp7 (isRestricted_coe _) (isRestricted_sum _ _ hres), tateTau_map,
+    tateTau_sum hp7 _ _ hres]
+  congr 1
+  refine Finset.sum_congr rfl fun r _ => ?_
+  split_ifs with h
+  · rw [map_zero, tateTau_zero]
+  · rw [map_mul, PowerSeries.map_C, tateTau_C_mul, Rat.coe_castHom]
+    rfl
+
+/-- The contribution of a simple pole `1/(x - r)` to `τ^ext_Y(g(a + p z))` (up to the factor
+`p⁻¹`), as a function of `m = r - a`: for `p ∣ m` the term `1/(a + p z - r) = p⁻¹/(z - m/p)` is a
+principal part with value `H⁷_{d(m/p)} - Y`; otherwise it is analytic, with value
+`τ^an(1/(z - m/p))`. -/
+noncomputable def poleTerm (p : ℕ) [Fact p.Prime] (m : ℤ) : Polynomial ℚ_[p] :=
+  if (p : ℤ) ∣ m then C ((H7 (dIndex (m / p)) : ℚ) : ℚ_[p]) - distY p
+  else C (tauAn p ((m : ℚ) / p))
+
+/-- The difference identity for `poleTerm`, from `tauAn_sub_one` and `H7_dIndex_sub_one_sub`. -/
+theorem poleTerm_sub (hp7 : 7 ≤ p) (m : ℤ) :
+    poleTerm p m - poleTerm p (m - p)
+      = C ((p : ℚ_[p]) ^ 7 * (((1 / (m : ℚ) ^ 7 : ℚ)) : ℚ_[p])) := by
+  have hpp : p.Prime := Fact.out
+  have hp0 : (p : ℚ) ≠ 0 := by exact_mod_cast hpp.ne_zero
+  have hpZ : (p : ℤ) ≠ 0 := by exact_mod_cast hpp.ne_zero
+  have hdvd : (p : ℤ) ∣ m - p ↔ (p : ℤ) ∣ m := dvd_sub_self_right
+  unfold poleTerm
+  by_cases h : (p : ℤ) ∣ m
+  · rw [ite_eq_left h, ite_eq_left (hdvd.mpr h)]
+    obtain ⟨q, rfl⟩ := h
+    have h1 : ((p : ℤ) * q - p) / p = q - 1 := by
+      rw [show (p : ℤ) * q - p = p * (q - 1) by ring, Int.mul_ediv_cancel_left _ hpZ]
+    have h2 := H7_dIndex_sub_one_sub q
+    have hval : H7 (dIndex q) - H7 (dIndex (q - 1))
+        = (p : ℚ) ^ 7 * (1 / ((((p : ℤ) * q : ℤ)) : ℚ) ^ 7) := by
+      rw [Int.cast_mul, Int.cast_natCast, mul_pow, one_div, mul_inv, ← mul_assoc,
+        mul_inv_cancel₀ (pow_ne_zero 7 hp0), one_mul]
+      linear_combination -h2
+    rw [Int.mul_ediv_cancel_left _ hpZ, h1, sub_sub_sub_cancel_right, ← C_sub, ← Rat.cast_sub,
+      hval, Rat.cast_mul, Rat.cast_pow, Rat.cast_natCast]
+  · rw [ite_eq_right h, ite_eq_right (mt hdvd.mp h), ← C_sub]
+    congr 1
+    have key := tauAn_sub_one hp7 (one_lt_norm_intCast_div h)
+    have hcast : (((m - p : ℤ) : ℚ) / p) = (m : ℚ) / p - 1 := by
+      rw [Int.cast_sub, Int.cast_natCast, sub_div, div_self hp0]
+    have hq : (((m : ℚ) / p)⁻¹) ^ 7 = (p : ℚ) ^ 7 * (1 / (m : ℚ) ^ 7) := by
+      rw [inv_div, div_pow, div_eq_mul_one_div]
+    have hq' : ((((m : ℚ) / p)⁻¹ : ℚ) : ℚ_[p]) ^ 7
+        = (p : ℚ_[p]) ^ 7 * (((1 / (m : ℚ) ^ 7 : ℚ)) : ℚ_[p]) := by
+      exact_mod_cast hq
+    rw [hcast, ← hq']
+    linear_combination -key
+
+/-- Lemma 3.7 for simple poles: `∑_{a=0}^{p-1} poleTerm p (r - a) = p⁷ (H⁷_{d(r)} - X)`, that is,
+`∑_a τ^ext_Y(1/(a + p z - r)) = p⁶ τ_X(1/(x - r))`. At `r = 0` this is the paper's computation
+for `g = 1/x` (with `Y = p⁷ X + C_p`); the difference identity `poleTerm_sub` and
+`H⁷_{d(r)} - H⁷_{d(r-1)} = r⁻⁷` carry it to every `r ∈ ℤ`. -/
+theorem sum_poleTerm (hp11 : 11 ≤ p) (r : ℤ) :
+    ∑ a ∈ range p, poleTerm p (r - a)
+      = C ((p : ℚ_[p]) ^ 7) * (C ((H7 (dIndex r) : ℚ) : ℚ_[p]) - X) := by
+  have hp7 : 7 ≤ p := by omega
+  -- the pole `1/x`
+  have hz : ∀ a ∈ Finset.Ico 1 p, poleTerm p (0 - (a : ℤ)) = C (tauAn p (-((a : ℚ) / p))) := by
+    intro a ha
+    obtain ⟨ha1, hap⟩ := Finset.mem_Ico.mp ha
+    have hnd : ¬ (p : ℤ) ∣ 0 - (a : ℤ) := by
+      rw [zero_sub, Int.dvd_neg, Int.natCast_dvd_natCast]
+      intro hd
+      have := Nat.le_of_dvd (by omega) hd
+      omega
+    unfold poleTerm
+    rw [ite_eq_right hnd, Int.cast_sub, Int.cast_zero, Int.cast_natCast, zero_sub, neg_div]
+  have hfirst : poleTerm p (0 - ((0 : ℕ) : ℤ)) = -distY p := by
+    unfold poleTerm
+    rw [ite_eq_left (show (p : ℤ) ∣ 0 - ((0 : ℕ) : ℤ) by simp)]
+    simp [dIndex, H7]
+  have hsplit : ∑ a ∈ range p, poleTerm p (0 - (a : ℤ))
+      = poleTerm p (0 - ((0 : ℕ) : ℤ)) + ∑ a ∈ Finset.Ico 1 p, poleTerm p (0 - (a : ℤ)) :=
+    Finset.sum_range_eq_add_Ico (fun a : ℕ => poleTerm p (0 - (a : ℤ))) (by omega)
+  have hd0 : H7 (dIndex 0) = 0 := by simp [dIndex, H7]
+  have h0 : ∑ a ∈ range p, poleTerm p (0 - (a : ℤ))
+      - C ((p : ℚ_[p]) ^ 7) * (C ((H7 (dIndex 0) : ℚ) : ℚ_[p]) - X) = 0 := by
+    rw [hsplit, hfirst, Finset.sum_congr rfl hz, ← map_sum, hd0, Rat.cast_zero, map_zero, distY,
+      cP]
+    ring
+  -- the difference identity in `r`
+  have hshift : ∀ (r : ℤ) (i : ℕ), poleTerm p (r - (i : ℤ))
+      = poleTerm p (r + 1 - ((i + 1 : ℕ) : ℤ)) := fun r i => by
+    congr 1
+    rw [Nat.cast_add, Nat.cast_one]
+    ring
+  have hstep : ∀ r : ℤ, ∑ a ∈ range p, poleTerm p (r + 1 - a)
+        - C ((p : ℚ_[p]) ^ 7) * (C ((H7 (dIndex (r + 1)) : ℚ) : ℚ_[p]) - X)
+      = ∑ a ∈ range p, poleTerm p (r - a)
+        - C ((p : ℚ_[p]) ^ 7) * (C ((H7 (dIndex r) : ℚ) : ℚ_[p]) - X) := by
+    intro r
+    have htel : ∑ i ∈ range p, (poleTerm p (r + 1 - (i : ℤ))
+          - poleTerm p (r + 1 - ((i + 1 : ℕ) : ℤ)))
+        = poleTerm p (r + 1 - ((0 : ℕ) : ℤ)) - poleTerm p (r + 1 - (p : ℤ)) :=
+      Finset.sum_range_sub' (fun i : ℕ => poleTerm p (r + 1 - (i : ℤ))) p
+    have h1 : ∑ a ∈ range p, poleTerm p (r + 1 - a) - ∑ a ∈ range p, poleTerm p (r - a)
+        = poleTerm p (r + 1) - poleTerm p (r + 1 - p) := by
+      have hcongr : ∑ a ∈ range p, poleTerm p (r - (a : ℤ))
+          = ∑ a ∈ range p, poleTerm p (r + 1 - ((a + 1 : ℕ) : ℤ)) :=
+        Finset.sum_congr rfl fun i _ => hshift r i
+      rw [hcongr, ← Finset.sum_sub_distrib, htel, Nat.cast_zero, sub_zero]
+    have h2 := poleTerm_sub hp7 (r + 1)
+    have h3 := H7_dIndex_sub_one_sub (r + 1)
+    rw [add_sub_cancel_right] at h3
+    have h5 : H7 (dIndex (r + 1)) - H7 (dIndex r) = 1 / ((r + 1 : ℤ) : ℚ) ^ 7 := by linarith
+    have h4 : C ((p : ℚ_[p]) ^ 7) * (C ((H7 (dIndex (r + 1)) : ℚ) : ℚ_[p]) - X)
+        - C ((p : ℚ_[p]) ^ 7) * (C ((H7 (dIndex r) : ℚ) : ℚ_[p]) - X)
+        = C ((p : ℚ_[p]) ^ 7 * (((1 / ((r + 1 : ℤ) : ℚ) ^ 7 : ℚ)) : ℚ_[p])) := by
+      rw [← mul_sub, sub_sub_sub_cancel_right, ← C_sub, ← Rat.cast_sub, h5, ← C_mul]
+    linear_combination h1 + h2 - h4
+  have key : ∀ r : ℤ, ∑ a ∈ range p, poleTerm p (r - a)
+      - C ((p : ℚ_[p]) ^ 7) * (C ((H7 (dIndex r) : ℚ) : ℚ_[p]) - X) = 0 := by
+    intro r
+    induction r with
+    | zero => exact h0
+    | succ i ih => rw [hstep]; exact ih
+    | pred i ih =>
+      have h := hstep (-(i : ℤ) - 1)
+      rw [sub_add_cancel] at h
+      rw [← h]
+      exact ih
+  exact sub_eq_zero.mp (key r)
+
+theorem tauExt_subst (hp7 : 7 ≤ p) (a : ℕ) (P : ℚ[X]) (d : ℤ →₀ ℚ) :
+    tauExt (distY p) (substPoles p a d)
+        (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+        (fun s => (substPrincipal p a d s : ℚ_[p]))
+      = C ((tauPoly (P.comp (C (a : ℚ) + C (p : ℚ) * X)) : ℚ) : ℚ_[p])
+        + ∑ r ∈ d.support, C (((d r / p : ℚ)) : ℚ_[p]) * poleTerm p (r - a) := by
+  have hinj : Set.InjOn (fun r : ℤ => (r - a) / (p : ℤ))
+      ↑(d.support.filter fun r => (p : ℤ) ∣ r - a) := by
+    intro x hx y hy hxy
+    have h1 := Int.mul_ediv_cancel' (Finset.mem_filter.mp (Finset.mem_coe.mp hx)).2
+    have h2 := Int.mul_ediv_cancel' (Finset.mem_filter.mp (Finset.mem_coe.mp hy)).2
+    have hxy' : (x - a) / (p : ℤ) = (y - a) / p := hxy
+    rw [hxy'] at h1
+    linarith
+  simp only [tauExt]
+  rw [tateTau_substAnalytic hp7, substPoles, Finset.sum_image hinj, Finset.sum_filter, map_add,
+    map_sum, add_assoc, ← Finset.sum_add_distrib]
+  congr 1
+  refine Finset.sum_congr rfl fun r _ => ?_
+  unfold poleTerm
+  split_ifs with h
+  · rw [map_zero, zero_add, substPrincipal, Int.mul_ediv_cancel' h, add_sub_cancel]
+  · rw [add_zero, C_mul]
+
+/-- **Lemma 3.7** (distribution formula, (36)). Let `p ≥ 11` be prime and `Y = p⁷ X + C_p`
+(`distY`, with `C_p` as in (34), `cP`). For every rational function `g = P + ∑_r d_r/(x - r)`
+with polynomial part and simple integer poles,
+`τ_X(g) = p^{-6} ∑_{a=0}^{p-1} τ^ext_Y(g(a + p z))`.
+Here `g(a + p z)` is the element of `B_T` with analytic part `substAnalytic p a P d` (in the Tate
+algebra, `substAnalytic_isRestricted`) and principal parts `substPrincipal p a d s/(z - s)` at
+the integers `s ∈ substPoles p a d`; `substData_spec` checks that this is the expansion of the
+rational function `g(a + p z)`. Both sides lie in `ℚ_p[X]`. -/
+theorem distribution_formula (hp11 : 11 ≤ p) (P : ℚ[X]) (d : ℤ →₀ ℚ) :
+    (tauFunctional P d).map (Rat.castHom ℚ_[p])
+      = C ((p : ℚ_[p]) ^ (-6 : ℤ)) * ∑ a ∈ range p, tauExt (distY p) (substPoles p a d)
+          (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+          (fun s => (substPrincipal p a d s : ℚ_[p])) := by
+  have hp7 : 7 ≤ p := by omega
+  have hpp : p.Prime := Fact.out
+  have hp0 : (p : ℚ_[p]) ≠ 0 := by exact_mod_cast hpp.ne_zero
+  have hscal : ∀ x : ℚ, ((x / p : ℚ) : ℚ_[p]) * (p : ℚ_[p]) ^ 7 = (p : ℚ_[p]) ^ 6 * (x : ℚ_[p]) :=
+    fun x => by
+      rw [Rat.cast_div, Rat.cast_natCast, div_mul_eq_mul_div, eq_comm, eq_div_iff hp0]
+      ring
+  have hsum : ∑ a ∈ range p, tauExt (distY p) (substPoles p a d)
+          (PowerSeries.map (Rat.castHom ℚ_[p]) (substAnalytic p a P d))
+          (fun s => (substPrincipal p a d s : ℚ_[p]))
+      = C ((p : ℚ_[p]) ^ 6) * (tauFunctional P d).map (Rat.castHom ℚ_[p]) := by
+    rw [Finset.sum_congr rfl fun a _ => tauExt_subst hp7 a P d, Finset.sum_add_distrib,
+      ← map_sum, ← Rat.cast_sum, sum_tauPoly_comp_affine hpp.ne_zero, Finset.sum_comm]
+    simp only [← Finset.mul_sum, sum_poleTerm hp11]
+    unfold tauFunctional
+    rw [Polynomial.map_add, Polynomial.map_C, Finsupp.sum, Polynomial.map_sum, mul_add,
+      Finset.mul_sum]
+    congr 1
+    · rw [Rat.coe_castHom, Rat.cast_mul, Rat.cast_pow, Rat.cast_natCast, C_mul]
+    · refine Finset.sum_congr rfl fun r _ => ?_
+      simp only [tauPole, Polynomial.map_mul, Polynomial.map_sub, Polynomial.map_C,
+        Polynomial.map_X, Rat.coe_castHom]
+      simp only [← mul_assoc, ← C_mul]
+      rw [hscal]
+  rw [hsum, ← mul_assoc, ← C_mul, zpow_neg, zpow_ofNat, inv_mul_cancel₀ (pow_ne_zero 6 hp0), C_1,
+    one_mul]
 
 end Padic
 
