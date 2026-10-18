@@ -346,7 +346,8 @@ theorem exists_Vfield_min_between :
   have hy0 : 0 < y := (Real.sqrt_nonneg _).trans_lt hy1
   have hy1' : y < 1 := hy2.trans ((Real.sqrt_lt' zero_lt_one).2 (by norm_num [qPlus]))
   have hneg : ∀ x, 0 ≤ x → x < y → vfieldSqHalfDeriv x < 0 := fun x hx hxy =>
-    (vfieldSqHalfDeriv_strictMonoOn ⟨hx, (hxy.trans hy1').le⟩ ⟨hy0.le, hy1'.le⟩ hxy).trans_eq hy
+    (vfieldSqHalfDeriv_strictMonoOn ⟨hx, (hxy.trans hy1').le⟩ ⟨hy0.le, hy1'.le⟩
+      hxy).trans_eq hy
   have hpos : ∀ x, y < x → 0 < vfieldSqHalfDeriv x := fun x hxy => by
     rcases le_or_gt x 1 with hx1 | hx1
     · exact hy.symm.trans_lt
@@ -372,8 +373,8 @@ theorem exists_Vfield_min_between :
   · intro a ha b hb hab
     have ha0 : 0 ≤ a := (sq_nonneg y).trans (Set.mem_Ici.1 ha)
     rw [Vfield_eq_vfieldSq ha0, Vfield_eq_vfieldSq (ha0.trans hab.le)]
-    exact hmono (Real.le_sqrt_of_sq_le (Set.mem_Ici.1 ha)) (Real.le_sqrt_of_sq_le (Set.mem_Ici.1 hb))
-      (Real.sqrt_lt_sqrt ha0 hab)
+    exact hmono (Real.le_sqrt_of_sq_le (Set.mem_Ici.1 ha))
+      (Real.le_sqrt_of_sq_le (Set.mem_Ici.1 hb)) (Real.sqrt_lt_sqrt ha0 hab)
 
 /-! ### The lower bound `V_*` and the interval bound `B(l, r)`, equations (114)-(115) -/
 
@@ -397,7 +398,8 @@ theorem Vstar_le_Vfield {t : ℝ} (h1 : qMinus ≤ t) (h2 : t ≤ qPlus) : Vstar
   have hstp : Real.sqrt t ≤ Real.sqrt qPlus := Real.sqrt_le_sqrt h2
   have hl1 : Real.log (1 + qMinus) ≤ Real.log (1 + t) :=
     Real.log_le_log (by linarith) (by linarith)
-  have hl2 : 8 * eAlpha * Real.log (t + eAlpha ^ 2) ≤ 8 * eAlpha * Real.log (qPlus + eAlpha ^ 2) :=
+  have hl2 : 8 * eAlpha * Real.log (t + eAlpha ^ 2) ≤
+      8 * eAlpha * Real.log (qPlus + eAlpha ^ 2) :=
     mul_le_mul_of_nonneg_left (Real.log_le_log (by positivity) (by linarith)) (by positivity)
   have ha1 : Real.arctan (1 / Real.sqrt qPlus) ≤ Real.arctan (1 / Real.sqrt t) :=
     Real.arctan_strictMono.monotone (one_div_le_one_div_of_le hst hstp)
@@ -410,7 +412,8 @@ theorem Vstar_le_Vfield {t : ℝ} (h1 : qMinus ≤ t) (h2 : t ≤ qPlus) : Vstar
     linarith [pi_add_arctan_sub_qMinus_neg]
   have hm1 := mul_le_mul_of_nonneg_left (show Real.pi + Real.arctan (1 / Real.sqrt qPlus) -
       8 * Real.arctan (eAlpha / Real.sqrt qMinus) ≤ Real.pi + Real.arctan (1 / Real.sqrt t) -
-      8 * Real.arctan (eAlpha / Real.sqrt t) by linarith) (by positivity : (0 : ℝ) ≤ 2 * Real.sqrt t)
+      8 * Real.arctan (eAlpha / Real.sqrt t) by linarith)
+    (by positivity : (0 : ℝ) ≤ 2 * Real.sqrt t)
   have hm2 := mul_le_mul_of_nonpos_right (show 2 * Real.sqrt t ≤ 2 * Real.sqrt qPlus by linarith)
     hb.le
   rw [Vfield_eq ht.le, Vstar]
@@ -448,9 +451,10 @@ theorem arcsinePotential_monotone {L : ℝ} (hL : 0 < L) : Monotone (arcsinePote
     · rw [ite_eq_right h₁, ite_eq_right h₂]
       have h₁' := not_le.1 h₁
       apply Real.log_le_log (by linarith [Real.sqrt_nonneg (t₁ * (t₁ - L))])
+      have hmul : 0 ≤ (t₂ - t₁) * (t₂ + t₁ - L) :=
+        mul_nonneg (sub_nonneg.2 h) (by linarith)
       have : Real.sqrt (t₁ * (t₁ - L)) ≤ Real.sqrt (t₂ * (t₂ - L)) :=
-        Real.sqrt_le_sqrt (by nlinarith [mul_nonneg (sub_nonneg.2 h)
-          (by linarith : (0 : ℝ) ≤ t₂ + t₁ - L)])
+        Real.sqrt_le_sqrt (by nlinarith [hmul])
       linarith
 
 theorem compPotential_monotone : Monotone compPotential := fun _ _ h =>
@@ -551,20 +555,20 @@ theorem Vfield_ge_crude {t : ℝ} (ht : 0 ≤ t) :
 
 /-- The block estimate behind (116): if `s² ≤ l₀` and the rational inequality `hP` holds, then
 `2 U_ρ(r₀) - V(l₀) < -109/20` (here `r₀ = R`, `l₀ = Lo`). -/
-theorem two_compPotential_sub_Vfield_lt {Lo R : ℝ} (s : ℝ) (a b : ℕ) (hLo : 0 ≤ Lo) (hs : 0 ≤ s)
-    (hs2 : s ^ 2 ≤ Lo)
+theorem two_compPotential_sub_Vfield_lt {Lo R : ℝ} (s : ℝ) (a b : ℕ) (hLo : 0 ≤ Lo)
+    (hs : 0 ≤ s) (hs2 : s ^ 2 ≤ Lo)
     (hP : (∏ j, uArg (compEndpoint j) R ^ cExp j) * (Lo + eAlpha ^ 2) ^ 60 * 2 ^ b ≤
       (1 + Lo) ^ 100 * 2 ^ a)
     (hnum : ((a : ℝ) * 0.6931471808 - b * 0.6931471803) / 100 - 3 * 3.141592 * s + 2 + 2 * Lo <
       -109 / 20) :
     2 * compPotential R - Vfield Lo < -109 / 20 := by
   have hx : ∀ j, 0 < uArg (compEndpoint j) R := fun j => uArg_pos (compEndpoint_pos j) R
-  have hΠ : 0 < ∏ j, uArg (compEndpoint j) R ^ cExp j :=
+  have hprod : 0 < ∏ j, uArg (compEndpoint j) R ^ cExp j :=
     Finset.prod_pos fun j _ => pow_pos (hx j) _
   have hU := compPotential_le_sum_log R
   rw [sum_compWeight_mul_log hx] at hU
   have hα := eAlpha_pos
-  have hlog := log_bound_of_prod a b hΠ (by positivity : 0 < Lo + eAlpha ^ 2)
+  have hlog := log_bound_of_prod a b hprod (by positivity : 0 < Lo + eAlpha ^ 2)
     (by linarith : 0 < 1 + Lo) hP
   linarith [Vfield_ge_crude hLo,
     mul_le_mul Real.pi_gt_d6.le (Real.le_sqrt_of_sq_le hs2) hs Real.pi_pos.le,
@@ -572,6 +576,7 @@ theorem two_compPotential_sub_Vfield_lt {Lo R : ℝ} (s : ℝ) (a b : ℕ) (hLo 
     mul_le_mul_of_nonneg_left Real.log_two_gt_d9.le (Nat.cast_nonneg (α := ℝ) b)]
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The block `[0, q_-]`: `2 U_ρ(q_-) - V(q_-) < -109/20`. -/
 theorem cover_qMinus : 2 * compPotential qMinus - Vfield qMinus < -109 / 20 :=
   two_compPotential_sub_Vfield_lt (4633 / 40000) 0 1138 qMinus_pos.le (by norm_num)
@@ -580,6 +585,7 @@ theorem cover_qMinus : 2 * compPotential qMinus - Vfield qMinus < -109 / 20 :=
     (by norm_num [qMinus])
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The block `[q_+, L_11] = [q_+, 3/25]`. -/
 theorem cover_qPlus : 2 * compPotential (3 / 25) - Vfield qPlus < -109 / 20 :=
   two_compPotential_sub_Vfield_lt (4633 / 40000) 0 961 qPlus_pos.le (by norm_num)
@@ -588,6 +594,7 @@ theorem cover_qPlus : 2 * compPotential (3 / 25) - Vfield qPlus < -109 / 20 :=
     (by norm_num [qPlus])
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The block `[L_11, L_8] = [3/25, 1/4]`. -/
 theorem cover_3_25 : 2 * compPotential (1 / 4) - Vfield (3 / 25) < -109 / 20 :=
   two_compPotential_sub_Vfield_lt (34641 / 100000) 0 675 (by norm_num) (by norm_num)
@@ -596,6 +603,7 @@ theorem cover_3_25 : 2 * compPotential (1 / 4) - Vfield (3 / 25) < -109 / 20 :=
     (by norm_num)
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The block `[L_8, L_6] = [1/4, 2/5]`. -/
 theorem cover_1_4 : 2 * compPotential (2 / 5) - Vfield (1 / 4) < -109 / 20 :=
   two_compPotential_sub_Vfield_lt (1 / 2) 0 520 (by norm_num) (by norm_num) (by norm_num)
@@ -603,6 +611,7 @@ theorem cover_1_4 : 2 * compPotential (2 / 5) - Vfield (1 / 4) < -109 / 20 :=
     (by norm_num)
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The block `[L_6, L_4] = [2/5, 3/5]`. -/
 theorem cover_2_5 : 2 * compPotential (3 / 5) - Vfield (2 / 5) < -109 / 20 :=
   two_compPotential_sub_Vfield_lt (126491 / 200000) 0 389 (by norm_num) (by norm_num)
@@ -611,6 +620,7 @@ theorem cover_2_5 : 2 * compPotential (3 / 5) - Vfield (2 / 5) < -109 / 20 :=
     (by norm_num)
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The block `[L_4, L_1] = [3/5, 87/100]`. -/
 theorem cover_3_5 : 2 * compPotential (87 / 100) - Vfield (3 / 5) < -109 / 20 :=
   two_compPotential_sub_Vfield_lt (193649 / 250000) 0 237 (by norm_num) (by norm_num)
@@ -619,6 +629,7 @@ theorem cover_3_5 : 2 * compPotential (87 / 100) - Vfield (3 / 5) < -109 / 20 :=
     (by norm_num)
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The block `[L_1, L_1 + 3(2 - L_1)/8] = [87/100, 207/160]`. -/
 theorem cover_87_100 : 2 * compPotential (207 / 160) - Vfield (87 / 100) < -109 / 20 :=
   two_compPotential_sub_Vfield_lt (932737 / 1000000) 0 75 (by norm_num) (by norm_num)
@@ -627,6 +638,7 @@ theorem cover_87_100 : 2 * compPotential (207 / 160) - Vfield (87 / 100) < -109 
     (by norm_num)
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The block `[207/160, 2]`. -/
 theorem cover_207_160 : 2 * compPotential 2 - Vfield (207 / 160) < -109 / 20 :=
   two_compPotential_sub_Vfield_lt (1137431 / 1000000) 62 0 (by norm_num) (by norm_num)
@@ -635,17 +647,18 @@ theorem cover_207_160 : 2 * compPotential 2 - Vfield (207 / 160) < -109 / 20 :=
     (by norm_num)
 
 set_option maxHeartbeats 1000000 in
+set_option exponentiation.threshold 2000 in
 /-- The interval `[q_-, q_+]`: `2 U_ρ(q_+) - V_* < -109/20`. -/
 theorem two_compPotential_qPlus_sub_Vstar_lt : 2 * compPotential qPlus - Vstar < -109 / 20 := by
   have hx : ∀ j, 0 < uArg (compEndpoint j) qPlus := fun j => uArg_pos (compEndpoint_pos j) qPlus
-  have hΠ : 0 < ∏ j, uArg (compEndpoint j) qPlus ^ cExp j :=
+  have hprod : 0 < ∏ j, uArg (compEndpoint j) qPlus ^ cExp j :=
     Finset.prod_pos fun j _ => pow_pos (hx j) _
   have hU := compPotential_le_sum_log qPlus
   rw [sum_compWeight_mul_log hx] at hU
   have hα := eAlpha_pos
   have hqm := qMinus_pos
   have hqp := qPlus_pos
-  have hlog := log_bound_of_prod 0 1138 hΠ
+  have hlog := log_bound_of_prod 0 1138 hprod
     (by positivity : 0 < qPlus + eAlpha ^ 2) (by linarith : 0 < 1 + qMinus)
     (by norm_num [uArg, cExp, compEndpoint, tableLNum, Fin.prod_univ_succ, qPlus, qMinus, eAlpha])
   push_cast at hlog
