@@ -12,8 +12,10 @@ import ZetaSeven.EnergyComputation
 import ZetaSeven.ExternalField
 import ZetaSeven.FunctionalMu
 import ZetaSeven.HermiteHurwitz
+import ZetaSeven.InnerEstimate
 import ZetaSeven.IntegerValued
 import ZetaSeven.MatrixDet
+import ZetaSeven.PositiveIntegral
 import ZetaSeven.PotentialInequality
 import ZetaSeven.PrimeNumberTheorem
 import ZetaSeven.RankLemma
