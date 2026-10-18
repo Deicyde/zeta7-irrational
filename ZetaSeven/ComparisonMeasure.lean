@@ -70,27 +70,15 @@ noncomputable def compPotential (t : ℝ) : ℝ :=
 
 /-- Table 1: every weight `c_j` is positive. -/
 theorem compWeight_pos (j : Fin 16) : 0 < compWeight j := by
-  first
-    | (fin_cases j <;> norm_num [compWeight, tableCNum]); done; trace "ALT wpos: fin_cases"
-    | (exact div_pos (Nat.cast_pos.2 (by fin_cases j <;> simp [tableCNum])) (by positivity));
-        trace "ALT wpos: div_pos"
+  fin_cases j <;> norm_num [compWeight, tableCNum]
 
 /-- Table 1: the weights sum to `λ = 37/40`. -/
 theorem sum_compWeight : ∑ j, compWeight j = 37 / 40 := by
-  first
-    | (norm_num [Fin.sum_univ_succ, compWeight, tableCNum]; done; trace "ALT sum: norm_num")
-    | (simp [Fin.sum_univ_succ, compWeight, tableCNum]; norm_num; done;
-        trace "ALT sum: simp norm_num")
-    | (simp only [Fin.sum_univ_succ, Fin.sum_univ_zero, compWeight, tableCNum,
-          Matrix.cons_val_zero, Matrix.cons_val_succ]; norm_num; done;
-        trace "ALT sum: simp only norm_num")
+  norm_num [Fin.sum_univ_succ, compWeight, tableCNum]
 
 /-- Table 1: every interval `[0, L_j]` is longer than `1/225`. -/
 theorem one_div_225_lt_compEndpoint (j : Fin 16) : 1 / 225 < compEndpoint j := by
-  first
-    | (fin_cases j <;> norm_num [compEndpoint, tableLNum]); done; trace "ALT len: fin_cases"
-    | (fin_cases j <;> simp [compEndpoint, tableLNum] <;> norm_num); done;
-        trace "ALT len: fin_cases simp"
+  fin_cases j <;> norm_num [compEndpoint, tableLNum]
 
 /-- Table 1: every endpoint `L_j` is positive. -/
 theorem compEndpoint_pos (j : Fin 16) : 0 < compEndpoint j :=
@@ -98,22 +86,17 @@ theorem compEndpoint_pos (j : Fin 16) : 0 < compEndpoint j :=
 
 /-- Table 1: every endpoint `L_j` is less than `2`. -/
 theorem compEndpoint_lt_two (j : Fin 16) : compEndpoint j < 2 := by
-  first
-    | (fin_cases j <;> norm_num [compEndpoint, tableLNum]); done; trace "ALT two: fin_cases"
-    | (fin_cases j <;> simp [compEndpoint, tableLNum] <;> norm_num); done;
-        trace "ALT two: fin_cases simp"
+  fin_cases j <;> norm_num [compEndpoint, tableLNum]
 
 /-- Table 1: the intervals are nested, `L_16 < L_15 < ⋯ < L_1`. -/
 theorem compEndpoint_strictAnti : StrictAnti compEndpoint := by
   rw [Fin.strictAnti_iff_succ_lt]
   intro i
-  first
-    | (fin_cases i <;> norm_num [compEndpoint, tableLNum]); done; trace "ALT anti: fin_cases"
-    | (fin_cases i <;> simp [compEndpoint, tableLNum] <;> norm_num); done;
-        trace "ALT anti: fin_cases simp"
+  fin_cases i <;> norm_num [compEndpoint, tableLNum]
 
 /-! ### The unit arcsine measure -/
 
+/-- The arcsine density is nonnegative. -/
 theorem arcsineDensity_nonneg (L t : ℝ) : 0 ≤ arcsineDensity L t := by
   unfold arcsineDensity
   positivity
@@ -123,17 +106,11 @@ theorem arcsineDensity_nonneg (L t : ℝ) : 0 ≤ arcsineDensity L t := by
 theorem arcsineMeasure_univ {L : ℝ} (hL : 0 < L) : arcsineMeasure L Set.univ = 1 := by
   have hL0 : L ≠ 0 := hL.ne'
   have hcont : ContinuousOn (fun t : ℝ => Real.arcsin (2 * t / L - 1) / Real.pi)
-      (Set.Icc 0 L) := by
-    first
-      | (fun_prop; trace "ALT hcont: fun_prop")
-      | (exact (by continuity : Continuous fun t : ℝ =>
-            Real.arcsin (2 * t / L - 1) / Real.pi).continuousOn;
-          trace "ALT hcont: continuity")
+      (Set.Icc 0 L) := by fun_prop
   have hderiv : ∀ t ∈ Set.Ioo 0 L, HasDerivAt
       (fun s : ℝ => Real.arcsin (2 * s / L - 1) / Real.pi) (arcsineDensity L t) t := by
     intro t ht
     have hpos : 0 < t * (L - t) := mul_pos ht.1 (sub_pos.2 ht.2)
-    have hs : Real.sqrt (t * (L - t)) ≠ 0 := (Real.sqrt_pos.2 hpos).ne'
     have hgt : 0 < 2 * t / L := div_pos (mul_pos two_pos ht.1) hL
     have hlt : 2 * t / L < 2 := by
       rw [div_lt_iff₀ hL]
@@ -145,21 +122,13 @@ theorem arcsineMeasure_univ {L : ℝ} (hL : 0 < L) : arcsineMeasure L Set.univ =
     refine h.congr_deriv ?_
     have hsq : 1 - (2 * t / L - 1) ^ 2 = (2 * Real.sqrt (t * (L - t)) / L) ^ 2 := by
       rw [div_pow, mul_pow, Real.sq_sqrt hpos.le]
-      first
-        | (linear_combination (-4 * t / L) * mul_inv_cancel₀ hL0;
-            trace "ALT hsq: linear_combination")
-        | (field_simp; ring1; trace "ALT hsq: field_simp ring1")
-        | (field_simp; done; trace "ALT hsq: field_simp")
+      linear_combination (-4 * t / L) * mul_inv_cancel₀ hL0
     have hroot : Real.sqrt (1 - (2 * t / L - 1) ^ 2) = 2 * Real.sqrt (t * (L - t)) / L := by
       rw [hsq, Real.sqrt_sq (div_nonneg (mul_nonneg zero_le_two (Real.sqrt_nonneg _)) hL.le)]
     rw [hroot]
     show _ = 1 / (Real.pi * Real.sqrt (t * (L - t)))
-    first
-      | (rw [one_div_div];
-          linear_combination (Real.sqrt (t * (L - t)))⁻¹ * Real.pi⁻¹ * mul_inv_cancel₀ hL0;
-          trace "ALT final: linear_combination")
-      | (field_simp; done; trace "ALT final: field_simp")
-      | (field_simp; ring1; trace "ALT final: field_simp ring1")
+    rw [one_div_div]
+    linear_combination (Real.sqrt (t * (L - t)))⁻¹ * Real.pi⁻¹ * mul_inv_cancel₀ hL0
   have hint : IntegrableOn (arcsineDensity L) (Set.Ioc 0 L) :=
     intervalIntegral.integrableOn_deriv_of_nonneg hcont hderiv
       fun t _ => arcsineDensity_nonneg L t
@@ -171,11 +140,7 @@ theorem arcsineMeasure_univ {L : ℝ} (hL : 0 < L) : arcsineMeasure L Set.univ =
       norm_num
     have h0 : 2 * (0 : ℝ) / L - 1 = -1 := by norm_num
     simp only [h1, h0, Real.arcsin_one, Real.arcsin_neg_one]
-    first
-      | (rw [div_sub_div_same, sub_neg_eq_add, add_halves, div_self Real.pi_ne_zero];
-          trace "ALT val: rw")
-      | (field_simp; ring1; trace "ALT val: field_simp ring1")
-      | (field_simp; done; trace "ALT val: field_simp")
+    rw [div_sub_div_same, sub_neg_eq_add, add_halves, div_self Real.pi_ne_zero]
   rw [arcsineMeasure, withDensity_apply _ MeasurableSet.univ, Measure.restrict_univ,
     ← ofReal_integral_eq_lintegral_ofReal (hint.mono_set Set.Ioo_subset_Ioc_self)
       (ae_of_all _ (arcsineDensity_nonneg L)),
