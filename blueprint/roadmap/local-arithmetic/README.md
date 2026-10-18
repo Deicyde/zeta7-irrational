@@ -18,6 +18,14 @@ outer-range estimate that isolates the residue terms from a polynomial
 correction via a rank lemma. Together they feed the normalization
 factor of the next chapter.
 
+The paper's outer-range proof defers its basis, weights, and weight
+count to the zeta(5) predecessor, and its claim (53) that the
+corrected matrix is integral is false as written. The outer range is
+therefore assembled from reconstructed steps: the rank decomposition,
+a class basis adapted to the residue classes, weighted entry
+valuations in that basis, a Gauss-valuation form of the rank lemma,
+and the weight count that yields the exponent (59).
+
 ## Local functional
 
 - [Tau pullback identity](tau-pullback.md) — the auxiliary functional and pullback.
@@ -29,7 +37,16 @@ factor of the next chapter.
 
 - [Small-prime estimate](small-prime-estimate.md) — the crude global bound and integer-valued basis.
 - [Inner range estimate](inner-estimate.md) — determinant valuations in the inner range.
+
+## Outer range
+
+- [Outer moments and rank decomposition](outer-rank-decomposition.md) — moment integrality and the low-rank correction.
+- [Large-prime integrality](large-prime-integrality.md) — the determinant is integral above `K`.
+- [Outer class basis](outer-class-basis.md) — the unimodular basis adapted to residue classes.
+- [Outer entry valuations](outer-entry-valuations.md) — weighted valuations of the class Gram matrix.
 - [Rank lemma](rank-lemma.md) — determinant bound under a low-rank correction.
+- [Gauss-valuation rank lemma](gauss-rank-lemma.md) — the same bound for polynomial entries.
+- [Outer weight sum](outer-weight-sum.md) — the weight count giving the exponent.
 - [Outer range estimate](outer-estimate.md) — determinant valuations in the outer range.
 
 ## Background
@@ -42,4 +59,5 @@ factor of the next chapter.
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
   Sections 3.1-3.5 and 4.1-4.2, Lemmas 3.1-3.8 and
-  Propositions 4.4-4.6.
+  Propositions 4.4-4.6. The bridged outer-range nodes reconstruct
+  the steps the paper defers to its zeta(5) predecessor [5].
