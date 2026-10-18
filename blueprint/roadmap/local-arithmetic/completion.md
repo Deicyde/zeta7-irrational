@@ -2,6 +2,9 @@
 article_id: af_022a4d1c16225498b0b3eb00
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.completion ZetaSeven.norm_tateTau_le ZetaSeven.kappa_padicValRat_ge ZetaSeven.norm_kappa_le_one ZetaSeven.norm_kappa_le ZetaSeven.kappa_padicValRat_nonneg ZetaSeven.tauExt_map ZetaSeven.tateTau_map ZetaSeven.summable_tateTau ZetaSeven.tateTau_add ZetaSeven.partialFraction_spec ZetaSeven.seriesAnalytic_isRestricted ZetaSeven.summable_seriesAnalytic ZetaSeven.summable_seriesPrincipal ZetaSeven.kappa ZetaSeven.tateTau ZetaSeven.tauExt ZetaSeven.pfPolyPart ZetaSeven.principalCoeff ZetaSeven.seriesAnalytic ZetaSeven.seriesPrincipal
 ---
 
 # P-adic completion
@@ -15,9 +18,7 @@ The proof bounds the Bernoulli coefficients via von
 Staudt-Clausen, decomposes each quotient by polynomial division
 with `p`-unit denominators from the incongruence hypothesis, and
 treats the `j = 0` term by the degree bound `p+4` and the `j ≥ 1`
-terms by absorbing one lost `p`-power into `p^j`. The Tate-algebra
-and Gauss-norm infrastructure is project work; no Tate algebra was
-found in the pinned Mathlib checkout.
+terms by absorbing one lost `p`-power into `p^j`.
 
 ## Depends on
 

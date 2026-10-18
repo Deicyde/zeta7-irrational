@@ -17,7 +17,7 @@ Prince Anand, "Zeta 7 is Irrational", Section 3.3. Fix a prime `p ≥ 7`.
   pair `(f, c)` standing for `f + ∑_{r ∈ S} c_r/(z - r)`, and
   `tauExt Y S f c = τ(f) + ∑_r c_r (H⁷_{d(r)} - Y)` is `τ^ext_Y`. With `Y = X` it
   extends `τ_X` (`tauExt_map`).
-* For `U ∈ ℚ_p[z]`, `polyPart S U = U /ₘ T` and `principalCoeff S U r = U(r)/T'(r)`
+* For `U ∈ ℚ_p[z]`, `pfPolyPart S U = U /ₘ T` and `principalCoeff S U r = U(r)/T'(r)`
   are the partial fractions `U/T = P + ∑_r c_r/(z - r)` (`partialFraction_spec`).
   The normalized series `∑_j p^j U_j/T` is the element of `B_T` with analytic part
   `seriesAnalytic S U` (coefficients `∑_j p^j (P_j)_d`) and principal parts
@@ -315,7 +315,7 @@ theorem tauExt_map (S : Finset ℤ) (P : Polynomial ℚ) (d : ℤ →₀ ℚ) (h
 
 /-- Polynomial part `P = U div T` of `U/T`, for `T = ∏_{r ∈ S} (z - r)` (Mathlib's
 `Lagrange.nodal`). -/
-noncomputable def polyPart (S : Finset ℤ) (U : Polynomial ℚ_[p]) : Polynomial ℚ_[p] :=
+noncomputable def pfPolyPart (S : Finset ℤ) (U : Polynomial ℚ_[p]) : Polynomial ℚ_[p] :=
   U /ₘ Lagrange.nodal S fun r : ℤ => (r : ℚ_[p])
 
 /-- Residue `c_r = U(r)/T'(r)` of `U/T` at the simple pole `r`. -/
@@ -325,7 +325,7 @@ noncomputable def principalCoeff (S : Finset ℤ) (U : Polynomial ℚ_[p]) (r : 
 /-- Partial fractions (proof of Lemma 3.5): `U/T = P + ∑_{r ∈ S} c_r/(z - r)`, that is,
 `U = P T + ∑_r c_r T/(z - r)` with `T/(z - r) = ∏_{s ∈ S, s ≠ r} (z - s)`. -/
 theorem partialFraction_spec (S : Finset ℤ) (U : Polynomial ℚ_[p]) :
-    U = polyPart S U * Lagrange.nodal S (fun r : ℤ => (r : ℚ_[p]))
+    U = pfPolyPart S U * Lagrange.nodal S (fun r : ℤ => (r : ℚ_[p]))
       + ∑ r ∈ S, C (principalCoeff S U r)
           * Lagrange.nodal (S.erase r) (fun s : ℤ => (s : ℚ_[p])) := by
   have hinj : Set.InjOn (fun r : ℤ => (r : ℚ_[p])) S := fun a _ b _ h => Int.cast_injective h
@@ -343,7 +343,7 @@ theorem partialFraction_spec (S : Finset ℤ) (U : Polynomial ℚ_[p]) :
       sub_zero, principalCoeff, div_eq_mul_inv, C_mul]
     ring
   conv_lhs => rw [← modByMonic_add_div U (Lagrange.nodal S fun r : ℤ => (r : ℚ_[p]))]
-  rw [hrem, Finset.sum_congr rfl hsum, polyPart]
+  rw [hrem, Finset.sum_congr rfl hsum, pfPolyPart]
   ring
 
 /-! ## Integrality in `ℤ_p` -/
@@ -367,12 +367,12 @@ theorem nodal_map_padicInt (S : Finset ℤ) :
     map_intCast, Polynomial.map_intCast]
 
 /-- The polynomial quotient of `U ∈ ℤ_p[z]` by the monic `T ∈ ℤ[z]` lies in `ℤ_p[z]`. -/
-theorem polyPart_mem_lifts (S : Finset ℤ) {U : Polynomial ℚ_[p]}
+theorem pfPolyPart_mem_lifts (S : Finset ℤ) {U : Polynomial ℚ_[p]}
     (hU : U ∈ lifts (algebraMap ℤ_[p] ℚ_[p])) :
-    polyPart S U ∈ lifts (algebraMap ℤ_[p] ℚ_[p]) := by
+    pfPolyPart S U ∈ lifts (algebraMap ℤ_[p] ℚ_[p]) := by
   obtain ⟨V, rfl⟩ := (mem_lifts U).mp hU
   have hmonic : (Lagrange.nodal S fun r : ℤ => (r : ℤ_[p])).Monic := Lagrange.nodal_monic
-  rw [polyPart, ← nodal_map_padicInt, ← map_divByMonic (algebraMap ℤ_[p] ℚ_[p]) hmonic]
+  rw [pfPolyPart, ← nodal_map_padicInt, ← map_divByMonic (algebraMap ℤ_[p] ℚ_[p]) hmonic]
   exact (mem_lifts _).mpr ⟨_, rfl⟩
 
 /-- `v_p(c_r) ≥ 0`: `T'(r) = ∏_{s ≠ r} (r - s)` is a `p`-unit by pairwise incongruence. -/
@@ -423,10 +423,10 @@ theorem tauExt_mem_lifts {Y : Polynomial ℚ_[p]} (hY : Y ∈ lifts (algebraMap 
 /-! ## The normalized series `∑_j p^j U_j/T` in `B_T` -/
 
 /-- Analytic part of `∑_j p^j U_j/T ∈ B_T`: the power series with coefficients
-`∑_j p^j (P_j)_d`, where `P_j = polyPart S (U j)` is the polynomial part of `U_j/T`. -/
+`∑_j p^j (P_j)_d`, where `P_j = pfPolyPart S (U j)` is the polynomial part of `U_j/T`. -/
 noncomputable def seriesAnalytic (S : Finset ℤ) (U : ℕ → Polynomial ℚ_[p]) :
     PowerSeries ℚ_[p] :=
-  PowerSeries.mk fun d => ∑' j, (p : ℚ_[p]) ^ j * (polyPart S (U j)).coeff d
+  PowerSeries.mk fun d => ∑' j, (p : ℚ_[p]) ^ j * (pfPolyPart S (U j)).coeff d
 
 /-- Principal part of `∑_j p^j U_j/T ∈ B_T` at the pole `r`: `∑_j p^j c_{j,r}`, where
 `c_{j,r} = principalCoeff S (U j) r` is the residue of `U_j/T` at `r`. -/
@@ -456,8 +456,8 @@ theorem norm_tsum_p_pow_mul_le {a : ℕ → ℚ_[p]} (ha : ∀ j, ‖a j‖ ≤ 
 /-- The coefficient series of `seriesAnalytic` converge. -/
 theorem summable_seriesAnalytic (S : Finset ℤ) {U : ℕ → Polynomial ℚ_[p]}
     (hU : ∀ j, U j ∈ lifts (algebraMap ℤ_[p] ℚ_[p])) (d : ℕ) :
-    Summable fun j => (p : ℚ_[p]) ^ j * (polyPart S (U j)).coeff d :=
-  summable_p_pow_mul fun j => norm_coeff_le_one_of_mem_lifts (polyPart_mem_lifts S (hU j)) d
+    Summable fun j => (p : ℚ_[p]) ^ j * (pfPolyPart S (U j)).coeff d :=
+  summable_p_pow_mul fun j => norm_coeff_le_one_of_mem_lifts (pfPolyPart_mem_lifts S (hU j)) d
 
 /-- The series `seriesPrincipal` converge at every pole. -/
 theorem summable_seriesPrincipal {S : Finset ℤ}
@@ -479,19 +479,19 @@ theorem seriesAnalytic_isRestricted (S : Finset ℤ) {U : ℕ → Polynomial ℚ
   rw [PowerSeries.isRestricted_iff', Metric.tendsto_atTop]
   intro ε hε
   obtain ⟨N, hN⟩ := exists_pow_lt_of_lt_one hε (inv_prime_lt_one (p := p))
-  refine ⟨(∑ j ∈ range N, (polyPart S (U j)).natDegree) + 1, fun d hd => ?_⟩
+  refine ⟨(∑ j ∈ range N, (pfPolyPart S (U j)).natDegree) + 1, fun d hd => ?_⟩
   rw [Real.dist_eq, sub_zero, one_pow, mul_one, abs_norm, seriesAnalytic, PowerSeries.coeff_mk]
   refine lt_of_le_of_lt (IsUltrametricDist.norm_tsum_le_of_forall_le_of_nonneg (by positivity)
     fun j => ?_) hN
   by_cases hj : j < N
-  · have hle : (polyPart S (U j)).natDegree ≤ ∑ i ∈ range N, (polyPart S (U i)).natDegree :=
-      Finset.single_le_sum (f := fun i => (polyPart S (U i)).natDegree)
+  · have hle : (pfPolyPart S (U j)).natDegree ≤ ∑ i ∈ range N, (pfPolyPart S (U i)).natDegree :=
+      Finset.single_le_sum (f := fun i => (pfPolyPart S (U i)).natDegree)
         (fun _ _ => Nat.zero_le _) (Finset.mem_range.mpr hj)
-    rw [coeff_eq_zero_of_natDegree_lt (show (polyPart S (U j)).natDegree < d by omega), mul_zero,
+    rw [coeff_eq_zero_of_natDegree_lt (show (pfPolyPart S (U j)).natDegree < d by omega), mul_zero,
       norm_zero]
     positivity
   · exact (norm_p_pow_mul_le
-      (norm_coeff_le_one_of_mem_lifts (polyPart_mem_lifts S (hU j)) d) j).trans
+      (norm_coeff_le_one_of_mem_lifts (pfPolyPart_mem_lifts S (hU j)) d) j).trans
       (pow_le_pow_of_le_one (by positivity) inv_prime_lt_one.le (by omega))
 
 /-- Proof of Lemma 3.5, analytic part: `|τ(∑_j p^j P_j)|_p ≤ 1`. The `j = 0` term has
@@ -500,18 +500,18 @@ norm `≤ p⁻¹`, and `‖τ‖ ≤ p`. -/
 theorem norm_tateTau_seriesAnalytic_le_one (hp7 : 7 ≤ p) (S : Finset ℤ)
     {U : ℕ → Polynomial ℚ_[p]} (hU : ∀ j, U j ∈ lifts (algebraMap ℤ_[p] ℚ_[p]))
     (hU0 : (U 0).natDegree ≤ p + 4) : ‖tateTau (seriesAnalytic S U)‖ ≤ 1 := by
-  have hcoeff : ∀ j d, ‖(polyPart S (U j)).coeff d‖ ≤ 1 := fun j d =>
-    norm_coeff_le_one_of_mem_lifts (polyPart_mem_lifts S (hU j)) d
+  have hcoeff : ∀ j d, ‖(pfPolyPart S (U j)).coeff d‖ ≤ 1 := fun j d =>
+    norm_coeff_le_one_of_mem_lifts (pfPolyPart_mem_lifts S (hU j)) d
   set G : PowerSeries ℚ_[p] := PowerSeries.mk fun d =>
-    ∑' j, (p : ℚ_[p]) ^ (j + 1) * (polyPart S (U (j + 1))).coeff d with hG
+    ∑' j, (p : ℚ_[p]) ^ (j + 1) * (pfPolyPart S (U (j + 1))).coeff d with hG
   have hsplit : seriesAnalytic S U
-      = ((polyPart S (U 0) : Polynomial ℚ_[p]) : PowerSeries ℚ_[p]) + G := by
+      = ((pfPolyPart S (U 0) : Polynomial ℚ_[p]) : PowerSeries ℚ_[p]) + G := by
     ext d
     rw [map_add, Polynomial.coeff_coe, hG, PowerSeries.coeff_mk, seriesAnalytic,
       PowerSeries.coeff_mk, (summable_seriesAnalytic S hU d).tsum_eq_zero_add, pow_zero, one_mul]
   have hGr : G.IsRestricted 1 := by
     have h : G = seriesAnalytic S U
-        + -((polyPart S (U 0) : Polynomial ℚ_[p]) : PowerSeries ℚ_[p]) := by
+        + -((pfPolyPart S (U 0) : Polynomial ℚ_[p]) : PowerSeries ℚ_[p]) := by
       rw [hsplit]
       ring
     rw [h]
@@ -520,9 +520,9 @@ theorem norm_tateTau_seriesAnalytic_le_one (hp7 : 7 ≤ p) (S : Finset ℤ)
   rw [hsplit, tateTau_add hp7 (isRestricted_coe _) hGr]
   refine (IsUltrametricDist.norm_add_le_max _ _).trans (max_le ?_ ?_)
   · rw [tateTau_coe]
-    have hdeg : (polyPart S (U 0)).natDegree ≤ p + 4 := by
+    have hdeg : (pfPolyPart S (U 0)).natDegree ≤ p + 4 := by
       have hmonic : (Lagrange.nodal S fun r : ℤ => (r : ℚ_[p])).Monic := Lagrange.nodal_monic
-      rw [polyPart, natDegree_divByMonic _ hmonic]
+      rw [pfPolyPart, natDegree_divByMonic _ hmonic]
       omega
     refine IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg zero_le_one fun d hd => ?_
     rw [Finset.mem_range] at hd
