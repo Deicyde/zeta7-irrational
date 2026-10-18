@@ -364,7 +364,7 @@ theorem nodal_map_padicInt (S : Finset ℤ) :
     (Lagrange.nodal S fun r : ℤ => (r : ℤ_[p])).map (algebraMap ℤ_[p] ℚ_[p])
       = Lagrange.nodal S fun r : ℤ => (r : ℚ_[p]) := by
   simp only [Lagrange.nodal, Polynomial.map_prod, Polynomial.map_sub, Polynomial.map_X,
-    Polynomial.map_C, map_intCast]
+    map_intCast, Polynomial.map_intCast]
 
 /-- The polynomial quotient of `U ∈ ℤ_p[z]` by the monic `T ∈ ℤ[z]` lies in `ℤ_p[z]`. -/
 theorem polyPart_mem_lifts (S : Finset ℤ) {U : Polynomial ℚ_[p]}
@@ -413,10 +413,11 @@ theorem tauExt_mem_lifts {Y : Polynomial ℚ_[p]} (hY : Y ∈ lifts (algebraMap 
     tauExt Y S f c ∈ lifts (algebraMap ℤ_[p] ℚ_[p]) := by
   rw [lifts_iff_liftsRing] at hY ⊢
   unfold tauExt
-  refine add_mem ((lifts_iff_liftsRing _).mp (C_mem_lifts_of_norm_le_one hf))
+  refine add_mem ((lifts_iff_liftsRing _ _).mp (C_mem_lifts_of_norm_le_one hf))
     (_root_.sum_mem fun r hr => mul_mem
-      ((lifts_iff_liftsRing _).mp (C_mem_lifts_of_norm_le_one (hc r hr)))
-      (sub_mem ((lifts_iff_liftsRing _).mp (C_mem_lifts_of_norm_le_one (norm_H7_le_one (hd r hr))))
+      ((lifts_iff_liftsRing _ _).mp (C_mem_lifts_of_norm_le_one (hc r hr)))
+      (sub_mem
+        ((lifts_iff_liftsRing _ _).mp (C_mem_lifts_of_norm_le_one (norm_H7_le_one (hd r hr))))
         hY))
 
 /-! ## The normalized series `∑_j p^j U_j/T` in `B_T` -/
@@ -484,7 +485,8 @@ theorem seriesAnalytic_isRestricted (S : Finset ℤ) {U : ℕ → Polynomial ℚ
     fun j => ?_) hN
   by_cases hj : j < N
   · have hle : (polyPart S (U j)).natDegree ≤ ∑ i ∈ range N, (polyPart S (U i)).natDegree :=
-      Finset.single_le_sum (fun _ _ => Nat.zero_le _) (Finset.mem_range.mpr hj)
+      Finset.single_le_sum (f := fun i => (polyPart S (U i)).natDegree)
+        (fun _ _ => Nat.zero_le _) (Finset.mem_range.mpr hj)
     rw [coeff_eq_zero_of_natDegree_lt (show (polyPart S (U j)).natDegree < d by omega), mul_zero,
       norm_zero]
     positivity
