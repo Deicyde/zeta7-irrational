@@ -37,9 +37,6 @@ coefficients and degree at most `i + j + 8N - K`, so `L_{ij} = 0` when
 
 - [Matrix and determinant](../determinant-construction/matrix-determinant.md)
 - [Outer range data](outer-range-data.md)
-
-## Proof depends on
-
 - [Outer moment integrality](outer-moment-integrality.md)
 
 ## Sources
