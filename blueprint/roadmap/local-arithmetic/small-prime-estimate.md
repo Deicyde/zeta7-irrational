@@ -26,6 +26,7 @@ scope by design, and no separate node is planned for it.
 ## Depends on
 
 - [Tau pullback identity](tau-pullback.md)
+- [Matrix and determinant](../determinant-construction/matrix-determinant.md)
 
 ## Proof depends on
 
