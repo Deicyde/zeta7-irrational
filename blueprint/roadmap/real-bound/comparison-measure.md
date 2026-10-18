@@ -2,6 +2,8 @@
 article_id: af_93d9a491a173a3386ce983bc
 declaration: def
 origin: cited
+statement: formalized
+lean: ZetaSeven.compMeasure ZetaSeven.arcsineMeasure ZetaSeven.arcsinePotential ZetaSeven.compPotential ZetaSeven.compEndpoint ZetaSeven.compWeight ZetaSeven.compMeasure_univ ZetaSeven.sum_compWeight ZetaSeven.one_div_225_lt_compEndpoint ZetaSeven.compEndpoint_strictAnti ZetaSeven.compEndpoint_pos ZetaSeven.compEndpoint_lt_two ZetaSeven.compWeight_pos ZetaSeven.arcsineMeasure_univ ZetaSeven.isProbabilityMeasure_arcsineMeasure
 ---
 
 # Comparison measure
