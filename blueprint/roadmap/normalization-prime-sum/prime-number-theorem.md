@@ -2,6 +2,9 @@
 article_id: af_4a2ec29b35052df331a4836a
 declaration: theorem
 origin: background
+statement: formalized
+proof: formalized
+lean: ZetaSeven.theta_isEquivalent_id ZetaSeven.tendsto_primeRiemannSum ZetaSeven.tendsto_primeRiemannSum_of_theta
 ---
 
 # Prime number theorem

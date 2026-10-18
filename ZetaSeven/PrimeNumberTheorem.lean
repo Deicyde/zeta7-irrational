@@ -1,4 +1,5 @@
 import Mathlib
+import PrimeNumberTheoremAnd.Consequences
 
 /-!
 # Prime number theorem and prime Riemann sums (paper Section 5.5, proof of Proposition 5.4)
@@ -8,7 +9,9 @@ theorem in the form `θ(x) ~ x` together with partial summation: for `0 < a < b`
 `G` that is bounded on `[a, b]` and continuous there except at finitely many points,
 `X⁻¹ ∑_{aX < p ≤ bX} G(p/X) log p → ∫_a^b G(y) dy` as `X → ∞`.
 
-This file proves the Riemann-sum statement from the hypothesis `θ ~[atTop] id`
+The asymptotic `θ ~[atTop] id` (`ZetaSeven.theta_isEquivalent_id`) is
+`chebyshev_asymptotic` from the pinned PrimeNumberTheoremAnd dependency. The Riemann-sum
+statement (`ZetaSeven.tendsto_primeRiemannSum`) is proved from that asymptotic alone
 (`ZetaSeven.tendsto_primeRiemannSum_of_theta`). The weight is sandwiched between the upper and
 lower step functions of the uniform partition of `[a, b]` into `N` pieces: on each piece the
 prime sum is `X⁻¹ (θ(dX) - θ(cX)) → d - c` times a constant, since `log p ≥ 0`. The step
@@ -478,5 +481,22 @@ theorem tendsto_primeRiemannSum_of_theta (hθ : θ ~[atTop] id) {a b : ℝ} (ha 
     rw [← integral_grid_step hab hN (gridSup G a b N)] at hlim
     filter_upwards [hlim.eventually_lt_const hNu, eventually_gt_atTop 0] with X hX1 hX2
     exact (primeSum_le_upper ha.le hab hC hN hX2).trans_lt hX1
+
+/-- The prime number theorem in the form `θ(x) ~ x`: `chebyshev_asymptotic` from the pinned
+PrimeNumberTheoremAnd dependency, stated for Mathlib's `Chebyshev.theta`. -/
+theorem theta_isEquivalent_id : θ ~[atTop] id :=
+  chebyshev_asymptotic
+
+/-- Prime Riemann sums (the prime number theorem with partial summation, as used in the proof of
+Proposition 5.4): for `0 < a < b` and a weight `G` that is bounded on `[a, b]` and continuous
+there except at finitely many points, `X⁻¹ ∑_{aX < p ≤ bX} G(p/X) log p → ∫_a^b G(y) dy` as
+`X → ∞`. -/
+theorem tendsto_primeRiemannSum {a b : ℝ} (ha : 0 < a) (hab : a < b) {G : ℝ → ℝ}
+    (hG : ∃ C, ∀ y ∈ Set.Icc a b, |G y| ≤ C)
+    (hGc : {y ∈ Set.Icc a b | ¬ContinuousWithinAt G (Set.Icc a b) y}.Finite) :
+    Tendsto (fun X : ℝ =>
+        X⁻¹ * ∑ p ∈ Finset.Ioc ⌊a * X⌋₊ ⌊b * X⌋₊ with p.Prime, G (p / X) * Real.log p)
+      atTop (𝓝 (∫ y in a..b, G y)) :=
+  tendsto_primeRiemannSum_of_theta theta_isEquivalent_id ha hab hG hGc
 
 end ZetaSeven
