@@ -24,8 +24,7 @@ in the local exponents need only `θ(x) = O(x)`.
 The asymptotic comes from the pinned PrimeNumberTheoremAnd
 dependency (rev `c39a751`): `chebyshev_asymptotic : θ ~[atTop] id`
 in `PrimeNumberTheoremAnd/Consequences.lean`, stated for Mathlib's
-`Chebyshev.theta`. No ZetaSeven module imports it yet. The
-partial-summation step is project work. The paper's weights are
+`Chebyshev.theta`. The partial-summation step is project work. The paper's weights are
 polynomial or rational on each of finitely many closed pieces,
 where Mathlib's Abel summation `sum_mul_eq_sub_sub_integral_mul`
 (for `0 ≤ a ≤ b`) applies; a general weight can instead be
