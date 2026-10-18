@@ -2,6 +2,9 @@
 article_id: af_2ecf5c546c9083afd41c375f
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.inner_estimate ZetaSeven.eBasis_unimodular ZetaSeven.bA_lt_allocT ZetaSeven.alloc_eq ZetaSeven.card_eIdx ZetaSeven.eBasis_natDegree_lt ZetaSeven.exists_extraRows ZetaSeven.ell_le_ell_add_one ZetaSeven.tauExt_subst_norm_le ZetaSeven.normSqLe_gram ZetaSeven.comparison ZetaSeven.InnerRange ZetaSeven.mHalf ZetaSeven.mN ZetaSeven.mK ZetaSeven.ell ZetaSeven.L0 ZetaSeven.bA ZetaSeven.allocTotal ZetaSeven.allocT ZetaSeven.allocE ZetaSeven.ExtraRows ZetaSeven.allocZ ZetaSeven.allocL ZetaSeven.eBasis ZetaSeven.eIdx ZetaSeven.weight2 ZetaSeven.gammaIn ZetaSeven.ClassDeg ZetaSeven.pfNum ZetaSeven.NormSqLe ZetaSeven.muTail
 ---
 
 # Inner range estimate
