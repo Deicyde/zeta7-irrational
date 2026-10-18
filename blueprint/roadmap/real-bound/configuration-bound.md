@@ -16,11 +16,22 @@ empirical measure minus the comparison measure, bounds the
 regularization error by the arcsine mass estimate and the
 circle-average identity, and checks the retained-factor
 inequality on `[0,2]` and past 2 by elementary bounds.
+The paper's bound (99) past 2 is false as printed (with the
+coefficient `13/10` it fails already at `t = 5`); the correct
+bound is `2U_ρ(t) - V(t) ≤ (29/20) log t + 8α^3/t - 2π√t` for
+`t ≥ 2`, proved in the potential-inequality node, and with it
+the retained-factor inequality (98) still holds, since after
+adding `√t/K` the right side is decreasing on `[2,∞)` and its
+value at `t = 2` is below `M_0 + √2/K` for `K ≥ 2`.
 
 ## Depends on
 
 - [Zero-mass logarithmic energy](zero-mass-energy.md)
 - [Comparison measure](comparison-measure.md)
+
+## Proof depends on
+
+- [Potential inequality](potential-inequality.md)
 
 ## Sources
 
