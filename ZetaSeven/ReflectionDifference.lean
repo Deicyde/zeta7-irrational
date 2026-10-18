@@ -73,9 +73,9 @@ theorem bernoulli_eval_one_eq (n : ℕ) :
     (Polynomial.bernoulli n).eval 1 = _root_.bernoulli n + if n = 1 then 1 else 0 := by
   rw [Polynomial.bernoulli_eval_one]
   rcases eq_or_ne n 1 with rfl | hn
-  · rw [bernoulli'_one, _root_.bernoulli_one, if_pos rfl]
+  · rw [bernoulli'_one, _root_.bernoulli_one, ite_eq_left rfl]
     norm_num
-  · rw [if_neg hn, add_zero, _root_.bernoulli_eq_bernoulli'_of_ne_one hn]
+  · rw [ite_eq_right hn, add_zero, _root_.bernoulli_eq_bernoulli'_of_ne_one hn]
 
 /-- The identity `L((1+x)^n) = B_n(1)` of the proof of Lemma 3.2. -/
 theorem bernoulliL_X_add_one_pow_eq_eval_one (n : ℕ) :
@@ -111,16 +111,16 @@ theorem bernoulliL_neg_one_sub_X_pow (n : ℕ) :
   · have hn1 : n ≠ 1 := by
       rintro rfl
       exact Nat.not_even_one hn
-    rw [hn.neg_one_pow, if_neg hn1]
+    rw [hn.neg_one_pow, ite_eq_right hn1]
     ring
   · rw [hn.neg_one_pow]
     rcases eq_or_ne n 1 with rfl | hn1
-    · rw [if_pos rfl, _root_.bernoulli_one]
+    · rw [ite_eq_left rfl, _root_.bernoulli_one]
       norm_num
     · have hlt : 1 < n := by
         have := hn.pos
         omega
-      rw [if_neg hn1, _root_.bernoulli_eq_zero_of_odd hn hlt]
+      rw [ite_eq_right hn1, _root_.bernoulli_eq_zero_of_odd hn hlt]
       ring
 
 /-- `L` is invariant under `x ↦ -1-x`. -/
@@ -337,7 +337,14 @@ theorem ratFuncShift_tauRatFunc (P : ℚ[X]) (d : ℤ →₀ ℚ) :
   rw [Finsupp.sum_single_index (by simp), map_div₀, ratFuncShift_algebraMap,
     ratFuncShift_algebraMap, C_comp, hcomp]
 
-/-! ## Laurent expansion at `0` -/
+/-! ## Laurent expansion at `0`
+
+The embedding `RatFunc ℚ → LaurentSeries ℚ` (expansion at `0`) is Mathlib's scoped instance
+`RatFunc.liftAlgebra`, the one behind the coercion `RatFunc.coeToLaurentSeries`. -/
+
+section Laurent
+
+open scoped RatFunc
 
 theorem laurent_algebraMap (p : ℚ[X]) :
     algebraMap (RatFunc ℚ) (LaurentSeries ℚ) (algebraMap ℚ[X] (RatFunc ℚ) p)
@@ -358,7 +365,7 @@ theorem laurent_pole_coeff_six (a : ℚ) (r : ℤ) :
       = -(a / (r : ℚ) ^ 7) := by
   have hne : algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
       (algebraMap ℚ[X] (RatFunc ℚ) (X - C (r : ℚ))) ≠ 0 :=
-    (map_ne_zero _).2 (RatFunc.algebraMap_ne_zero (X_sub_C_ne_zero _))
+    (_root_.map_ne_zero _).2 (RatFunc.algebraMap_ne_zero (X_sub_C_ne_zero _))
   rcases eq_or_ne (r : ℚ) 0 with hr | hr
   · have hS : algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
         (algebraMap ℚ[X] (RatFunc ℚ) (C a) / algebraMap ℚ[X] (RatFunc ℚ) (X - C (r : ℚ)))
@@ -404,6 +411,8 @@ theorem laurent_iterate_derivative_six_coeff_zero (f : LaurentSeries ℚ) :
   push_cast
   ring
 
+end Laurent
+
 /-! ## Lemmas 3.2 and 3.3 for rational functions -/
 
 /-- **Lemma 3.2** (reflection identity (29)) for rational functions with polynomial part and simple
@@ -417,6 +426,7 @@ theorem tau_reflection (g : RatFunc ℚ) (P : ℚ[X]) (d : ℤ →₀ ℚ) (P' :
   obtain ⟨rfl, rfl⟩ := tauRatFunc_inj h
   exact tauFunctional_reflect P d
 
+open scoped RatFunc in
 /-- **Lemma 3.3** (difference identity (30)) for rational functions with polynomial part and
 simple integer poles: if `(P, d)` represents `g` and `(P', d')` represents `g(x+1) - g(x)`, then
 `τ_X(g(x+1) - g(x)) = g⁽⁶⁾(0)/720`, with `g⁽⁶⁾(0)` the constant coefficient of the sixth
