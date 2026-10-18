@@ -97,7 +97,6 @@ theorem integral_mul_w7_eq_tsum (g : ℝ → ℝ) (hg : ∀ y, 0 < y → 0 < g y
       ∫ y in Ioi (0 : ℝ), g y * (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y)) := by
     rw [← setIntegral_congr_fun measurableSet_Ioi hpt, ← hHas.tsum_eq, ← tsum_mul_left]
     refine tsum_congr fun ℓ => ?_
-    beta_reduce
     rw [integral_const_mul, integral_const_mul]
   have hpos0 : 0 < ∫ y in Ioi (0 : ℝ),
       g y * (y ^ 7 * Real.exp (-(2 * π * (((0 : ℕ) : ℝ) + 1)) * y)) := by
@@ -193,8 +192,7 @@ theorem integral_moment_w7 (e : ℕ) :
     (hZ.summable.mul_left ((Nat.factorial (2 * e + 7) : ℝ) / (2 * π) ^ (2 * e + 8))).congr
       fun ℓ => (hterm ℓ).symm
   obtain ⟨hI, hV⟩ := integral_mul_w7_eq_tsum (fun y => y ^ (2 * e))
-    (fun y hy => by beta_reduce; positivity) hint hsum
-  beta_reduce at hI hV
+    (fun y hy => by positivity) hint hsum
   refine ⟨hI, ?_⟩
   rw [hV, tsum_congr hterm, tsum_mul_left, hZ.tsum_eq, factorial_two_mul_add_seven]
   have hfac : (0 : ℝ) < (Nat.factorial (2 * e + 2) : ℝ) := by positivity
@@ -377,7 +375,6 @@ private lemma pole_series_summable_norm {a : ℝ} (ha : 0 < a) :
     field
   refine Summable.of_nonneg_of_le (fun ℓ => integral_nonneg fun y => norm_nonneg _)
     (fun ℓ => ?_) hB
-  beta_reduce
   rw [← integral_pow_mul_exp_neg_mul 1 (hc ℓ), ← integral_const_mul]
   refine integral_mono_of_nonneg (ae_of_all _ fun y => norm_nonneg _)
     (Integrable.const_mul (integrableOn_pow_mul_exp_neg_mul 1 (hc ℓ)) _)
@@ -394,7 +391,6 @@ private lemma tsum_pole_series {a : ℝ} (ha : 0 < a) :
   rw [integral_tsum_of_summable_integral_norm (pole_series_integrable ha)
     (pole_series_summable_norm ha)]
   refine setIntegral_congr_fun measurableSet_Ioi fun y hy => ?_
-  beta_reduce
   rw [tsum_mul_right, tsum_exp_neg_two_pi_mul hy]
   ring
 
@@ -413,35 +409,46 @@ private lemma pole_term_eq {a : ℝ} (ha : 0 < a) (ℓ : ℕ) :
   rw [div_mul_eq_mul_div, eq_div_iff h2π]
   linear_combination h
 
+private lemma pole_term_integrable {a : ℝ} (ha : 0 < a) (ℓ : ℕ) :
+    IntegrableOn (fun y => 1 / (y ^ 2 + a ^ 2) *
+      (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y))) (Ioi 0) := by
+  have hc : 0 < 2 * π * ((ℓ : ℝ) + 1) := by positivity
+  refine Integrable.mono'
+    (Integrable.const_mul (integrableOn_pow_mul_exp_neg_mul 7 hc) (1 / a ^ 2)) ?_ ?_
+  · exact (by fun_prop : Measurable fun y : ℝ => 1 / (y ^ 2 + a ^ 2) *
+      (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y))).aestronglyMeasurable
+  · refine ae_restrict_of_forall_mem measurableSet_Ioi fun y hy => ?_
+    have hy' : (0 : ℝ) < y := hy
+    have hA : 0 ≤ y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y) := by positivity
+    have hB : 0 ≤ 1 / (y ^ 2 + a ^ 2) := by positivity
+    have hle : 1 / (y ^ 2 + a ^ 2) ≤ 1 / a ^ 2 :=
+      one_div_le_one_div_of_le (by positivity) (le_add_of_nonneg_left (sq_nonneg y))
+    calc ‖1 / (y ^ 2 + a ^ 2) * (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y))‖
+        = 1 / (y ^ 2 + a ^ 2) * (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y)) :=
+          Real.norm_of_nonneg (mul_nonneg hB hA)
+      _ ≤ 1 / a ^ 2 * (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y)) :=
+          mul_le_mul_of_nonneg_right hle hA
+
+private lemma pole_series_summable {a : ℝ} (ha : 0 < a) :
+    Summable fun ℓ : ℕ => ∫ y in Ioi (0 : ℝ), Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y) *
+      (y * (7 * a ^ 6 - 35 * a ^ 4 * y ^ 2 + 21 * a ^ 2 * y ^ 4 - y ^ 6) /
+        (y ^ 2 + a ^ 2) ^ 7) :=
+  (pole_series_summable_norm ha).of_norm_bounded fun ℓ => norm_integral_le_integral_norm _
+
+private lemma pole_terms_summable {a : ℝ} (ha : 0 < a) :
+    Summable fun ℓ : ℕ => ((ℓ : ℝ) + 1) ^ 6 * ∫ y in Ioi (0 : ℝ),
+      1 / (y ^ 2 + a ^ 2) * (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y)) :=
+  ((pole_series_summable ha).mul_left (720 * a ^ 6 / (2 * π) ^ 6)).congr
+    fun ℓ => (pole_term_eq ha ℓ).symm
+
 /-- Equation (19): `∫₀^∞ w₇(y)/(y² + a²) dy = a⁶ ζ(7, a) - 1/(2a) - 1/6` for `a > 0`, with the
 integrand integrable on `(0, ∞)`. -/
 theorem integral_pole_w7 {a : ℝ} (ha : 0 < a) :
     IntegrableOn (fun y => 1 / (y ^ 2 + a ^ 2) * w7 y) (Ioi 0) ∧
       ∫ y in Ioi (0 : ℝ), 1 / (y ^ 2 + a ^ 2) * w7 y =
         a ^ 6 * hurwitzZeta7 a - 1 / (2 * a) - 1 / 6 := by
-  have hc : ∀ ℓ : ℕ, 0 < 2 * π * ((ℓ : ℝ) + 1) := fun ℓ => by positivity
-  have hint : ∀ ℓ : ℕ, IntegrableOn (fun y => 1 / (y ^ 2 + a ^ 2) *
-      (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y))) (Ioi 0) := by
-    intro ℓ
-    refine Integrable.mono'
-      (Integrable.const_mul (integrableOn_pow_mul_exp_neg_mul 7 (hc ℓ)) (1 / a ^ 2)) ?_ ?_
-    · exact (by fun_prop : Measurable fun y : ℝ => 1 / (y ^ 2 + a ^ 2) *
-        (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y))).aestronglyMeasurable
-    · refine ae_restrict_of_forall_mem measurableSet_Ioi fun y hy => ?_
-      beta_reduce
-      have hy' : (0 : ℝ) < y := hy
-      have hA : 0 ≤ y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y) := by positivity
-      rw [Real.norm_of_nonneg (by positivity)]
-      exact mul_le_mul_of_nonneg_right
-        (one_div_le_one_div_of_le (by positivity) (le_add_of_nonneg_left (sq_nonneg y))) hA
-  have hsum : Summable fun ℓ : ℕ => ((ℓ : ℝ) + 1) ^ 6 * ∫ y in Ioi (0 : ℝ),
-      1 / (y ^ 2 + a ^ 2) * (y ^ 7 * Real.exp (-(2 * π * ((ℓ : ℝ) + 1)) * y)) :=
-    (((pole_series_summable_norm ha).of_norm_bounded
-      fun ℓ => norm_integral_le_integral_norm _).mul_left (720 * a ^ 6 / (2 * π) ^ 6)).congr
-      fun ℓ => (pole_term_eq ha ℓ).symm
   obtain ⟨hI, hV⟩ := integral_mul_w7_eq_tsum (fun y => 1 / (y ^ 2 + a ^ 2))
-    (fun y _ => by beta_reduce; positivity) hint hsum
-  beta_reduce at hI hV
+    (fun y _ => by positivity) (pole_term_integrable ha) (pole_terms_summable ha)
   refine ⟨hI, ?_⟩
   rw [hV, tsum_congr (pole_term_eq ha), tsum_mul_left, tsum_pole_series ha,
     hurwitzZeta7_eq_hermite_integral ha]
