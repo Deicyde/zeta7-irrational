@@ -1127,8 +1127,10 @@ theorem bA_lt_allocT (hR : InnerRange n M p) [Fact p.Prime] {a : ℕ} (ha1 : 1 �
   have hmK := hR.mK_lt
   have hmN := mN_le_mK n p
   have htot := hR.allocTotal_eq
-  have hdm := Nat.div_add_mod (allocTotal n M p) (mHalf p)
-  have hmod := Nat.mod_lt (allocTotal n M p) (show 0 < mHalf p by omega)
+  have hm0 : 0 < mHalf p := by omega
+  have hQlt : allocTotal n M p < mHalf p * (allocTotal n M p / mHalf p) + mHalf p := by
+    have h := Nat.lt_mul_div_succ (allocTotal n M p) hm0
+    rwa [Nat.mul_add, Nat.mul_one] at h
   have hell := mul_ell_le hm (N n) a ha1 ham
   unfold bA allocT
   by_contra hcon
@@ -1140,7 +1142,14 @@ theorem bA_lt_allocT (hR : InnerRange n M p) [Fact p.Prime] {a : ℕ} (ha1 : 1 �
       = 2 * (mHalf p * (allocTotal n M p / mHalf p)) + allocTotal n M p / mHalf p := by
     rw [show 2 * (mHalf p * (allocTotal n M p / mHalf p)) + allocTotal n M p / mHalf p
       = (2 * mHalf p + 1) * (allocTotal n M p / mHalf p) by ring, hm]
-  simp only [K, N, hDim, L0] at htot h3p hell
+  have hNn : N n = 3 * n := rfl
+  have hKn : K n = 40 * n := rfl
+  have hhn : hDim n = 37 * n := rfl
+  have hLM : L0 M = 6 * M + 10 := rfl
+  generalize allocTotal n M p / mHalf p = T at *
+  generalize ell p (N n) a = l at *
+  generalize mN n p = q at *
+  generalize mK n p = q' at *
   linarith
 
 /-- `T < 3M`. -/
@@ -1150,7 +1159,7 @@ theorem allocT_lt (hR : InnerRange n M p) [Fact p.Prime] : allocT n M p < 3 * M 
   have hM := hR.forty_le
   have hKlt := hR.K_lt
   have htot := hR.allocTotal_eq
-  have hdm := Nat.div_add_mod (allocTotal n M p) (mHalf p)
+  have hdm := Nat.mul_div_le (allocTotal n M p) (mHalf p)
   unfold allocT
   by_contra hcon
   have hle : 3 * M ≤ allocTotal n M p / mHalf p := not_lt.mp hcon
@@ -1160,7 +1169,12 @@ theorem allocT_lt (hR : InnerRange n M p) [Fact p.Prime] : allocT n M p < 3 * M 
   have hMp : M * p = 2 * (mHalf p * M) + M := by
     rw [show 2 * (mHalf p * M) + M = M * (2 * mHalf p + 1) by ring, hm]
   have hmM : 3 * M ≤ mHalf p * M := Nat.mul_le_mul_right M (by omega)
-  simp only [K, N, hDim, L0] at htot hKlt
+  have hNn : N n = 3 * n := rfl
+  have hKn : K n = 40 * n := rfl
+  have hhn : hDim n = 37 * n := rfl
+  have hLM : L0 M = 6 * M + 10 := rfl
+  generalize allocTotal n M p / mHalf p = T at *
+  generalize mN n p = q at *
   linarith
 
 /-- `∑_{a=1}^m ε_a = E`. -/
@@ -1190,9 +1204,14 @@ theorem sum_allocL (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p
     ← Finset.mul_sum, sum_eps hε, sum_ell hm, Nat.add_sub_cancel]
   have htot := hR.allocTotal_eq
   have hdm := Nat.div_add_mod (allocTotal n M p) (mHalf p)
-  unfold allocT allocE at *
+  have hL0le := hR.L0_le
   have h2 : N n / p ≤ N n := Nat.div_le_self _ _
+  unfold allocT allocE
   unfold mN at htot
+  generalize allocTotal n M p / mHalf p = T at *
+  generalize allocTotal n M p % mHalf p = r at *
+  generalize N n / p = q at *
+  generalize allocTotal n M p = Q at *
   omega
 
 end Alloc
@@ -1206,7 +1225,7 @@ variable {n M p : ℕ} {ε : ℕ → ℕ}
 theorem eBasis_map (R : Type*) [CommRing R] (n M p : ℕ) (ε : ℕ → ℕ) (a i : ℕ) :
     (eBasis ℤ n M p ε a i).map (Int.castRingHom R) = eBasis R n M p ε a i := by
   simp only [eBasis, Polynomial.map_mul, Polynomial.map_prod, Polynomial.map_pow,
-    Polynomial.map_add, Polynomial.map_X, Polynomial.map_C, map_pow, map_natCast]
+    Polynomial.map_add, Polynomial.map_X, map_pow, map_natCast, Polynomial.map_natCast]
 
 /-- The `E`-basis lies in `R[t]_{<h}`. -/
 theorem eBasis_natDegree_lt (R : Type*) [CommRing R] [Nontrivial R] (hR : InnerRange n M p)
@@ -1307,8 +1326,8 @@ theorem eBasis_linearIndependent (hR : InnerRange n M p) [Fact p.Prime]
     (fun q : (ZMod p)[X] => (q.comp (X - C (((a0 : ℕ) : ZMod p) ^ 2))).coeff i0) hQ0
   simp only [finset_sum_comp', smul_comp, pow_comp, add_comp, X_comp, C_comp, sub_add_cancel,
     finsetSum_coeff, coeff_smul, coeff_X_pow, smul_eq_mul, mul_ite, mul_one, mul_zero,
-    Fin.val_inj, Finset.sum_ite_eq', Finset.mem_univ, if_true, zero_comp, coeff_zero] at hcomp
-  exact hcomp
+    Fin.val_inj, zero_comp, coeff_zero] at hcomp
+  rwa [Finset.sum_ite_eq, ite_eq_left (Finset.mem_univ i0)] at hcomp
 
 /-- The coefficient matrix of the `E`-basis modulo `p` is invertible. -/
 theorem eBasis_det_ne_zero (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
@@ -1362,5 +1381,143 @@ theorem card_eIdx (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p 
   exact sum_allocL hR hε
 
 end Unimodular
+
+/-! ## The Gram matrix in the `E`-basis -/
+
+section Gram
+
+variable {n M p : ℕ} {ε : ℕ → ℕ}
+
+/-- `μ_X(Q/D_tail)` for a polynomial `Q`, computed as in `ZetaSeven.Gentry`: polynomial part
+`Q div D_tail` and simple-pole residues `Q(-a²)/D_tail'(-a²)` at `N < a ≤ K`. The entries of
+`G_K` are `Gentry n i j = muTail n (D_N⁷ t^{i+j})`, and in the `E`-basis the Gram entries are
+`muTail n (D_N⁷ E_{a,i} E_{b,j})`. -/
+noncomputable def muTail (n : ℕ) (Q : ℚ[X]) : ℚ[X] :=
+  muFunctional (Q.div (Dtail n))
+    (∑ a ∈ Icc (N n + 1) (K n), Finsupp.single a
+      (Q.eval (-(a : ℚ) ^ 2) / (derivative (Dtail n)).eval (-(a : ℚ) ^ 2)))
+
+theorem Gentry_eq_muTail (n i j : ℕ) : Gentry n i j = muTail n (Rnum n i j) := rfl
+
+theorem Dtail_monic (n : ℕ) : (Dtail n).Monic :=
+  monic_prod_of_monic _ _ fun _ _ => monic_X_add_C _
+
+theorem div_Dtail (n : ℕ) (Q : ℚ[X]) : Q.div (Dtail n) = Q /ₘ Dtail n :=
+  (divByMonic_eq_div Q (Dtail_monic n)).symm
+
+theorem muFunctional_add (P₁ P₂ : ℚ[X]) (c₁ c₂ : ℕ →₀ ℚ) :
+    muFunctional (P₁ + P₂) (c₁ + c₂) = muFunctional P₁ c₁ + muFunctional P₂ c₂ := by
+  unfold muFunctional
+  rw [Polynomial.sum_add_index _ _ _ (fun i => by simp) (fun a b₁ b₂ => by rw [C_add, add_mul]),
+    Finsupp.sum_add_index' (fun i => by simp) (fun i b₁ b₂ => by rw [C_add, add_mul])]
+  ring
+
+theorem muFunctional_smul (r : ℚ) (P : ℚ[X]) (c : ℕ →₀ ℚ) :
+    muFunctional (r • P) (r • c) = C r * muFunctional P c := by
+  unfold muFunctional
+  rw [Polynomial.sum_smul_index _ _ _ (fun i => by simp),
+    Finsupp.sum_smul_index' (fun i => by simp)]
+  simp only [Polynomial.sum_def, Finsupp.sum, mul_add, Finset.mul_sum, smul_eq_mul, C_mul,
+    mul_assoc]
+
+theorem muTail_add (n : ℕ) (Q₁ Q₂ : ℚ[X]) : muTail n (Q₁ + Q₂) = muTail n Q₁ + muTail n Q₂ := by
+  unfold muTail
+  rw [← muFunctional_add]
+  congr 1
+  · rw [div_Dtail, div_Dtail, div_Dtail, add_divByMonic]
+  · rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [← Finsupp.single_add, eval_add, add_div]
+
+theorem muTail_smul (n : ℕ) (r : ℚ) (Q : ℚ[X]) : muTail n (r • Q) = C r * muTail n Q := by
+  unfold muTail
+  rw [← muFunctional_smul]
+  congr 1
+  · rw [div_Dtail, div_Dtail, smul_divByMonic]
+  · rw [Finset.smul_sum]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [Finsupp.smul_single, eval_smul, smul_eq_mul, smul_eq_mul, mul_div_assoc]
+
+/-- `muTail n` is `ℚ`-linear. -/
+noncomputable def muTailLin (n : ℕ) : ℚ[X] →ₗ[ℚ] ℚ[X] where
+  toFun := muTail n
+  map_add' := muTail_add n
+  map_smul' r Q := by rw [muTail_smul, RingHom.id_apply, smul_eq_C_mul]
+
+theorem eBasis_eq_sum (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (ρ : eIdx n M p ε) :
+    eBasis ℚ n M p ε ρ.1 ρ.2
+      = ∑ i : Fin (hDim n), C ((eBasis ℚ n M p ε ρ.1 ρ.2).coeff i) * X ^ (i : ℕ) := by
+  conv_lhs => rw [as_sum_range_C_mul_X_pow' _ (eBasis_natDegree_lt ℚ hR hε ρ)]
+  rw [← Fin.sum_univ_eq_sum_range (fun i => C ((eBasis ℚ n M p ε ρ.1 ρ.2).coeff i) * X ^ i)]
+
+/-- The Gram entries in the `E`-basis are the bilinear combinations of the entries of `G_K`. -/
+theorem gram_entry (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (ρ σ : eIdx n M p ε) :
+    muTail n (Dpoly (N n) ^ 7 * eBasis ℚ n M p ε ρ.1 ρ.2 * eBasis ℚ n M p ε σ.1 σ.2)
+      = ∑ i : Fin (hDim n), ∑ j : Fin (hDim n),
+          C ((eBasis ℚ n M p ε ρ.1 ρ.2).coeff i * (eBasis ℚ n M p ε σ.1 σ.2).coeff j)
+            * Gentry n i j := by
+  have h : Dpoly (N n) ^ 7 * eBasis ℚ n M p ε ρ.1 ρ.2 * eBasis ℚ n M p ε σ.1 σ.2
+      = ∑ i : Fin (hDim n), ∑ j : Fin (hDim n),
+          ((eBasis ℚ n M p ε ρ.1 ρ.2).coeff i * (eBasis ℚ n M p ε σ.1 σ.2).coeff j)
+            • Rnum n i j := by
+    conv_lhs => rw [eBasis_eq_sum hR hε ρ, eBasis_eq_sum hR hε σ]
+    simp only [Finset.mul_sum, Finset.sum_mul]
+    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    rw [smul_eq_C_mul, Rnum, C_mul, pow_add]
+    ring
+  rw [h]
+  change muTailLin n _ = _
+  simp only [map_sum, map_smul, smul_eq_C_mul]
+  rfl
+
+/-- The `E`-basis coefficient matrix (over `ℚ`, as constant polynomials). -/
+noncomputable def eMat (n M p : ℕ) (ε : ℕ → ℕ) (e : eIdx n M p ε ≃ Fin (hDim n)) :
+    Matrix (Fin (hDim n)) (Fin (hDim n)) ℚ :=
+  Matrix.of fun k i => (eBasis ℚ n M p ε (e.symm k).1 (e.symm k).2).coeff i
+
+/-- Change of basis: the Gram matrix in the `E`-basis is `C G_K Cᵀ`. -/
+theorem gram_matrix (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (e : eIdx n M p ε ≃ Fin (hDim n)) :
+    (Matrix.of fun k l : Fin (hDim n) => muTail n (Dpoly (N n) ^ 7
+        * eBasis ℚ n M p ε (e.symm k).1 (e.symm k).2 * eBasis ℚ n M p ε (e.symm l).1 (e.symm l).2))
+      = (eMat n M p ε e).map C * Gmat n * ((eMat n M p ε e).map C)ᵀ := by
+  ext k l
+  rw [Matrix.of_apply, gram_entry hR hε, Matrix.mul_apply]
+  simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.map_apply, eMat, Matrix.of_apply,
+    Gmat, Finset.sum_mul]
+  conv_lhs => rw [Finset.sum_comm]
+  refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+  rw [C_mul]
+  ring
+
+/-- `det(C G_K Cᵀ) = det(C)² Δ_K`. -/
+theorem det_gram (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (e : eIdx n M p ε ≃ Fin (hDim n)) :
+    (Matrix.of fun k l : Fin (hDim n) => muTail n (Dpoly (N n) ^ 7
+        * eBasis ℚ n M p ε (e.symm k).1 (e.symm k).2
+        * eBasis ℚ n M p ε (e.symm l).1 (e.symm l).2)).det
+      = C ((eMat n M p ε e).det ^ 2) * DeltaK n := by
+  have hC : ((eMat n M p ε e).map C).det = C (eMat n M p ε e).det :=
+    (RingHom.map_det C (eMat n M p ε e)).symm
+  rw [gram_matrix hR hε e, Matrix.det_mul, Matrix.det_mul, Matrix.det_transpose, DeltaK, hC,
+    C_pow]
+  ring
+
+/-- `det C` is a `p`-adic unit (Definition 4.2). -/
+theorem norm_det_eMat (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (e : eIdx n M p ε ≃ Fin (hDim n)) : ‖(((eMat n M p ε e).det : ℚ) : ℚ_[p])‖ = 1 := by
+  have h := eBasis_unimodular hR hε e
+  have hmap : eMat n M p ε e = (Int.castRingHom ℚ).mapMatrix (Matrix.of fun k l : Fin (hDim n) =>
+      (eBasis ℤ n M p ε (e.symm k).1 (e.symm k).2).coeff l) := by
+    ext k l
+    simp only [eMat, RingHom.mapMatrix_apply, Matrix.map_apply, Matrix.of_apply]
+    rw [← eBasis_map ℚ, coeff_map]
+  rw [hmap, ← RingHom.map_det, eq_intCast, Rat.cast_intCast]
+  exact le_antisymm (Padic.norm_int_le_one _)
+    (not_lt.mp fun hlt => h (Padic.norm_intCast_lt_one_iff.mp hlt))
+
+end Gram
 
 end ZetaSeven
