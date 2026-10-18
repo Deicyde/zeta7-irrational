@@ -61,7 +61,7 @@ theorem tendsto_theta_mul_div (hθ : θ ~[atTop] id) {v : ℝ} (hv : 0 ≤ v) :
 
 theorem tendsto_theta_sub_div (hθ : θ ~[atTop] id) {u v : ℝ} (hu : 0 ≤ u) (hv : 0 ≤ v) :
     Tendsto (fun X : ℝ => (θ (v * X) - θ (u * X)) / X) atTop (𝓝 (v - u)) :=
-  ((tendsto_theta_mul_div hθ hv).sub (tendsto_theta_mul_div hθ hu)).congr fun X =>
+  ((tendsto_theta_mul_div hθ hv).sub (tendsto_theta_mul_div hθ hu)).congr fun _ =>
     (sub_div _ _ _).symm
 
 /-! ## The uniform partition of `[a, b]` -/
@@ -424,7 +424,7 @@ theorem tendsto_integral_gridSup {a b : ℝ} (hab : a < b) {G : ℝ → ℝ} {C 
     rw [Set.uIoc_of_le hab.le] at hy
     have hcont : ContinuousWithinAt G (Set.Icc a b) y := by
       by_contra hc
-      exact hyS (Set.mem_sep (Set.Ioc_subset_Icc_self hy) hc)
+      exact hyS ⟨Set.Ioc_subset_Icc_self hy, hc⟩
     exact tendsto_gridSup hab hC hy hcont
 
 theorem tendsto_integral_gridInf {a b : ℝ} (hab : a < b) {G : ℝ → ℝ} {C : ℝ}
@@ -447,7 +447,7 @@ theorem tendsto_integral_gridInf {a b : ℝ} (hab : a < b) {G : ℝ → ℝ} {C 
     rw [Set.uIoc_of_le hab.le] at hy
     have hcont : ContinuousWithinAt G (Set.Icc a b) y := by
       by_contra hc
-      exact hyS (Set.mem_sep (Set.Ioc_subset_Icc_self hy) hc)
+      exact hyS ⟨Set.Ioc_subset_Icc_self hy, hc⟩
     exact tendsto_gridInf hab hC hy hcont
 
 end PrimeSum
