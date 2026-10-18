@@ -36,8 +36,10 @@ and with a margin of 3 when `K ≥ 2p`.
 ## Sources
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
-  Section 4.2.3, equations (56)-(59), and the last sentence of
-  the proof of Proposition 4.6. The paper gives (59) through
+  Section 4.2.3, equations (56)-(59), and the sentence "Applying
+  Lemma 4.5 to the weights (56) and summing over classes yields
+  `γ^out_p`" at the end of the second paragraph of the proof of
+  Proposition 4.6. The paper gives (59) through
   removed-class costs (57) without the derivation; this statement
   is reconstructed by this project, because the paper defers the
   weight count to its zeta(5) predecessor [5].
