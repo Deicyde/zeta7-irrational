@@ -15,7 +15,7 @@ The proof: write `R = D_N^7 t^{i+j}` and
 `D_tail = D_K/D_N = ∏_{N<b≤K} (t + b^2)`. The polynomial part of
 `R/D_tail` has integer coefficients and degree at most
 `7N + h - 2 < 3p - 4`, so its `μ`-value is `p`-integral by the
-moment bound. Every pole `-a^2` has `N < a ≤ K < p`, so the pole
+outer moment integrality. Every pole `-a^2` has `N < a ≤ K < p`, so the pole
 value `μ_X(1/(t + a^2)) = a^6 (X - H^(7)_a) + 1/(2a) - 1/6` is
 `p`-integral. A factor `b^2 - a^2` of `D_tail'(-a^2)` is divisible
 by `p` only for `b = p - a`, and then exactly once, so the
@@ -35,7 +35,7 @@ congruent modulo `p` because
 
 ## Proof depends on
 
-- [Outer moments and rank decomposition](outer-rank-decomposition.md)
+- [Outer moment integrality](outer-moment-integrality.md)
 
 ## Sources
 

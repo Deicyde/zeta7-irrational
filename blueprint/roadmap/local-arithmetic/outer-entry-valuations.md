@@ -45,7 +45,7 @@ have valuation at least `2(i + j) - 1`, respectively
 
 - [Outer range data](outer-range-data.md)
 - [Outer class basis](outer-class-basis.md)
-- [Outer moments and rank decomposition](outer-rank-decomposition.md)
+- [Outer rank decomposition](outer-rank-decomposition.md)
 
 ## Sources
 

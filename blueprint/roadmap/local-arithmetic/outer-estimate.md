@@ -37,7 +37,7 @@ bound in the class basis.
 
 ## Proof depends on
 
-- [Outer moments and rank decomposition](outer-rank-decomposition.md)
+- [Outer rank decomposition](outer-rank-decomposition.md)
 - [Large-prime integrality](large-prime-integrality.md)
 - [Outer class basis](outer-class-basis.md)
 - [Outer entry valuations](outer-entry-valuations.md)
