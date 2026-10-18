@@ -1485,7 +1485,7 @@ theorem gram_matrix (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M 
     (Matrix.of fun k l : Fin (hDim n) => muTail n (Dpoly (N n) ^ 7
         * eBasis ℚ n M p ε (e.symm k).1 (e.symm k).2 * eBasis ℚ n M p ε (e.symm l).1 (e.symm l).2))
       = (eMat n M p ε e).map C * Gmat n * Matrix.transpose ((eMat n M p ε e).map C) := by
-  ext k l
+  refine Matrix.ext fun k l => ?_
   rw [Matrix.of_apply, gram_entry hR hε, Matrix.mul_apply]
   simp only [Matrix.mul_apply, Matrix.transpose_apply, Matrix.map_apply, eMat, Matrix.of_apply,
     Gmat, Finset.sum_mul]
