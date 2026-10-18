@@ -82,15 +82,15 @@ theorem ClassDeg.mul {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q) (hR : 
     refine ⟨?_, fun hk => ?_⟩
     · calc _ ≤ (p : ℝ) ^ (-(n : ℤ)) * (p : ℝ) ^ (-(m : ℤ)) :=
             mul_le_mul (hQ x.1).1 (hR x.2).1 (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
     · by_cases h1 : n < x.1
       · calc _ ≤ (p : ℝ) ^ (-(n : ℤ) - 1) * (p : ℝ) ^ (-(m : ℤ)) :=
               mul_le_mul ((hQ x.1).2 h1) (hR x.2).1 (norm_nonneg _) (hnn _)
-          _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
+          _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
       · have h2 : m < x.2 := by omega
         calc _ ≤ (p : ℝ) ^ (-(n : ℤ)) * (p : ℝ) ^ (-(m : ℤ) - 1) :=
               mul_le_mul (hQ x.1).1 ((hR x.2).2 h2) (norm_nonneg _) (hnn _)
-          _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
+          _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
   exact ⟨IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _) fun x hx => (hterm x hx).1,
     fun hk => IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _)
       fun x hx => (hterm x hx).2 hk⟩
@@ -187,7 +187,7 @@ theorem ClassDeg.mul_lead {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q)
   have hmain : ‖(((Q.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff n
         * (R.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff m : ℚ) : ℚ_[p])‖
       = (p : ℝ) ^ (-((n + m : ℕ) : ℤ)) := by
-    rw [Rat.cast_mul, norm_mul, hQn, hRm, ← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
+    rw [Rat.cast_mul, norm_mul, hQn, hRm, ← zpow_add₀ hp0]; congr 1; push_cast; ring
   have hrest : ‖∑ x ∈ (antidiagonal (n + m)).erase (n, m),
         (((Q.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.1
           * (R.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.2 : ℚ) : ℚ_[p])‖
@@ -199,14 +199,14 @@ theorem ClassDeg.mul_lead {a n m : ℕ} {Q R : ℚ[X]} (hQ : ClassDeg p a n Q)
     by_cases h1 : n < x.1
     · calc _ ≤ (p : ℝ) ^ (-(n : ℤ) - 1) * (p : ℝ) ^ (-(m : ℤ)) :=
             mul_le_mul ((hQ x.1).2 h1) (hR x.2).1 (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
     · have h2 : m < x.2 := by
         rcases Nat.lt_or_ge m x.2 with h | h
         · exact h
         · exact absurd (Prod.ext (by show x.1 = n; omega) (by show x.2 = m; omega)) hne
       calc _ ≤ (p : ℝ) ^ (-(n : ℤ)) * (p : ℝ) ^ (-(m : ℤ) - 1) :=
             mul_le_mul (hQ x.1).1 ((hR x.2).2 h2) (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast <;> ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast; ring
   have hlt : ‖∑ x ∈ (antidiagonal (n + m)).erase (n, m),
         (((Q.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.1
           * (R.comp (C (a : ℚ) + C (p : ℚ) * X)).coeff x.2 : ℚ) : ℚ_[p])‖
@@ -372,7 +372,7 @@ theorem norm_substPrincipal_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset �
       ≤ (p : ℝ) ^ (((den.filter fun j => (p : ℤ) ∣ j - a).card : ℤ) - 1 - n)
           * (p : ℝ) ^ (1 : ℤ) := by
         rw [zpow_one]; exact mul_le_mul_of_nonneg_right hres (Nat.cast_nonneg p)
-    _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> ring
+    _ = _ := by rw [← zpow_add₀ hp0]; congr 1; ring
 
 /-! ## The top-coefficient argument -/
 
@@ -648,11 +648,11 @@ theorem norm_coeff_rPoly_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ}
     · calc _ ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - 1 - n)
             * (p : ℝ) ^ (-(((den.filter fun r => (p : ℤ) ∣ r - a).card - 1 : ℕ) : ℤ)) :=
             mul_le_mul hres (hcd k).1 (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast [ht1] <;> ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast [ht1]; ring
     · calc _ ≤ (p : ℝ) ^ (((den.filter fun r => (p : ℤ) ∣ r - a).card : ℤ) - 1 - n)
             * (p : ℝ) ^ (-(((den.filter fun r => (p : ℤ) ∣ r - a).card - 1 : ℕ) : ℤ) - 1) :=
             mul_le_mul hres ((hcd k).2 hk) (norm_nonneg _) (hnn _)
-        _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> push_cast [ht1] <;> ring
+        _ = _ := by rw [← zpow_add₀ hp0]; congr 1; push_cast [ht1]; ring
   have hsub : ∀ {x y : ℚ_[p]} {B : ℝ}, ‖x‖ ≤ B → ‖y‖ ≤ B → ‖x - y‖ ≤ B := fun hx hy => by
     rw [sub_eq_add_neg]
     exact (Padic.nonarchimedean _ _).trans (max_le hx (by rwa [norm_neg]))
@@ -663,7 +663,7 @@ theorem norm_coeff_rPoly_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ}
           mul_le_mul_of_nonneg_left (hsub (hN k).1
             (IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _)
               fun r hr => (hterm r hr).1)) (hnn _)
-      _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> ring
+      _ = _ := by rw [← zpow_add₀ hp0]; congr 1
   · have hkn : n < k := lt_of_le_of_lt (le_max_left _ _) hk
     have hkt : (den.filter fun r => (p : ℤ) ∣ r - a).card - 1 < k :=
       lt_of_le_of_lt (le_max_right _ _) hk
@@ -672,7 +672,7 @@ theorem norm_coeff_rPoly_le (P : ℚ[X]) (d : ℤ →₀ ℚ) {den : Finset ℤ}
           mul_le_mul_of_nonneg_left (hsub ((hN k).2 hkn)
             (IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (hnn _)
               fun r hr => (hterm r hr).2 hkt)) (hnn _)
-      _ = _ := by rw [← zpow_add₀ hp0]; congr 1 <;> ring
+      _ = _ := by rw [← zpow_add₀ hp0]; congr 1; ring
 
 /-- `|τ(G)|_p ≤ p^e` for `G ∈ p^e ℤ_p⟦z⟧` whose coefficients above degree `D ≤ p + 4` lie in
 `p^{e+1} ℤ_p` (Lemma 3.4: `κ_d ∈ ℤ_p` for `d ≤ p + 4` and `v_p(κ_d) ≥ -1` always). -/
@@ -790,5 +790,403 @@ theorem tauExt_subst_norm_le (hp11 : 11 ≤ p) (a : ℕ) (P : ℚ[X]) (d : ℤ �
     exact norm_substPrincipal_le P d hsupp hN hinc hs
 
 end ClassLocal
+
+/-! ## Statement data: equations (42)-(49) -/
+
+section Data
+
+/-- Hypothesis (44) of Section 4.1 together with `M ≥ 40` (Section 4 preamble):
+`K = 40n ≥ 200 M²` and `K/M < p ≤ K/3`, written `K < M p` and `3 p ≤ K`. -/
+structure InnerRange (n M p : ℕ) : Prop where
+  forty_le : 40 ≤ M
+  K_ge : 200 * M ^ 2 ≤ K n
+  K_lt : K n < M * p
+  three_mul_le : 3 * p ≤ K n
+
+/-- (42): `m = (p - 1)/2`. -/
+def mHalf (p : ℕ) : ℕ := (p - 1) / 2
+
+/-- (42): `m_N = ⌊N/p⌋`. -/
+def mN (n p : ℕ) : ℕ := N n / p
+
+/-- (42): `m_K = ⌊K/p⌋`. -/
+def mK (n p : ℕ) : ℕ := K n / p
+
+/-- (43): `ℓ_A(a) = #{1 ≤ j ≤ A : j ≡ a or j ≡ -a (mod p)}`. -/
+def ell (p A a : ℕ) : ℕ :=
+  ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) - a ∨ (p : ℤ) ∣ (j : ℤ) + a).card
+
+/-- Definition 4.1: `L_0 = 6M + 10`. -/
+def L0 (M : ℕ) : ℕ := 6 * M + 10
+
+/-- Definition 4.1: `b_a = 4 ℓ_N(a)`. -/
+def bA (n p a : ℕ) : ℕ := 4 * ell p (N n) a
+
+/-- The right side of (45): `h - L_0 + 4(N - m_N)` (no truncation under (44)). -/
+def allocTotal (n M p : ℕ) : ℕ := hDim n - L0 M + 4 * (N n - mN n p)
+
+/-- (45): `T`, with `m T + E = h - L_0 + 4(N - m_N)` and `0 ≤ E < m`. -/
+def allocT (n M p : ℕ) : ℕ := allocTotal n M p / mHalf p
+
+/-- (45): `E`, with `m T + E = h - L_0 + 4(N - m_N)` and `0 ≤ E < m`. -/
+def allocE (n M p : ℕ) : ℕ := allocTotal n M p % mHalf p
+
+/-- Definition 4.1: the extra rows `ε`. The paper orders the classes `1 ≤ a ≤ m` by decreasing
+`ℓ_K(a)` (ties broken arbitrarily) and sets `ε_a = 1` for the first `E` of them and `ε_a = 0`
+otherwise. The functions arising from such an order are exactly those with values in `{0, 1}`
+on the classes, with exactly `E` classes of value `1`, and with `ℓ_K(a) ≤ ℓ_K(b)` whenever
+`ε_a = 0` and `ε_b = 1`. -/
+structure ExtraRows (n M p : ℕ) (ε : ℕ → ℕ) : Prop where
+  le_one : ∀ a ∈ Icc 1 (mHalf p), ε a ≤ 1
+  card_eq : ((Icc 1 (mHalf p)).filter fun a => ε a = 1).card = allocE n M p
+  mono : ∀ a ∈ Icc 1 (mHalf p), ∀ b ∈ Icc 1 (mHalf p), ε a = 0 → ε b = 1 →
+    ell p (K n) a ≤ ell p (K n) b
+
+/-- Definition 4.1: `Z_a = T + ε_a`. -/
+def allocZ (n M p : ℕ) (ε : ℕ → ℕ) (a : ℕ) : ℕ := allocT n M p + ε a
+
+/-- Definition 4.1: `L_a = T - b_a + ε_a` for `1 ≤ a ≤ m` (no truncation under (44):
+`bA_lt_allocZ`), and `L_0 = 6M + 10`. -/
+def allocL (n M p : ℕ) (ε : ℕ → ℕ) (a : ℕ) : ℕ :=
+  if a = 0 then L0 M else allocZ n M p ε a - bA n p a
+
+/-- Definition 4.2: `E_{a,i}(t) = ∏_{0 ≤ c ≤ m, c ≠ a} (t + c²)^{L_c} · (t + a²)^i`, over any
+commutative ring `R`. -/
+noncomputable def eBasis (R : Type*) [CommRing R] (n M p : ℕ) (ε : ℕ → ℕ) (a i : ℕ) : R[X] :=
+  (∏ c ∈ (range (mHalf p + 1)).erase a, (X + C ((c : R) ^ 2)) ^ allocL n M p ε c)
+    * (X + C ((a : R) ^ 2)) ^ i
+
+/-- The index set `{(a, i) : 0 ≤ a ≤ m, 0 ≤ i < L_a}` of the `E`-basis. -/
+abbrev eIdx (n M p : ℕ) (ε : ℕ → ℕ) : Type :=
+  Σ a : Fin (mHalf p + 1), Fin (allocL n M p ε a)
+
+/-- (47)-(48), doubled to keep them integral: `2 w_{a,i}`. For `1 ≤ a ≤ m`,
+`2 w_{a,i} = 2i + 8 ℓ_N(a) - ℓ_K(a) - 6` (47); for `a = 0`,
+`2 w_{0,i} = min(4i + 16 m_N - 2 m_K + 1, min_{1 ≤ c ≤ m} (2 Z_c - ℓ_K(c) - 6))` (48). -/
+def weight2 (n M p : ℕ) (ε : ℕ → ℕ) (a i : ℕ) : ℤ :=
+  if a = 0 then
+    (Icc 1 (mHalf p)).fold min (4 * (i : ℤ) + 16 * mN n p - 2 * mK n p + 1)
+      fun c => 2 * (allocZ n M p ε c : ℤ) - ell p (K n) c - 6
+  else 2 * (i : ℤ) + 8 * ell p (N n) a - ell p (K n) a - 6
+
+/-- (49): `γ^in_p = 2 ∑_{a=0}^m ∑_{i < L_a} w_{a,i}`. -/
+def gammaIn (n M p : ℕ) (ε : ℕ → ℕ) : ℤ :=
+  ∑ a ∈ range (mHalf p + 1), ∑ i ∈ range (allocL n M p ε a), weight2 n M p ε a i
+
+end Data
+
+/-! ## Class counts and the dimension allocation -/
+
+section Counts
+
+variable {p : ℕ}
+
+/-- `#{1 ≤ j ≤ A : j ≡ v (mod p)} = ⌊(A + 1)/p⌋ + [v < (A + 1) mod p]` for `1 ≤ v < p`. -/
+theorem card_filter_dvd_sub (A v : ℕ) (hv1 : 1 ≤ v) (hvp : v < p) :
+    ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) - v).card
+      = (A + 1) / p + if v < (A + 1) % p then 1 else 0 := by
+  have hp : 0 < p := by omega
+  have h := Nat.count_modEq_card (A + 1) hp v
+  rw [Nat.mod_eq_of_lt hvp, Nat.count_eq_card_filter_range] at h
+  rw [← h]
+  congr 1
+  ext j
+  simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_range, Nat.modEq_iff_dvd]
+  constructor
+  · rintro ⟨⟨h1, h2⟩, h3⟩
+    exact ⟨by omega, by rw [dvd_sub_comm]; exact h3⟩
+  · rintro ⟨h1, h3⟩
+    refine ⟨⟨?_, by omega⟩, by rw [dvd_sub_comm]; exact h3⟩
+    rcases Nat.eq_zero_or_pos j with rfl | hj
+    · exfalso
+      have h4 : (p : ℤ) ∣ (v : ℤ) := by simpa using h3
+      have := Int.le_of_dvd (by omega) h4
+      omega
+    · exact hj
+
+/-- For an odd prime `p` and `1 ≤ c ≤ m`, `ℓ_A(c)` splits over the residues `c` and `p - c`. -/
+theorem ell_eq_add (hp : 2 * mHalf p + 1 = p) (A c : ℕ) (hc1 : 1 ≤ c) (hcm : c ≤ mHalf p) :
+    ell p A c = ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) - c).card
+      + ((Icc 1 A).filter fun j : ℕ => (p : ℤ) ∣ (j : ℤ) - (p - c : ℕ)).card := by
+  have hplus : ∀ j : ℕ, (p : ℤ) ∣ (j : ℤ) + c ↔ (p : ℤ) ∣ (j : ℤ) - (p - c : ℕ) := fun j => by
+    have h : (j : ℤ) + c = (j : ℤ) - (p - c : ℕ) + p := by
+      rw [Nat.cast_sub (by omega)]; ring
+    rw [h, dvd_add_left (dvd_refl _)]
+  rw [ell, ← Finset.card_union_of_disjoint]
+  · congr 1
+    ext j
+    simp only [Finset.mem_filter, Finset.mem_union, hplus j]
+    tauto
+  · rw [Finset.disjoint_filter]
+    intro j _ h1 h2
+    have h3 := dvd_sub h2 h1
+    rw [show (j : ℤ) - (p - c : ℕ) - (j - c) = -((p : ℤ) - 2 * c) by
+      rw [Nat.cast_sub (by omega)]; ring, dvd_neg] at h3
+    have h4 : (p : ℤ) ∣ 2 * c := by
+      have := dvd_sub (dvd_refl (p : ℤ)) h3
+      rwa [sub_sub_cancel] at this
+    have := Int.le_of_dvd (by omega) h4
+    omega
+
+/-- The class counts `ℓ_A(c)` for `1 ≤ c ≤ m` in terms of `(A + 1) = q p + s`. -/
+theorem ell_eq_count (hp : 2 * mHalf p + 1 = p) (A c : ℕ) (hc1 : 1 ≤ c) (hcm : c ≤ mHalf p) :
+    ell p A c = 2 * ((A + 1) / p) + (if c < (A + 1) % p then 1 else 0)
+      + (if p - c < (A + 1) % p then 1 else 0) := by
+  rw [ell_eq_add hp A c hc1 hcm, card_filter_dvd_sub A c hc1 (by omega),
+    card_filter_dvd_sub A (p - c) (by omega) (by omega)]
+  ring
+
+/-- In the inner range the class counts `ℓ_A(a)`, `1 ≤ a ≤ m`, differ by at most one. -/
+theorem ell_le_ell_add_one (hp : 2 * mHalf p + 1 = p) (A : ℕ) {a b : ℕ} (ha1 : 1 ≤ a)
+    (ham : a ≤ mHalf p) (hb1 : 1 ≤ b) (hbm : b ≤ mHalf p) : ell p A a ≤ ell p A b + 1 := by
+  have hs : (A + 1) % p < p := Nat.mod_lt _ (by omega)
+  rw [ell_eq_count hp A a ha1 ham, ell_eq_count hp A b hb1 hbm]
+  split_ifs <;> omega
+
+/-- `p ℓ_A(c) ≤ 2A + p + 2` for `1 ≤ c ≤ m`. -/
+theorem mul_ell_le (hp : 2 * mHalf p + 1 = p) (A c : ℕ) (hc1 : 1 ≤ c) (hcm : c ≤ mHalf p) :
+    p * ell p A c ≤ 2 * A + p + 2 := by
+  have hs : (A + 1) % p < p := Nat.mod_lt _ (by omega)
+  have hdm := Nat.div_add_mod (A + 1) p
+  rw [ell_eq_count hp A c hc1 hcm]
+  set q := (A + 1) / p
+  set s := (A + 1) % p
+  split_ifs <;> first | omega | nlinarith
+
+end Counts
+
+section Alloc
+
+variable {n M p : ℕ}
+
+theorem int_eq_zero_of_dvd_of_lt {q : ℕ} {x : ℤ} (h : (q : ℤ) ∣ x) (h1 : -(q : ℤ) < x)
+    (h2 : x < q) : x = 0 := by
+  obtain ⟨k, rfl⟩ := h
+  have hk : k = 0 := by
+    by_contra hk
+    rcases lt_or_gt_of_ne hk with hk | hk
+    · nlinarith
+    · nlinarith
+  rw [hk, mul_zero]
+
+/-- Every `j ∈ [1, A]` prime to `p` lies in exactly one class `±a`, `1 ≤ a ≤ m`, so
+`∑_{a=1}^m ℓ_A(a) = A - ⌊A/p⌋`. -/
+theorem sum_ell (hp : 2 * mHalf p + 1 = p) (A : ℕ) :
+    ∑ a ∈ Icc 1 (mHalf p), ell p A a = A - A / p := by
+  have hp0 : 0 < p := by omega
+  have h1 : ∑ a ∈ Icc 1 (mHalf p), ell p A a
+      = ∑ j ∈ Icc 1 A, ((Icc 1 (mHalf p)).filter
+          fun a : ℕ => (p : ℤ) ∣ (j : ℤ) - a ∨ (p : ℤ) ∣ (j : ℤ) + a).card := by
+    simp only [ell, Finset.card_filter]
+    exact Finset.sum_comm
+  have h2 : ∀ j ∈ Icc 1 A, ((Icc 1 (mHalf p)).filter
+      fun a : ℕ => (p : ℤ) ∣ (j : ℤ) - a ∨ (p : ℤ) ∣ (j : ℤ) + a).card
+        = if p ∣ j then 0 else 1 := by
+    intro j _
+    have hjr : (p : ℤ) ∣ (j : ℤ) - (j % p : ℕ) := by
+      have h := Nat.div_add_mod j p
+      refine ⟨(j / p : ℕ), ?_⟩
+      have h' : (j : ℤ) = p * (j / p : ℕ) + (j % p : ℕ) := by exact_mod_cast h.symm
+      rw [h']; ring
+    have hrp : j % p < p := Nat.mod_lt _ hp0
+    split_ifs with hpj
+    · rw [Finset.card_eq_zero, Finset.filter_eq_empty_iff]
+      intro a ha h
+      obtain ⟨ha1, ham⟩ := Finset.mem_Icc.mp ha
+      have hpj' : (p : ℤ) ∣ (j : ℤ) := Int.natCast_dvd_natCast.mpr hpj
+      have hpa : (p : ℤ) ∣ (a : ℤ) := by
+        rcases h with h | h
+        · have h' := dvd_sub hpj' h
+          rwa [sub_sub_cancel] at h'
+        · have h' := dvd_sub h hpj'
+          rwa [add_sub_cancel_left] at h'
+      have := Int.le_of_dvd (by omega) hpa
+      omega
+    · have hr0 : 0 < j % p := Nat.pos_of_ne_zero fun h => hpj (Nat.dvd_of_mod_eq_zero h)
+      rw [Finset.card_eq_one]
+      by_cases hrm : j % p ≤ mHalf p
+      · refine ⟨j % p, ?_⟩
+        ext a
+        simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_singleton]
+        constructor
+        · rintro ⟨⟨ha1, ham⟩, h⟩
+          rcases h with h | h
+          · have h' := dvd_sub hjr h
+            have h0 := int_eq_zero_of_dvd_of_lt (q := p)
+              (x := (a : ℤ) - (j % p : ℕ)) (by rw [show (a : ℤ) - (j % p : ℕ)
+                = (j - (j % p : ℕ)) - (j - a) by ring]; exact h') (by omega) (by omega)
+            omega
+          · have h' := dvd_sub h hjr
+            have h0 := int_eq_zero_of_dvd_of_lt (q := p)
+              (x := (a : ℤ) + (j % p : ℕ)) (by rw [show (a : ℤ) + (j % p : ℕ)
+                = (j + a) - (j - (j % p : ℕ)) by ring]; exact h') (by omega) (by omega)
+            omega
+        · rintro rfl
+          exact ⟨⟨hr0, hrm⟩, Or.inl hjr⟩
+      · refine ⟨p - j % p, ?_⟩
+        ext a
+        simp only [Finset.mem_filter, Finset.mem_Icc, Finset.mem_singleton]
+        constructor
+        · rintro ⟨⟨ha1, ham⟩, h⟩
+          rcases h with h | h
+          · have h' := dvd_sub hjr h
+            have h0 := int_eq_zero_of_dvd_of_lt (q := p)
+              (x := (a : ℤ) - (j % p : ℕ)) (by rw [show (a : ℤ) - (j % p : ℕ)
+                = (j - (j % p : ℕ)) - (j - a) by ring]; exact h') (by omega) (by omega)
+            omega
+          · have h' := dvd_sub h hjr
+            have h0 := int_eq_zero_of_dvd_of_lt (q := p)
+              (x := (a : ℤ) + (j % p : ℕ) - p) (by
+                rw [show (a : ℤ) + (j % p : ℕ) - p = (j + a) - (j - (j % p : ℕ)) - p by ring]
+                exact dvd_sub h' (dvd_refl _)) (by omega) (by omega)
+            omega
+        · rintro rfl
+          refine ⟨⟨by omega, by omega⟩, Or.inr ?_⟩
+          have h' := dvd_add hjr (dvd_refl (p : ℤ))
+          rwa [show (j : ℤ) - (j % p : ℕ) + p = j + (p - j % p : ℕ) by
+            rw [Nat.cast_sub hrp.le]; ring] at h'
+  rw [h1, Finset.sum_congr rfl h2, Finset.sum_ite, Finset.sum_const_zero, zero_add,
+    Finset.sum_const, smul_eq_mul, mul_one]
+  have hc := Finset.card_filter_add_card_filter_not (s := Icc 1 A) (fun j => p ∣ j)
+  have hdiv : ((Icc 1 A).filter fun j => p ∣ j).card = A / p := by
+    rw [← Nat.Ioc_filter_dvd_card_eq_div A p, ← Finset.Icc_add_one_left_eq_Ioc, zero_add]
+  rw [Nat.card_Icc] at hc
+  omega
+
+theorem InnerRange.M_pos (hR : InnerRange n M p) : 0 < M := by
+  have := hR.forty_le
+  omega
+
+theorem InnerRange.p_gt (hR : InnerRange n M p) : 200 * M < p := by
+  have h1 : M * (200 * M) < M * p :=
+    calc M * (200 * M) = 200 * M ^ 2 := by ring
+      _ ≤ K n := hR.K_ge
+      _ < M * p := hR.K_lt
+  exact Nat.lt_of_mul_lt_mul_left h1
+
+theorem InnerRange.n_ge (hR : InnerRange n M p) : 5 * M ^ 2 ≤ n := by
+  have := hR.K_ge
+  simp only [K] at this
+  linarith
+
+theorem InnerRange.M_le_sq (hR : InnerRange n M p) : 40 * M ≤ M ^ 2 := by
+  have := hR.forty_le
+  nlinarith
+
+theorem InnerRange.two_mul_mHalf (hR : InnerRange n M p) [hp : Fact p.Prime] :
+    2 * mHalf p + 1 = p := by
+  have h1 := hR.p_gt
+  have h2 := hR.forty_le
+  rcases hp.out.eq_two_or_odd with h | h
+  · omega
+  · unfold mHalf
+    omega
+
+theorem InnerRange.mK_lt (hR : InnerRange n M p) [Fact p.Prime] : mK n p < M := by
+  unfold mK
+  rw [Nat.div_lt_iff_lt_mul (Fact.out : p.Prime).pos]
+  exact hR.K_lt
+
+theorem mN_le_mK (n p : ℕ) : mN n p ≤ mK n p :=
+  Nat.div_le_div_right (by unfold N K; omega)
+
+theorem InnerRange.L0_le (hR : InnerRange n M p) : L0 M ≤ hDim n := by
+  have h1 := hR.n_ge
+  have h2 := hR.M_le_sq
+  unfold L0 hDim
+  nlinarith
+
+theorem InnerRange.allocTotal_eq (hR : InnerRange n M p) :
+    allocTotal n M p + L0 M + 4 * mN n p = hDim n + 4 * N n := by
+  have h1 := hR.L0_le
+  have h2 : mN n p ≤ N n := Nat.div_le_self _ _
+  unfold allocTotal
+  omega
+
+/-- (45): `m T + E = h - L_0 + 4(N - m_N)` with `0 ≤ E < m`. -/
+theorem alloc_eq (hR : InnerRange n M p) [Fact p.Prime] :
+    mHalf p * allocT n M p + allocE n M p = hDim n - L0 M + 4 * (N n - mN n p) ∧
+      allocE n M p < mHalf p := by
+  have hm := hR.two_mul_mHalf
+  have hp := hR.p_gt
+  have hM := hR.forty_le
+  exact ⟨Nat.div_add_mod _ _, Nat.mod_lt _ (by omega)⟩
+
+/-- Definition 4.1: `b_a < T`, so `L_a = T - b_a + ε_a ≥ 1` without truncation. -/
+theorem bA_lt_allocT (hR : InnerRange n M p) [Fact p.Prime] {a : ℕ} (ha1 : 1 ≤ a)
+    (ham : a ≤ mHalf p) : bA n p a < allocT n M p := by
+  have hm := hR.two_mul_mHalf
+  have hp := hR.p_gt
+  have hM := hR.forty_le
+  have hn := hR.n_ge
+  have hMM := hR.M_le_sq
+  have h3p := hR.three_mul_le
+  have hmK := hR.mK_lt
+  have hmN := mN_le_mK n p
+  have htot := hR.allocTotal_eq
+  have hdm := Nat.div_add_mod (allocTotal n M p) (mHalf p)
+  have hmod := Nat.mod_lt (allocTotal n M p) (show 0 < mHalf p by omega)
+  have hell := mul_ell_le hm (N n) a ha1 ham
+  unfold bA allocT
+  by_contra hcon
+  have hle : allocTotal n M p / mHalf p ≤ 4 * ell p (N n) a := not_lt.mp hcon
+  have h5 : p * (allocTotal n M p / mHalf p) ≤ p * (4 * ell p (N n) a) :=
+    Nat.mul_le_mul_left p hle
+  have hpT : p * (allocTotal n M p / mHalf p)
+      = 2 * (mHalf p * (allocTotal n M p / mHalf p)) + allocTotal n M p / mHalf p := by
+    rw [← hm]; ring
+  simp only [K, N, hDim, L0] at htot h3p hell hmN hmK
+  nlinarith
+
+/-- `T < 3M`. -/
+theorem allocT_lt (hR : InnerRange n M p) [Fact p.Prime] : allocT n M p < 3 * M := by
+  have hm := hR.two_mul_mHalf
+  have hp := hR.p_gt
+  have hM := hR.forty_le
+  have hKlt := hR.K_lt
+  have htot := hR.allocTotal_eq
+  have hdm := Nat.div_add_mod (allocTotal n M p) (mHalf p)
+  unfold allocT
+  by_contra hcon
+  have hle : 3 * M ≤ allocTotal n M p / mHalf p := not_lt.mp hcon
+  have h5 : mHalf p * (3 * M) ≤ mHalf p * (allocTotal n M p / mHalf p) :=
+    Nat.mul_le_mul_left _ hle
+  have hMp : M * p = 2 * (mHalf p * M) + M := by rw [← hm]; ring
+  have hmM : 3 * M ≤ mHalf p * M := Nat.mul_le_mul_right M (by omega)
+  simp only [K, N, hDim, L0] at htot hKlt
+  nlinarith
+
+/-- `∑_{a=1}^m ε_a = E`. -/
+theorem sum_eps (hε : ExtraRows n M p ε) : ∑ a ∈ Icc 1 (mHalf p), ε a = allocE n M p := by
+  rw [← hε.card_eq, Finset.card_filter]
+  refine Finset.sum_congr rfl fun a ha => ?_
+  have := hε.le_one a ha
+  split_ifs with h
+  · exact h
+  · omega
+
+/-- The dimension count: `∑_{a=0}^m L_a = h`. -/
+theorem sum_allocL (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε) :
+    ∑ a ∈ range (mHalf p + 1), allocL n M p ε a = hDim n := by
+  have hm := hR.two_mul_mHalf
+  rw [Finset.sum_range_eq_add_Ico _ (Nat.succ_pos _), Finset.Ico_add_one_right_eq_Icc]
+  have hL : ∀ a ∈ Icc 1 (mHalf p), allocL n M p ε a = allocZ n M p ε a - bA n p a := by
+    intro a ha
+    rw [allocL, ite_eq_right (by have := (Finset.mem_Icc.mp ha).1; omega)]
+  have hL0 : allocL n M p ε 0 = L0 M := by rw [allocL, ite_eq_left rfl]
+  rw [Finset.sum_congr rfl hL, Finset.sum_tsub_distrib _ fun a ha => by
+    have h := bA_lt_allocT hR (Finset.mem_Icc.mp ha).1 (Finset.mem_Icc.mp ha).2
+    unfold allocZ; omega]
+  rw [hL0]
+  simp only [allocZ, bA, Finset.sum_add_distrib, Finset.sum_const, Nat.card_Icc, smul_eq_mul,
+    ← Finset.mul_sum, sum_eps hε, sum_ell hm, Nat.add_sub_cancel]
+  have htot := hR.allocTotal_eq
+  have hdm := Nat.div_add_mod (allocTotal n M p) (mHalf p)
+  unfold allocT allocE at *
+  have h2 : N n / p ≤ N n := Nat.div_le_self _ _
+  unfold mN at htot
+  omega
+
+end Alloc
 
 end ZetaSeven
