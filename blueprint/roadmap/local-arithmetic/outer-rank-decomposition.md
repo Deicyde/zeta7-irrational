@@ -28,7 +28,7 @@ The proof: by the outer moment integrality, `μ(t^e)` is
 `e ≥ 3p - 4`, so every `μ_0(t^e)` is `p`-integral. On monomials
 `μ = μ_0 + c_e/p`, so linearity gives `G_K = A + p^{-1} L`. Since
 `D_K` is monic in `ℤ[t]`, the quotient `P_{ij}` has integer
-coefficients and degree `i + j + 8N - K`, so `L_{ij} = 0` when
+coefficients and degree at most `i + j + 8N - K`, so `L_{ij} = 0` when
 `i + j < T = K - 8N + 3p - 4`. Row `i` of `L` vanishes when
 `i ≤ T - h`, so at most `max(0, 2h - T)` rows are nonzero, and
 `2h - T = K + 6N - 3p + 4` because `h = 37K/40`, `N = 3K/40`.

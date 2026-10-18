@@ -19,20 +19,20 @@ Then every entry satisfies `v^G_p(A'_{rs}) ≥ w_r + w_s`.
 The proof: for rows of different classes, `r s` is divisible by
 `D_tail`, so `A'_{rs}` is `μ_0` of an integer polynomial and is
 `p`-integral. For two rows of class `c`, with `ℓ = ℓ_K(c)` and
-`δ = δ_c`, the poles are the
-`-j^2` with `j ∈ S_c`, the factor `P_c(-j^2)` is a `p`-unit, and
-each factor `j'^2 - j^2` of the derivative of `F_c` has
-valuation exactly one because `j + j' ≤ 2K < p^2`. If either row
-index is at least `ℓ - 2`, the factor `E_c` cancels the poles
-with `j > p`; the remaining poles `c` (when `δ = 0`) and `p - c`
-have `p`-integral pole values that are congruent modulo `p`, and
-their residues have `p`-integral sum, so the entry is
-`p`-integral. If both indices `i`, `j` are below `ℓ - 2`, the
-residue at `j' ∈ S_c` has valuation at least
-`(i + j) + 7δ - (ℓ - δ - 1)`, from `(t + c^2)^{i+j}`, from the
-factor `t + c^2` of `D_N` when `δ = 1`, and from the derivative
-of `F_c`; the pole value `j'^6 (X - H^(7)_{j'}) + 1/(2j') - 1/6`
-has valuation at least `-7`, so the entry has valuation at least
+`δ = δ_c`, the poles are the `-b^2` with `b ∈ S_c`, the factor
+`P_c(-b^2)` is a `p`-unit, and each factor `b'^2 - b^2` of the
+derivative of `F_c` has valuation exactly one because
+`b + b' ≤ 2K < p^2`. If either row index is at least `ℓ - 2`, the
+factor `E_c` cancels the poles with `b > p`; the remaining poles
+`c` (when `δ = 0`) and `p - c` have `p`-integral pole values that
+are congruent modulo `p`, and their residues have `p`-integral
+sum, so the entry is `p`-integral. If both row indices `i`, `j`
+are below `ℓ - 2`, the residue at `b ∈ S_c` has valuation at
+least `(i + j) + 7δ - (ℓ - δ - 1)`, from `(t + c^2)^{i+j}`, from
+the factor `t + c^2` of `D_N` when `δ = 1`, and from the
+derivative of `F_c`; the pole value
+`b^6 (X - H^(7)_b) + 1/(2b) - 1/6` has valuation at least `-7`,
+so the entry has valuation at least
 `i + j + 8δ - ℓ - 6 ≥ w^out_{c,i} + w^out_{c,j}`. For two
 zero-class rows, the poles are `-(kp)^2` with `1 ≤ k ≤ ⌊K/p⌋`,
 the pole values have valuation at least `-1`, and the residues
