@@ -370,10 +370,12 @@ theorem laurent_pole_coeff_six (a : ℚ) (r : ℤ) :
   · have hS : algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
         (algebraMap ℚ[X] (RatFunc ℚ) (C a) / algebraMap ℚ[X] (RatFunc ℚ) (X - C (r : ℚ)))
         = HahnSeries.single (-1 : ℤ) a := by
+      have hs : HahnSeries.single (-1 : ℤ) a * HahnSeries.single 1 1 = HahnSeries.C a := by
+        rw [HahnSeries.single_mul_single, mul_one, HahnSeries.C_apply]
+        norm_num
       rw [map_div₀, div_eq_iff hne, laurent_algebraMap, laurent_algebraMap, hr, map_zero, sub_zero,
         Polynomial.coe_C, Polynomial.coe_X, HahnSeries.ofPowerSeries_C, HahnSeries.ofPowerSeries_X,
-        HahnSeries.single_mul_single, mul_one]
-      simp
+        hs]
     rw [hS, HahnSeries.coeff_single_of_ne (show (6 : ℤ) ≠ -1 by norm_num), hr]
     simp
   · have hS : algebraMap (RatFunc ℚ) (LaurentSeries ℚ)
