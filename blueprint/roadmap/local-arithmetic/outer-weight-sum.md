@@ -6,11 +6,12 @@ origin: bridged
 
 # Outer weight sum
 
-Let `p` satisfy the outer-range hypothesis (52), and take from
-the outer range data the outer weight family `w` (the outer
-weights (56) of the classes `1 ≤ a ≤ m` and the zero-class
-weights), the rank correction `r_p`, and the outer exponent
-`γ^out_p`. Let `z` be the number of zero weights in the family.
+Let `p` satisfy the outer-range hypothesis (52). Take from the
+outer range data the rank correction `r_p` and the outer exponent
+`γ^out_p`, and from the outer class basis the outer weight family
+`w` (the outer weights (56) on the class rows and the zero-class
+weights on the zero-class rows). Let `z` be the number of zero
+weights in the family.
 Then `2 ∑ w - min(r_p, z) ≥ γ^out_p`.
 
 The proof counts by classes. Under (52), `N < p/3`, so the only
@@ -30,6 +31,7 @@ and with a margin of 3 when `K ≥ 2p`.
 ## Depends on
 
 - [Outer range data](outer-range-data.md)
+- [Outer class basis](outer-class-basis.md)
 
 ## Sources
 
