@@ -85,6 +85,11 @@ in article citations disambiguate them.
    `-19000` decision stands until the project adjudicates it.
 2. The Fauzan zeta(5) predecessor [5] is cited for the architecture but
    has not been inspected; confirm no hidden lemma is imported from it.
+   PARTLY ANSWERED (2026-10-18): the proof of Proposition 4.6 defers
+   the class rows, the zero-class weights, and the derivation of (59)
+   to [5]; these are reconstructed as bridged nodes in the local
+   arithmetic chapter. The residue bounds (50)-(51) of Proposition 4.4
+   are also deferred to [5, Section 4.1] and remain to be checked.
 3. RESOLVED except Hermite/Hurwitz: von Staudt-Clausen is upstream
    (`Bernoulli.vonStaudt_clausen`), Bernoulli multiplication and Andreief
    were proved directly in Lean. Hermite/Hurwitz verdict (2026-10-17):
@@ -103,3 +108,55 @@ in article citations disambiguate them.
    not verified these recomputations, and no author v2 has appeared.
    Directly implicates the `exact-outer-integral`, `final-margins`, and
    `main-estimates` nodes.
+
+## Errata found during formalization
+
+Only items confirmed independently of the paper's own text are listed:
+by exact or high-precision recomputation from the paper's definitions
+and Table 1, or by a Lean proof. None of these items breaks the main
+theorem as far as the formalization has checked; the unadjudicated
+dispute in open question 5 is separate.
+
+1. Section 4.2.1, (53): the claim that `A` is integral at every prime
+   is false as written. In the monomial basis, pole values
+   `j^6 H^(7)_j` with `p < j ≤ K`, `p ∤ j`, can have valuation `-7`,
+   and at `n = 1`,
+   `p = 17` the `X`-free coefficients of `A` reach valuation `-10`.
+   Proposition 4.6 still holds: at `n = 1` the exact `Δ_K` meets
+   `γ^out_p` at every prime satisfying (52), and the
+   [outer range estimate](../roadmap/local-arithmetic/outer-estimate.md)
+   proves it through a class basis with weights instead of (53).
+2. Section 6.4, (99): the coefficient `13/10` is false; the bound fails
+   already at `t = 5`. The correct bound past 2 is
+   `2U_ρ(t) - V(t) ≤ (29/20) log t + 8α^3/t - 2π√t`, with
+   `29/20 = 2λ - 1 + 8α`, proved in the
+   [potential inequality](../roadmap/real-bound/potential-inequality.md)
+   node. With it, (94) and the retained-factor inequality (98) still
+   hold.
+3. Appendix A.1 (110) and Appendix A.4: the energy formula uses the
+   prefix sums `S_j = c_1 + ⋯ + c_j`, which is correct only for
+   increasing `L_j`; Table 1 lists the `L_j` in decreasing order, so the
+   tail sums `T_j = c_j + ⋯ + c_16` are needed. The true value is
+   `I(ρ) ≈ -1.9482` (printed `-3.1433`) and
+   `λM_0 - I(ρ) + C* ≈ 0.556` (printed `1.751`), so (96) still holds,
+   with more margin. The
+   [energy computation](../roadmap/real-bound/energy-computation.md)
+   node records the tail-sum form.
+4. Appendix A.3, below (113): `V(0) = -16α log α - 2 + 16α`, not
+   `-8α log α - 2 + 16α`.
+5. Section 6.2 and Appendix A.3: the reported numerical values do not
+   match Table 1. The true maximum of `2U_ρ - V` on `[0, 2]` is about
+   `-6.613`, near `t ≈ 0.214` (Section 6.2 prints `-5.4719` at
+   `t ≈ 0.2648`); the worst interval bound before `L_1` is about
+   `-6.186` on `[0.3, 0.4]` (printed `-5.865`), and after subdividing
+   `[L_1, 2]` about `-6.555` (printed `-5.689`). (94) holds with more
+   margin than reported.
+6. Section 3.3, proof of Lemma 3.5: the sentence "`τ(f) ∈ ℤ_p` when
+   `‖f‖ ≤ 1`, by Lemma 3.4" is false. Lemma 3.4 gives only
+   `|τ(f)|_p ≤ p‖f‖`, and `κ_41` at `p = 7` has `v_7(κ_41) = -1`
+   (`7 - 1` divides `36`, and no factor of `41·40·39·38·37` is a
+   multiple of `7`). Lemma 3.5 itself holds: the `j = 0` term has
+   degree at most `p + 4`, where Lemma 3.4 gives integrality, and the
+   `j ≥ 1` terms carry the factor `p^j`; the
+   [p-adic completion](../roadmap/local-arithmetic/completion.md) node
+   is proved.
