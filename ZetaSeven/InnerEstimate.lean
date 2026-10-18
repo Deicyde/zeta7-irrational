@@ -490,7 +490,8 @@ theorem top_coeff_bound {W : Polynomial ℚ_[p]} {G : PowerSeries ℚ_[p]} {t D 
 
 /-! ## The analytic part of `g(a + p z)` -/
 
-theorem finset_sum_comp' {ι : Type*} (s : Finset ι) (f : ι → ℚ[X]) (q : ℚ[X]) :
+theorem finset_sum_comp' {R : Type*} [CommSemiring R] {ι : Type*} (s : Finset ι) (f : ι → R[X])
+    (q : R[X]) :
     (∑ i ∈ s, f i).comp q = ∑ i ∈ s, (f i).comp q := by
   have h := map_sum (Polynomial.compRingHom q) f s
   simp only [coe_compRingHom_apply] at h
@@ -951,13 +952,14 @@ theorem mul_ell_le (hp : 2 * mHalf p + 1 = p) (A c : ℕ) (hc1 : 1 ≤ c) (hcm :
   rw [ell_eq_count hp A c hc1 hcm]
   set q := (A + 1) / p
   set s := (A + 1) % p
-  split_ifs <;> first | omega | nlinarith
+  split_ifs <;> first | omega | nlinarith |
+    (have hs2 : mHalf p + 2 ≤ s := (by omega); nlinarith)
 
 end Counts
 
 section Alloc
 
-variable {n M p : ℕ}
+variable {n M p : ℕ} {ε : ℕ → ℕ}
 
 theorem int_eq_zero_of_dvd_of_lt {q : ℕ} {x : ℤ} (h : (q : ℤ) ∣ x) (h1 : -(q : ℤ) < x)
     (h2 : x < q) : x = 0 := by
@@ -1093,6 +1095,7 @@ theorem mN_le_mK (n p : ℕ) : mN n p ≤ mK n p :=
 theorem InnerRange.L0_le (hR : InnerRange n M p) : L0 M ≤ hDim n := by
   have h1 := hR.n_ge
   have h2 := hR.M_le_sq
+  have h3 := hR.forty_le
   unfold L0 hDim
   nlinarith
 
@@ -1130,13 +1133,15 @@ theorem bA_lt_allocT (hR : InnerRange n M p) [Fact p.Prime] {a : ℕ} (ha1 : 1 �
   unfold bA allocT
   by_contra hcon
   have hle : allocTotal n M p / mHalf p ≤ 4 * ell p (N n) a := not_lt.mp hcon
-  have h5 : p * (allocTotal n M p / mHalf p) ≤ p * (4 * ell p (N n) a) :=
-    Nat.mul_le_mul_left p hle
+  have h5 : p * (allocTotal n M p / mHalf p) ≤ 4 * (p * ell p (N n) a) :=
+    calc p * (allocTotal n M p / mHalf p) ≤ p * (4 * ell p (N n) a) := Nat.mul_le_mul_left p hle
+      _ = 4 * (p * ell p (N n) a) := by ring
   have hpT : p * (allocTotal n M p / mHalf p)
       = 2 * (mHalf p * (allocTotal n M p / mHalf p)) + allocTotal n M p / mHalf p := by
-    rw [← hm]; ring
-  simp only [K, N, hDim, L0] at htot h3p hell hmN hmK
-  nlinarith
+    rw [show 2 * (mHalf p * (allocTotal n M p / mHalf p)) + allocTotal n M p / mHalf p
+      = (2 * mHalf p + 1) * (allocTotal n M p / mHalf p) by ring, hm]
+  simp only [K, N, hDim, L0] at htot h3p hell
+  linarith
 
 /-- `T < 3M`. -/
 theorem allocT_lt (hR : InnerRange n M p) [Fact p.Prime] : allocT n M p < 3 * M := by
@@ -1149,12 +1154,14 @@ theorem allocT_lt (hR : InnerRange n M p) [Fact p.Prime] : allocT n M p < 3 * M 
   unfold allocT
   by_contra hcon
   have hle : 3 * M ≤ allocTotal n M p / mHalf p := not_lt.mp hcon
-  have h5 : mHalf p * (3 * M) ≤ mHalf p * (allocTotal n M p / mHalf p) :=
-    Nat.mul_le_mul_left _ hle
-  have hMp : M * p = 2 * (mHalf p * M) + M := by rw [← hm]; ring
+  have h5 : 3 * (mHalf p * M) ≤ mHalf p * (allocTotal n M p / mHalf p) :=
+    calc 3 * (mHalf p * M) = mHalf p * (3 * M) := by ring
+      _ ≤ mHalf p * (allocTotal n M p / mHalf p) := Nat.mul_le_mul_left _ hle
+  have hMp : M * p = 2 * (mHalf p * M) + M := by
+    rw [show 2 * (mHalf p * M) + M = M * (2 * mHalf p + 1) by ring, hm]
   have hmM : 3 * M ≤ mHalf p * M := Nat.mul_le_mul_right M (by omega)
   simp only [K, N, hDim, L0] at htot hKlt
-  nlinarith
+  linarith
 
 /-- `∑_{a=1}^m ε_a = E`. -/
 theorem sum_eps (hε : ExtraRows n M p ε) : ∑ a ∈ Icc 1 (mHalf p), ε a = allocE n M p := by
@@ -1169,7 +1176,8 @@ theorem sum_eps (hε : ExtraRows n M p ε) : ∑ a ∈ Icc 1 (mHalf p), ε a = a
 theorem sum_allocL (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε) :
     ∑ a ∈ range (mHalf p + 1), allocL n M p ε a = hDim n := by
   have hm := hR.two_mul_mHalf
-  rw [Finset.sum_range_eq_add_Ico _ (Nat.succ_pos _), Finset.Ico_add_one_right_eq_Icc]
+  rw [Finset.sum_range_eq_add_Ico _ (by omega : 0 < mHalf p + 1),
+    Finset.Ico_add_one_right_eq_Icc]
   have hL : ∀ a ∈ Icc 1 (mHalf p), allocL n M p ε a = allocZ n M p ε a - bA n p a := by
     intro a ha
     rw [allocL, ite_eq_right (by have := (Finset.mem_Icc.mp ha).1; omega)]
@@ -1188,5 +1196,171 @@ theorem sum_allocL (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p
   omega
 
 end Alloc
+
+/-! ## The `E`-basis is unimodular (Definition 4.2) -/
+
+section Unimodular
+
+variable {n M p : ℕ} {ε : ℕ → ℕ}
+
+theorem eBasis_map (R : Type*) [CommRing R] (n M p : ℕ) (ε : ℕ → ℕ) (a i : ℕ) :
+    (eBasis ℤ n M p ε a i).map (Int.castRingHom R) = eBasis R n M p ε a i := by
+  simp only [eBasis, Polynomial.map_mul, Polynomial.map_prod, Polynomial.map_pow,
+    Polynomial.map_add, Polynomial.map_X, Polynomial.map_C, map_pow, map_natCast]
+
+/-- The `E`-basis lies in `R[t]_{<h}`. -/
+theorem eBasis_natDegree_lt (R : Type*) [CommRing R] [Nontrivial R] (hR : InnerRange n M p)
+    [Fact p.Prime] (hε : ExtraRows n M p ε) (ρ : eIdx n M p ε) :
+    (eBasis R n M p ε ρ.1 ρ.2).natDegree < hDim n := by
+  have hsum := sum_allocL hR hε
+  have hmem : (ρ.1 : ℕ) ∈ range (mHalf p + 1) := Finset.mem_range.mpr ρ.1.isLt
+  rw [← Finset.add_sum_erase _ _ hmem] at hsum
+  have hi : (ρ.2 : ℕ) < allocL n M p ε ρ.1 := ρ.2.isLt
+  calc (eBasis R n M p ε ρ.1 ρ.2).natDegree
+      ≤ (∑ c ∈ (range (mHalf p + 1)).erase ρ.1, allocL n M p ε c) + ρ.2 := by
+        unfold eBasis
+        refine natDegree_mul_le.trans (add_le_add ?_ ?_)
+        · refine (natDegree_prod_le _ _).trans (Finset.sum_le_sum fun c _ => ?_)
+          refine natDegree_pow_le.trans ?_
+          rw [natDegree_X_add_C, mul_one]
+        · refine natDegree_pow_le.trans ?_
+          rw [natDegree_X_add_C, mul_one]
+    _ < hDim n := by omega
+
+/-- The squares `c²`, `0 ≤ c ≤ m`, are distinct modulo `p`. -/
+theorem natCast_sq_ne (hR : InnerRange n M p) [Fact p.Prime] {a c : ℕ} (ha : a ≤ mHalf p)
+    (hc : c ≤ mHalf p) (hac : c ≠ a) : ((c : ZMod p) ^ 2) ≠ (a : ZMod p) ^ 2 := by
+  have hm := hR.two_mul_mHalf
+  intro h
+  rcases sq_eq_sq_iff_eq_or_eq_neg.mp h with h' | h'
+  · rw [ZMod.natCast_eq_natCast_iff', Nat.mod_eq_of_lt (by omega),
+      Nat.mod_eq_of_lt (by omega)] at h'
+    exact hac h'
+  · have h2 : ((c + a : ℕ) : ZMod p) = 0 := by rw [Nat.cast_add, h', neg_add_cancel]
+    rw [ZMod.natCast_eq_zero_iff] at h2
+    have := Nat.le_of_dvd (by omega) h2
+    omega
+
+theorem isCoprime_X_add_C_sq (hR : InnerRange n M p) [Fact p.Prime] {a c : ℕ}
+    (ha : a ≤ mHalf p) (hc : c ≤ mHalf p) (hac : c ≠ a) :
+    IsCoprime (X + C ((a : ZMod p) ^ 2)) (X + C ((c : ZMod p) ^ 2)) := by
+  rw [← sub_neg_eq_add, ← sub_neg_eq_add X, ← C_neg, ← C_neg]
+  apply isCoprime_X_sub_C_of_isUnit_sub
+  rw [sub_eq_add_neg, neg_neg]
+  exact isUnit_iff_ne_zero.mpr fun h => natCast_sq_ne hR ha hc hac (by linear_combination h)
+
+/-- Definition 4.2: modulo `p` the `E`-basis is linearly independent (the Chinese remainder
+decomposition by the pairwise coprime powers of `t + c²`). -/
+theorem eBasis_linearIndependent (hR : InnerRange n M p) [Fact p.Prime]
+    (hε : ExtraRows n M p ε) :
+    LinearIndependent (ZMod p) fun ρ : eIdx n M p ε => eBasis (ZMod p) n M p ε ρ.1 ρ.2 := by
+  rw [Fintype.linearIndependent_iff]
+  intro g hg ρ0
+  obtain ⟨a0, i0⟩ := ρ0
+  rw [Fintype.sum_sigma, ← Finset.add_sum_erase _ _ (Finset.mem_univ a0)] at hg
+  dsimp only at hg
+  have hdvd : (X + C (((a0 : ℕ) : ZMod p) ^ 2)) ^ allocL n M p ε a0 ∣
+      ∑ a ∈ Finset.univ.erase a0, ∑ i : Fin (allocL n M p ε a),
+        g ⟨a, i⟩ • eBasis (ZMod p) n M p ε a i := by
+    refine Finset.dvd_sum fun a ha => Finset.dvd_sum fun i _ => ?_
+    rw [Polynomial.smul_eq_C_mul]
+    refine dvd_mul_of_dvd_right (dvd_mul_of_dvd_left (Finset.dvd_prod_of_mem
+      (fun c : ℕ => (X + C ((c : ZMod p) ^ 2)) ^ allocL n M p ε c) ?_) _) _
+    exact Finset.mem_erase.mpr ⟨fun h => (Finset.mem_erase.mp ha).1 (Fin.ext h.symm),
+      Finset.mem_range.mpr a0.isLt⟩
+  have hsplit : ∑ i : Fin (allocL n M p ε a0), g ⟨a0, i⟩ • eBasis (ZMod p) n M p ε a0 i
+      = (∏ c ∈ (range (mHalf p + 1)).erase a0,
+          (X + C ((c : ZMod p) ^ 2)) ^ allocL n M p ε c)
+        * ∑ i : Fin (allocL n M p ε a0),
+            g ⟨a0, i⟩ • (X + C (((a0 : ℕ) : ZMod p) ^ 2)) ^ (i : ℕ) := by
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [eBasis, mul_smul_comm]
+  have hdvd2 : (X + C (((a0 : ℕ) : ZMod p) ^ 2)) ^ allocL n M p ε a0 ∣
+      (∏ c ∈ (range (mHalf p + 1)).erase a0,
+          (X + C ((c : ZMod p) ^ 2)) ^ allocL n M p ε c)
+        * ∑ i : Fin (allocL n M p ε a0),
+            g ⟨a0, i⟩ • (X + C (((a0 : ℕ) : ZMod p) ^ 2)) ^ (i : ℕ) := by
+    rw [← hsplit, eq_neg_of_add_eq_zero_left hg]
+    exact (dvd_neg).mpr hdvd
+  have hcop : IsCoprime ((X + C (((a0 : ℕ) : ZMod p) ^ 2)) ^ allocL n M p ε a0)
+      (∏ c ∈ (range (mHalf p + 1)).erase a0,
+          (X + C ((c : ZMod p) ^ 2)) ^ allocL n M p ε c) := by
+    refine IsCoprime.pow_left (IsCoprime.prod_right fun c hc => IsCoprime.pow_right ?_)
+    obtain ⟨hca, hcr⟩ := Finset.mem_erase.mp hc
+    exact isCoprime_X_add_C_sq hR (by have := a0.isLt; omega)
+      (by have := Finset.mem_range.mp hcr; omega) hca
+  have hQdvd := hcop.dvd_of_dvd_mul_left hdvd2
+  have hmonic : (X + C (((a0 : ℕ) : ZMod p) ^ 2)).Monic := monic_X_add_C _
+  have hL1 : 1 ≤ allocL n M p ε a0 := by have := i0.isLt; omega
+  have hQ0 : ∑ i : Fin (allocL n M p ε a0),
+      g ⟨a0, i⟩ • (X + C (((a0 : ℕ) : ZMod p) ^ 2)) ^ (i : ℕ) = 0 := by
+    refine eq_zero_of_dvd_of_natDegree_lt hQdvd ?_
+    rw [hmonic.natDegree_pow, natDegree_X_add_C, mul_one]
+    refine lt_of_le_of_lt (natDegree_sum_le_of_forall_le _ _ (n := allocL n M p ε a0 - 1)
+      fun i _ => ?_) (by omega)
+    refine (natDegree_smul_le _ _).trans (natDegree_pow_le.trans ?_)
+    rw [natDegree_X_add_C, mul_one]
+    have := i.isLt
+    omega
+  have hcomp := congrArg
+    (fun q : (ZMod p)[X] => (q.comp (X - C (((a0 : ℕ) : ZMod p) ^ 2))).coeff i0) hQ0
+  simp only [finset_sum_comp', smul_comp, pow_comp, add_comp, X_comp, C_comp, sub_add_cancel,
+    finsetSum_coeff, coeff_smul, coeff_X_pow, smul_eq_mul, mul_ite, mul_one, mul_zero,
+    Fin.val_inj, Finset.sum_ite_eq', Finset.mem_univ, if_true, zero_comp, coeff_zero] at hcomp
+  exact hcomp
+
+/-- The coefficient matrix of the `E`-basis modulo `p` is invertible. -/
+theorem eBasis_det_ne_zero (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (e : eIdx n M p ε ≃ Fin (hDim n)) :
+    (Matrix.of fun k l : Fin (hDim n) =>
+      (eBasis (ZMod p) n M p ε (e.symm k).1 (e.symm k).2).coeff l).det ≠ 0 := by
+  rw [← isUnit_iff_ne_zero, ← Matrix.isUnit_iff_isUnit_det,
+    ← Matrix.linearIndependent_rows_iff_isUnit, Fintype.linearIndependent_iff]
+  intro g hg k
+  have hli := Fintype.linearIndependent_iff.mp (eBasis_linearIndependent hR hε) (fun ρ => g (e ρ))
+  have hzero : ∑ ρ : eIdx n M p ε, g (e ρ) • eBasis (ZMod p) n M p ε ρ.1 ρ.2 = 0 := by
+    ext l
+    rw [finsetSum_coeff, coeff_zero]
+    by_cases hl : l < hDim n
+    · have h := congrFun hg ⟨l, hl⟩
+      simp only [Finset.sum_apply, Pi.smul_apply, Matrix.row, Matrix.of_apply, smul_eq_mul,
+        Pi.zero_apply] at h
+      rw [← h, ← Equiv.sum_comp e]
+      refine Finset.sum_congr rfl fun ρ _ => ?_
+      rw [coeff_smul, smul_eq_mul, Equiv.symm_apply_apply]
+    · refine Finset.sum_eq_zero fun ρ _ => ?_
+      rw [coeff_smul, coeff_eq_zero_of_natDegree_lt
+        (by have := eBasis_natDegree_lt (ZMod p) hR hε ρ; omega), smul_zero]
+  have := hli hzero (e.symm k)
+  rwa [Equiv.apply_symm_apply] at this
+
+/-- **Definition 4.2** (`ℤ_p`-unimodularity of the `E`-basis). For every enumeration `e` of the
+index set `{(a, i)}` (of size `h`, `card_eIdx`), the integer matrix of coefficients of the
+`E_{a,i}` in the monomial basis `1, t, …, t^{h-1}` has determinant prime to `p`. -/
+theorem eBasis_unimodular (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε)
+    (e : eIdx n M p ε ≃ Fin (hDim n)) :
+    ¬ (p : ℤ) ∣ (Matrix.of fun k l : Fin (hDim n) =>
+      (eBasis ℤ n M p ε (e.symm k).1 (e.symm k).2).coeff l).det := by
+  intro hdvd
+  apply eBasis_det_ne_zero hR hε e
+  have hmap : (Int.castRingHom (ZMod p)).mapMatrix (Matrix.of fun k l : Fin (hDim n) =>
+      (eBasis ℤ n M p ε (e.symm k).1 (e.symm k).2).coeff l)
+      = Matrix.of fun k l : Fin (hDim n) =>
+        (eBasis (ZMod p) n M p ε (e.symm k).1 (e.symm k).2).coeff l := by
+    ext k l
+    simp only [RingHom.mapMatrix_apply, Matrix.map_apply, Matrix.of_apply]
+    rw [← eBasis_map (ZMod p), coeff_map]
+  rw [← hmap, ← RingHom.map_det, eq_intCast, (ZMod.intCast_zmod_eq_zero_iff_dvd _ p).mpr hdvd]
+
+/-- The `E`-basis has `h` elements. -/
+theorem card_eIdx (hR : InnerRange n M p) [Fact p.Prime] (hε : ExtraRows n M p ε) :
+    Fintype.card (eIdx n M p ε) = hDim n := by
+  rw [Fintype.card_sigma]
+  simp only [Fintype.card_fin]
+  rw [Fin.sum_univ_eq_sum_range (fun a => allocL n M p ε a) (mHalf p + 1)]
+  exact sum_allocL hR hε
+
+end Unimodular
 
 end ZetaSeven
