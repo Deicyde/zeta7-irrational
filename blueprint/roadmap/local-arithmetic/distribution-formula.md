@@ -2,6 +2,9 @@
 article_id: af_10af84b4c0dda8f9c65f2c6d
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.distribution_formula ZetaSeven.cP_mem ZetaSeven.norm_cP_le ZetaSeven.tauAn_eq ZetaSeven.substData_spec ZetaSeven.substAnalytic_isRestricted ZetaSeven.poleSeries_isRestricted ZetaSeven.poleSeries_mul ZetaSeven.ratFuncAffine_algebraMap ZetaSeven.sum_tauPoly_comp_affine ZetaSeven.sum_poleTerm ZetaSeven.tauAn_sub_one ZetaSeven.cP ZetaSeven.distY ZetaSeven.tauAn ZetaSeven.poleSeries ZetaSeven.substAnalytic ZetaSeven.substPoles ZetaSeven.substPrincipal ZetaSeven.ratFuncAffine ZetaSeven.poleTerm
 ---
 
 # Distribution formula
