@@ -247,7 +247,11 @@ route to Theorems 1.1-1.2 does not close (open question 5).
    rational computation from (54), (58), (59), (72), and (73),
    `I_out = 453803/288000` under the adopted reading and
    `445163/288000` under (71) read literally; neither is (122)'s
-   value (see open question 5).
+   value (see open question 5). Evidence that does not depend on how
+   `R_0` and `d` are read: the outer contribution computed directly
+   from (59) and (62), `-K^{-2} ∑_{K/3 < p ≤ 2h} L_p log p`, is
+   `1.5717`, `1.5744`, and `1.5751` at `K = 10^5`, `10^6`, and `10^7`,
+   approaching `453803/288000 ≈ 1.5757`, not `445163/288000 ≈ 1.5457`.
 9. Appendix A.2, (122) and Table 5: the outer integral
    `I_out = -11002997/720000 ≈ -15.2819` and the nine affine pieces
    of Table 5 do not follow from the paper's definitions.
