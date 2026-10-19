@@ -255,9 +255,13 @@ route to Theorems 1.1-1.2 does not close (open question 5).
    `[77/80, 1]` agrees; on `[1, 37/20]`, for example,
    `γ^out_p = 0` and the integrand is the scalar term `37/20 - y`,
    where Table 5 prints `-239/20 - 2y`. No reading tried reproduces
-   (122): changing the sign of, or dropping, the `γ^out_p` limit,
-   `d`, or the scalar term gives about `-2.47` at closest, extending
-   (59) to `p > K` gives `-635917/288000`, and (71) read literally
-   gives `445163/288000`. The
+   (122), about `-15.28`. With `γ^out_p = 0` for `p > K`, changing
+   the sign of, or dropping, the `γ^out_p` limit `g`, the correction
+   `d` (taken up to twice), or the scalar term comes no closer than
+   `-471083/288000 ≈ -1.64` (`-g - 2d` minus the scalar term). The
+   values near `-2.5` (about `-2.47` and `-2.50`, for `g - d` and
+   `g - 2d` minus the scalar term) also need (59) extended to
+   `p > K`, an extension that by itself gives `-635917/288000`; (71)
+   read literally gives `445163/288000`. The
    [exact outer integral](../roadmap/normalization-prime-sum/exact-outer-integral.md)
    node states the recomputed value and its 11 pieces.
