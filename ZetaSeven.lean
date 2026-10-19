@@ -17,6 +17,9 @@ import ZetaSeven.InnerEstimate
 import ZetaSeven.InnerLimiting
 import ZetaSeven.IntegerValued
 import ZetaSeven.MatrixDet
+import ZetaSeven.OuterLimiting
+import ZetaSeven.OuterModifiedFunctional
+import ZetaSeven.OuterRangeData
 import ZetaSeven.PositiveIntegral
 import ZetaSeven.PotentialInequality
 import ZetaSeven.PrimeNumberTheorem
