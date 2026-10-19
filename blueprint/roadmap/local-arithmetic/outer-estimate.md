@@ -20,8 +20,8 @@ of the outer class basis in the monomial basis; `det U` is prime
 to `p`, and `U G_K U^T = A' + p^{-1} U L U^T`, where
 `A'_{rs} = μ_0(r s D_N^7 / D_tail)` and `U L U^T` is integral of
 rank at most `r_p`. The entry valuations give
-`v^G_p(A'_{rs}) ≥ w_r + w_s` with the outer weight family of the
-outer class basis, the Gauss-valuation rank lemma gives
+`v^G_p(A'_{rs}) ≥ w_r + w_s` with the outer weight family on the
+rows of the outer class basis, the Gauss-valuation rank lemma gives
 `v^G_p det(U G_K U^T) ≥ 2∑w - min(r_p, z)`, and the weight sum
 bounds this below by `γ^out_p`. Since
 `det(U G_K U^T) = (det U)^2 Δ_K` with `det U` a `p`-unit, the
@@ -41,6 +41,7 @@ bound in the class basis.
 - [Outer rank decomposition](outer-rank-decomposition.md)
 - [Large-prime integrality](large-prime-integrality.md)
 - [Outer class basis](outer-class-basis.md)
+- [Outer weight family](outer-weight-family.md)
 - [Outer entry valuations](outer-entry-valuations.md)
 - [Gauss-valuation rank lemma](gauss-rank-lemma.md)
 - [Outer weight sum](outer-weight-sum.md)

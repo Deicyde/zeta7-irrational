@@ -23,15 +23,8 @@ These are exactly `h` integer polynomials of degree less than
 `h`, and the integer matrix `U` expressing them in the monomial
 basis `1, t, …, t^{h-1}` has `det U` prime to `p`; so they form a
 `ℤ_p`-unimodular basis of the polynomials of degree less than `h`.
-
-Define the outer weight family on these rows. Under (52),
-`N < p` and `K/3 < p ≤ K`, so `|S_0| = ⌊K/p⌋` is 1 when `K < 2p`
-and 2 otherwise. The class row `P_c q_{c,i}` gets the outer
-weight `w^out_{c,i}` (56) of the outer range data, and the
-zero-class row `P_0 t^i` gets the zero-class weight
-`w^out_{0,i}`, where `w^out_{0,0} = -1/2` when `K < 2p`, and
-`w^out_{0,0} = -3/2`, `w^out_{0,1} = 0` when `K ≥ 2p`. This gives
-one weight for each of the `h` rows.
+Under (52), `N < p` and `K/3 < p ≤ K`, so `|S_0| = ⌊K/p⌋`, which is
+1 when `K < 2p` and 2 otherwise.
 
 The proof: every `j ∈ (N, K]` lies in exactly one `S_c`, so the
 row count is `K - N = h`, and `deg P_c q_{c,i} = h - |S_c| + i < h`.
@@ -52,8 +45,6 @@ reduced rows are triangular with unit diagonal, hence an
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
   Section 4.2, proof of Proposition 4.6 (the rows `P_a q_{a,i}`).
   The paper uses `P_a` and the zero-class rows without defining
-  them, and gives no weights for the zero-class rows; this
-  statement and the zero-class weights are reconstructed by this
-  project, because the paper defers the basis to its zeta(5)
-  predecessor [5]. The zero-class weights were found by computation
-  and checked with the outer entry valuations.
+  them; this statement is reconstructed by this project, because
+  the paper defers the basis to its zeta(5) predecessor [5]. The
+  weights on these rows are the outer weight family.

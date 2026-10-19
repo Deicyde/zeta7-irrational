@@ -24,8 +24,9 @@ weights, and the weight count to the zeta(5) predecessor; its claim
 so is its claim that each residue is `p`-integral when `p > K`. The
 outer range is therefore assembled from reconstructed steps: the rank
 decomposition, the paired-pole congruence, large-prime integrality, a
-class basis adapted to the residue classes with its zero-class
-weights, weighted entry valuations in that basis, a Gauss-valuation
+class basis adapted to the residue classes, a weight family on its
+rows with reconstructed zero-class weights, weighted entry valuations
+in that basis, a Gauss-valuation
 form of the rank lemma, and the weight count that yields the
 exponent (59).
 
@@ -48,7 +49,8 @@ exponent (59).
 - [Outer rank decomposition](outer-rank-decomposition.md) — the low-rank correction.
 - [Paired-pole congruence](paired-pole-congruence.md) — the residues at a pole pair `a`, `p - a` have `p`-integral sum.
 - [Large-prime integrality](large-prime-integrality.md) — the determinant is integral above `K`.
-- [Outer class basis](outer-class-basis.md) — the unimodular basis adapted to residue classes, with the zero-class weights.
+- [Outer weight family](outer-weight-family.md) — the outer weights (56) with the zero-class weights, one per row.
+- [Outer class basis](outer-class-basis.md) — the unimodular basis adapted to residue classes.
 - [Outer entry valuations](outer-entry-valuations.md) — weighted valuations of the class Gram matrix.
 - [Rank lemma](rank-lemma.md) — determinant bound under a low-rank correction.
 - [Gauss-valuation rank lemma](gauss-rank-lemma.md) — the same bound for polynomial entries.
