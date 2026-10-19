@@ -19,6 +19,7 @@ In Lean, (101) and (104) are stated for every `n`, the case `n = 0`
 ## Depends on
 
 - [Positive integral representation](../determinant-construction/positive-integral-representation.md)
+- [External field](external-field.md)
 
 ## Proof depends on
 
