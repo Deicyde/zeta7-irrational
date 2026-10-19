@@ -16,9 +16,12 @@ The resulting prime-sum bound gives the arithmetic half of the final
 exponent: `lim sup K^-2 log m_K,M <= A_M`. The exact rational margins
 at the two cutoffs `M = 200` and `M = 100000`, evaluated through the
 192-piece inner integral and the outer integrand tables, are what the
-assembly chapter combines with the analytic bound. The v1 discrepancy
-in the `M = 200` constant is recorded in the source notes and stays
-open until the author's v2 appears.
+assembly chapter combines with the analytic bound. The paper's outer
+integral (122) does not survive recomputation: with the recomputed
+value `A_M + U` is positive at both cutoffs, so the final margins
+cannot be proved as stated and the v1 route to the main theorem does
+not close. The source notes record this (open question 5, errata 8-9),
+and what to do about the margins is the user's decision.
 
 ## Normalization
 
@@ -34,7 +37,7 @@ open until the author's v2 appears.
 
 - [Exact inner integral](exact-inner-integral.md) — the 192-piece rational value.
 - [Exact outer integral](exact-outer-integral.md) — the 11-piece rational value, recomputed (erratum 9).
-- [Final rational margins](final-margins.md) — the cutoff constants and the -19000 margin.
+- [Final rational margins](final-margins.md) — the cutoff constants and the -19000 margin, which fails with the recomputed outer integral.
 
 ## Main estimate
 

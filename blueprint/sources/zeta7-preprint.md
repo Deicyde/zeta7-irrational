@@ -20,7 +20,9 @@ states the `-19000` bound follows with `-11.99` in place of `-11`
 (giving `-19184` after the `1600x` scaling) and will be fixed in v2.
 The roadmap tracks the v1 statements as written and records the
 discrepancy as an open source question below; do not silently upgrade
-the `M = 200` constant.
+the `M = 200` constant. Open question 5 records that the printed
+`A200` itself does not survive recomputation, so neither `-11` nor
+`-11.99` is reached.
 
 ## Locator map
 
@@ -76,13 +78,16 @@ in article citations disambiguate them.
 
 1. DECIDED: formalize `-19000` for `M = 200`. The v1 proof text
    derives only `1600(A200 + U) < -17600` (and states `-17000`),
-   so `-19000` needs `A200 + U < -95/8`, proved by exact rational
-   arithmetic from the integral tables. The exact values
-   (`A200 ~ -13.7528`, `U = 44/25`) leave margin `~0.118`, so the
-   certificate is expected to close; see the `final-margins` node.
-   NOTE (2026-10-13): an external exact-arithmetic audit disputes the
-   Table 5 integral this target rests on (see open question 5). The
-   `-19000` decision stands until the project adjudicates it.
+   so `-19000` needs `A200 + U < -95/8`, to be proved by exact
+   rational arithmetic from the integral tables; see the
+   `final-margins` node. The paper's printed values
+   (`A200 ~ -13.7528`, `U = 44/25`) would leave a margin of about
+   `0.118`, but they rest on the printed (122).
+   NOTE (2026-10-18): the dispute of open question 5 is now
+   verified. With the recomputed outer integral `A200 + U` is
+   positive, so the `-19000` target cannot be met, nor can the
+   paper's own (118), while open question 5 stands. What to do
+   about the target is the user's decision.
 2. The Fauzan zeta(5) predecessor [5] is cited for the architecture but
    has not been inspected; confirm no hidden lemma is imported from it.
    PARTLY ANSWERED (2026-10-18): the proof of Proposition 4.6 defers
@@ -99,23 +104,41 @@ in article citations disambiguate them.
    work to prove directly (see the `hermite-hurwitz` node).
 4. Decide whether the 192-piece exact integral tables are recomputed in
    Lean or verified as certificates.
-5. UNADJUDICATED: an external reader report (gmDevi/zeta-7-21-lean issue
-   #1, 2026-10-03) and an independent exact-arithmetic audit (Toledo
-   cert-machine, record archived at Zenodo 23171167) recompute the outer
-   integral from the paper's own formulas as `I_out = 453803/288000`
-   (not (122)'s `-11002997/720000`) and `A200 + U ~ +4.86` (not `-11.99`),
-   which would break the v1 proof route at (117)-(118). The project has
-   not verified these recomputations, and no author v2 has appeared.
-   Directly implicates the `exact-outer-integral`, `final-margins`, and
-   `main-estimates` nodes.
+5. VERIFIED (2026-10-18): an external reader report (gmDevi/zeta-7-21-lean
+   issue #1, 2026-10-03) and an independent exact-arithmetic audit
+   (Toledo cert-machine, record archived at Zenodo 23171167) recompute
+   the outer integral from the paper's own formulas as
+   `I_out = 453803/288000` (not (122)'s `-11002997/720000`) and
+   `A200 + U ~ +4.86` (not `-11.99`), which breaks the v1 proof route at
+   (117)-(118). The project has checked this, and no author v2 has
+   appeared:
+   - The outer integral recomputes exactly to `453803/288000`, matching
+     the external audit, and no reading of the definitions reproduces
+     (122) (errata 8 and 9).
+   - The inner side checks out: `R(x)` from Definition 5.2 matches
+     Table 2 at spot checks, and `∫_3^20 R(x)/x^3 dx` recomputes
+     numerically to `0.17035`, matching (121).
+   - `A0 = 1.3175` is a valid but loose upper bound for the tail: the
+     integral of `R(x)/x^3` over `[20, ∞)` is about `-0.064`, both
+     numerically and from (85) at `T = 20`.
+   - With the corrected `I_out`, `A200 + U ≈ +4.86`, or about `+3.5`
+     with the true tail in place of `A0`. So (118), `A200 + U < -11`,
+     fails, and the v1 route to Theorems 1.1-1.2 does not close.
+     (119) fails in the same way: `A100000 + U ≈ +4.82`.
+
+   This makes the `final-margins` node unprovable as stated and leaves
+   `main-estimates` and `main-theorem` without a proof route; their
+   statements are unchanged pending the user's decision.
 
 ## Errata found during formalization
 
 Only items confirmed independently of the paper's own text are listed:
 by exact or high-precision recomputation from the paper's definitions
-and Table 1, or by a Lean proof. None of these items breaks the main
-theorem as far as the formalization has checked; the unadjudicated
-dispute in open question 5 is separate.
+and Table 1, or by a Lean proof. Items 1-8 do not break the main
+theorem as far as the formalization has checked; item 8 is resolved
+in favor of the reading under which Proposition 5.4 holds. Item 9
+does: with the recomputed outer integral, (118) fails and the v1
+route to Theorems 1.1-1.2 does not close (open question 5).
 
 1. Section 4.2.1, (53): the claim that `A` is integral at every prime
    is false as written. In the monomial basis, pole values
