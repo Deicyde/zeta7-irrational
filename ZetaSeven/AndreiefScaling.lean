@@ -41,7 +41,7 @@ open Real MeasureTheory Set Filter Polynomial
 
 /-- `x⁶ e^{-x} ≤ 6!` for `x ≥ 0`. -/
 private lemma pow_six_mul_exp_neg_le {x : ℝ} (hx : 0 ≤ x) : x ^ 6 * Real.exp (-x) ≤ 720 := by
-  have h := Real.pow_div_factorial_le_exp hx 6
+  have h := Real.pow_div_factorial_le_exp (x := x) hx 6
   have h6 : ((Nat.factorial 6 : ℕ) : ℝ) = 720 := by norm_num [Nat.factorial]
   rw [h6, div_le_iff₀ (by norm_num)] at h
   calc x ^ 6 * Real.exp (-x) ≤ Real.exp x * 720 * Real.exp (-x) :=
@@ -195,9 +195,10 @@ private lemma intervalIntegrable_log_add_sq {t : ℝ} (ht : 0 ≤ t) (a b : ℝ)
       rw [zero_add, Real.log_pow]
       norm_num
     rw [hfun]
-    exact intervalIntegrable_log'.const_mul 2
-  · exact (Continuous.log (continuous_const.add (continuous_pow 2))
-      fun u => by positivity).intervalIntegrable a b
+    exact intervalIntegral.intervalIntegrable_log'.const_mul 2
+  · have hc : Continuous fun u : ℝ => t + u ^ 2 := continuous_const.add (continuous_pow 2)
+    have hne : ∀ u : ℝ, t + u ^ 2 ≠ 0 := fun u => by positivity
+    exact (hc.log hne).intervalIntegrable a b
 
 /-- Splitting `∫_0^{m/K}` at the points `j/K`. -/
 private lemma integral_eq_sum_steps (K m : ℕ) (f : ℝ → ℝ)
@@ -263,11 +264,11 @@ private lemma step_sub_integral_le (K j : ℕ) (hK : 0 < K) {t : ℝ} (ht : 0 �
     linarith
   have hint1 : IntervalIntegrable
       (fun u => Real.log (t + b ^ 2) - 2 * Real.log b + 2 * Real.log u) volume ((j : ℝ) / K) b :=
-    intervalIntegrable_const.add (intervalIntegrable_log'.const_mul 2)
+    intervalIntegrable_const.add (intervalIntegral.intervalIntegrable_log'.const_mul 2)
   have h := intervalIntegral.integral_mono_on_of_le_Ioo hle hint1
     (intervalIntegrable_log_add_sq ht _ _) hpt
   rw [intervalIntegral.integral_add intervalIntegrable_const
-    (intervalIntegrable_log'.const_mul 2), intervalIntegral.integral_const,
+    (intervalIntegral.intervalIntegrable_log'.const_mul 2), intervalIntegral.integral_const,
     intervalIntegral.integral_const_mul, smul_eq_mul] at h
   have hlen : (K : ℝ) * (b - (j : ℝ) / K) = 1 := by
     rw [hb, ← sub_div, add_sub_cancel_left, mul_one_div_cancel hK'.ne']
@@ -324,8 +325,8 @@ private lemma riemann_sum_sub_le (K m : ℕ) (hK : 0 < K) {t : ℝ} (ht : 0 ≤ 
       2 * (∑ j ∈ Finset.range m, Real.log (((j : ℝ) + 1) / K)) -
         2 * ((K : ℝ) * ∫ u in (0 : ℝ)..((m : ℝ) / K), Real.log u) := by
     rw [integral_eq_sum_steps K m _ (intervalIntegrable_log_add_sq ht),
-      integral_eq_sum_steps K m _ (fun _ _ => intervalIntegrable_log'), Finset.mul_sum,
-      Finset.mul_sum, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib,
+      integral_eq_sum_steps K m _ (fun _ _ => intervalIntegral.intervalIntegrable_log'),
+      Finset.mul_sum, Finset.mul_sum, Finset.mul_sum, Finset.mul_sum, ← Finset.sum_sub_distrib,
       ← Finset.sum_sub_distrib]
     exact Finset.sum_le_sum fun j _ => step_sub_integral_le K j hK ht
   rw [mul_integral_log K m hK, sum_log_succ_div K m hK] at hsteps
@@ -368,5 +369,149 @@ theorem riemann_sum_log_bound (n m : ℕ) (hm : 1 ≤ m) (hmK : m ≤ K n) {t : 
     Real.log_le_log (Nat.cast_pos.mpr (by omega)) (Nat.cast_le.mpr hmK)
   have h4 : 0 ≤ Real.log m := Real.log_nonneg (Nat.one_le_cast.mpr hm)
   linarith
+
+/-! ### Andreief's identity at `ζ(7)` (101) -/
+
+/-- The weight `D_N(y²)⁸/D_K(y²) w₇(y)` of the moment matrix of `G_K(ζ(7))`. -/
+private noncomputable def rhoW (n : ℕ) (y : ℝ) : ℝ :=
+  aeval (y ^ 2) (Dpoly (N n)) ^ 8 / aeval (y ^ 2) (Dpoly (K n)) * w7 y
+
+private lemma aeval_Dpoly_eq_prod (m : ℕ) (x : ℝ) :
+    aeval x (Dpoly m) = ∏ j ∈ Finset.range m, (x + ((j : ℝ) + 1) ^ 2) := by
+  rw [Dpoly, map_prod]
+  refine Finset.prod_congr rfl fun j _ => ?_
+  simp
+
+private lemma rhoW_pos (n : ℕ) {y : ℝ} (hy : 0 < y) : 0 < rhoW n y := by
+  have h1 : 0 < aeval (y ^ 2) (Dpoly (N n)) := by
+    rw [aeval_Dpoly_eq_prod]
+    exact Finset.prod_pos fun j _ => by positivity
+  have h2 : 0 < aeval (y ^ 2) (Dpoly (K n)) := by
+    rw [aeval_Dpoly_eq_prod]
+    exact Finset.prod_pos fun j _ => by positivity
+  rw [rhoW]
+  exact mul_pos (div_pos (pow_pos h1 8) h2) (w7_pos hy)
+
+/-- The entry `(i, j)` of `G_K(ζ(7))` as an integral against `w₇` (Proposition 2.4). -/
+private lemma aeval_Gentry_zeta_eq (n i j : ℕ) :
+    aeval (riemannZeta 7).re (Gentry n i j) = ∫ y in Ioi (0 : ℝ),
+      aeval (y ^ 2) (Dpoly (N n)) ^ 8 * (y ^ 2) ^ (i + j) / aeval (y ^ 2) (Dpoly (K n)) *
+        w7 y := by
+  rw [Gentry, aeval_muFunctional_zeta_eq_integral _ _ (poleCoeffs_apply_zero n i j)]
+  refine setIntegral_congr_fun measurableSet_Ioi fun y _ => ?_
+  rw [aeval_polyPart_add_poleCoeffs n i j (sq_nonneg y)]
+
+private lemma integrableOn_Gentry_integrand (n i j : ℕ) :
+    IntegrableOn (fun y : ℝ => aeval (y ^ 2) (Dpoly (N n)) ^ 8 * (y ^ 2) ^ (i + j) /
+      aeval (y ^ 2) (Dpoly (K n)) * w7 y) (Ioi 0) :=
+  (integrableOn_muIntegrand (polyPart n i j) (poleCoeffs n i j)
+    (poleCoeffs_apply_zero n i j)).congr_fun (fun y _ => by
+      beta_reduce
+      rw [aeval_polyPart_add_poleCoeffs n i j (sq_nonneg y)]) measurableSet_Ioi
+
+private lemma integrableOn_rhoW_moment (n i j : ℕ) :
+    IntegrableOn (fun y : ℝ => (y ^ 2) ^ i * rhoW n y * (y ^ 2) ^ j) (Ioi 0) :=
+  (integrableOn_Gentry_integrand n i j).congr_fun (fun y _ => by
+    beta_reduce
+    rw [rhoW, pow_add]
+    ring) measurableSet_Ioi
+
+/-- `Δ_K(ζ(7))` is the determinant of the moment matrix `∫ (y²)^i ρ(y) (y²)^j dy`. -/
+private lemma aeval_DeltaK_eq_det (n : ℕ) :
+    aeval (riemannZeta 7).re (DeltaK n) = (Matrix.of fun i j : Fin (hDim n) =>
+      ∫ y in Ioi (0 : ℝ), (y ^ 2) ^ (i : ℕ) * rhoW n y * (y ^ 2) ^ (j : ℕ)).det := by
+  rw [DeltaK, AlgHom.map_det, AlgHom.mapMatrix_apply]
+  congr 1
+  ext i j
+  simp only [Matrix.map_apply, Gmat, Matrix.of_apply]
+  rw [aeval_Gentry_zeta_eq]
+  refine setIntegral_congr_fun measurableSet_Ioi fun y _ => ?_
+  rw [rhoW, pow_add]
+  ring
+
+/-- The product of the two determinants in Andreief's identity for the weighted moment matrix
+`∫ g^i w g^j`: the squared Vandermonde determinant of the nodes `g(x_j)` times the weights. -/
+private lemma det_mul_det_eq {h : ℕ} (g w : ℝ → ℝ) (x : Fin h → ℝ) :
+    (Matrix.of fun i j : Fin h => g (x j) ^ (i : ℕ) * w (x j)).det *
+        (Matrix.of fun i j : Fin h => g (x j) ^ (i : ℕ)).det =
+      (∏ i : Fin h, ∏ j ∈ Finset.Ioi i, (g (x i) - g (x j)) ^ 2) * ∏ i : Fin h, w (x i) := by
+  have hV : (Matrix.of fun i j : Fin h => g (x j) ^ (i : ℕ)).det =
+      ∏ i : Fin h, ∏ j ∈ Finset.Ioi i, (g (x j) - g (x i)) := by
+    have hT : (Matrix.of fun i j : Fin h => g (x j) ^ (i : ℕ)) =
+        (Matrix.vandermonde fun j => g (x j)).transpose := by
+      ext i j
+      simp only [Matrix.of_apply, Matrix.transpose_apply, Matrix.vandermonde_apply]
+    rw [hT, Matrix.det_transpose, Matrix.det_vandermonde]
+  have hW : (Matrix.of fun i j : Fin h => g (x j) ^ (i : ℕ) * w (x j)).det =
+      (∏ j : Fin h, w (x j)) * (Matrix.of fun i j : Fin h => g (x j) ^ (i : ℕ)).det := by
+    rw [← Matrix.det_mul_row]
+    congr 1
+    ext i j
+    simp only [Matrix.of_apply]
+    ring
+  have hsq : ∏ i : Fin h, ∏ j ∈ Finset.Ioi i, (g (x i) - g (x j)) ^ 2 =
+      (∏ i : Fin h, ∏ j ∈ Finset.Ioi i, (g (x j) - g (x i))) ^ 2 := by
+    rw [← Finset.prod_pow]
+    refine Finset.prod_congr rfl fun i _ => ?_
+    rw [← Finset.prod_pow]
+    refine Finset.prod_congr rfl fun j _ => ?_
+    ring
+  rw [hW, hV, hsq]
+  ring
+
+/-- The integrand of Andreief's identity is integrable on the product space when every
+mixed moment is integrable (expansion of both determinants). -/
+private lemma integrable_det_mul_det {h : ℕ} (μ : Measure ℝ) [SigmaFinite μ]
+    (φ ψ : Fin h → ℝ → ℝ) (hint : ∀ i j, Integrable (fun x => φ i x * ψ j x) μ) :
+    Integrable (fun x : Fin h → ℝ => (Matrix.of fun i j => φ i (x j)).det *
+      (Matrix.of fun i j => ψ i (x j)).det) (Measure.pi fun _ => μ) := by
+  have hpoint : ∀ x : Fin h → ℝ, (Matrix.of fun i j => φ i (x j)).det *
+      (Matrix.of fun i j => ψ i (x j)).det =
+      ∑ τ : Equiv.Perm (Fin h), ∑ ρ : Equiv.Perm (Fin h),
+        ((τ.sign : ℤ) : ℝ) * ((ρ.sign : ℤ) : ℝ) * ∏ i, (φ (τ i) (x i) * ψ (ρ i) (x i)) := by
+    intro x
+    rw [Matrix.det_apply', Matrix.det_apply', Finset.sum_mul]
+    refine Finset.sum_congr rfl fun τ _ => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_congr rfl fun ρ _ => ?_
+    simp only [Matrix.of_apply, Finset.prod_mul_distrib]
+    ring
+  have hterm : ∀ τ ρ : Equiv.Perm (Fin h), Integrable (fun x : Fin h → ℝ =>
+      ((τ.sign : ℤ) : ℝ) * ((ρ.sign : ℤ) : ℝ) * ∏ i, (φ (τ i) (x i) * ψ (ρ i) (x i)))
+      (Measure.pi fun _ => μ) := fun τ ρ =>
+    (MeasureTheory.Integrable.fintype_prod (f := fun i x => φ (τ i) x * ψ (ρ i) x)
+      (fun i => hint (τ i) (ρ i))).const_mul _
+  refine (integrable_finsetSum Finset.univ fun τ _ =>
+    integrable_finsetSum Finset.univ fun ρ _ => hterm τ ρ).congr ?_
+  filter_upwards with x
+  exact (hpoint x).symm
+
+/-- Equation (101): Andreief's identity applied to the moment matrix (7),
+`Δ_K(ζ(7)) = (1/h!) ∫_{(0,∞)^h} ∏_{i<j} (y_i² - y_j²)² ∏_i D_N(y_i²)⁸/D_K(y_i²) w₇(y_i) dy`. -/
+theorem aeval_DeltaK_zeta_eq_andreief (n : ℕ) :
+    aeval (riemannZeta 7).re (DeltaK n) = ((hDim n).factorial : ℝ)⁻¹ *
+      ∫ y : Fin (hDim n) → ℝ, (∏ i, ∏ j ∈ Finset.Ioi i, (y i ^ 2 - y j ^ 2) ^ 2) *
+        ∏ i, (aeval (y i ^ 2) (Dpoly (N n)) ^ 8 / aeval (y i ^ 2) (Dpoly (K n)) * w7 (y i))
+        ∂(Measure.pi fun _ => volume.restrict (Ioi (0 : ℝ))) := by
+  rw [aeval_DeltaK_eq_det]
+  refine (Andreief.andreief_integral (volume.restrict (Ioi (0 : ℝ)))
+    (fun i y => (y ^ 2) ^ (i : ℕ) * rhoW n y) (fun j y => (y ^ 2) ^ (j : ℕ))
+    (fun i j => integrableOn_rhoW_moment n i j)).trans ?_
+  congr 1
+  refine integral_congr_ae ?_
+  filter_upwards with y
+  exact det_mul_det_eq (fun x => x ^ 2) (rhoW n) y
+
+/-- The integrand of (101) is integrable on `(0, ∞)^h`, so (101) is an identity between finite
+values (absolute convergence). -/
+theorem integrable_andreief_integrand (n : ℕ) :
+    Integrable (fun y : Fin (hDim n) → ℝ => (∏ i, ∏ j ∈ Finset.Ioi i, (y i ^ 2 - y j ^ 2) ^ 2) *
+        ∏ i, (aeval (y i ^ 2) (Dpoly (N n)) ^ 8 / aeval (y i ^ 2) (Dpoly (K n)) * w7 (y i)))
+      (Measure.pi fun _ => volume.restrict (Ioi (0 : ℝ))) := by
+  refine (integrable_det_mul_det (volume.restrict (Ioi (0 : ℝ)))
+    (fun i y => (y ^ 2) ^ (i : ℕ) * rhoW n y) (fun j y => (y ^ 2) ^ (j : ℕ))
+    (fun i j => integrableOn_rhoW_moment n i j)).congr ?_
+  filter_upwards with y
+  exact det_mul_det_eq (fun x => x ^ 2) (rhoW n) y
 
 end ZetaSeven
