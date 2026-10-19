@@ -9,8 +9,9 @@ statement data of the outer range, shared by the outer-range nodes.
 * `OuterRange`: the outer-range hypothesis (52).
 * `rankCorr`: the rank correction `r_p` (54), with `rankCorr_cast`.
 * `classDelta`: the class indicator `δ_a = 1_{a ≤ N}` of Section 4.2.3.
-* `outerWeight`: the outer weights (56), half-integers in `ℚ`; `outerWeightDbl` is twice
-  (56) in `ℤ`, the convention of `ZetaSeven.rank_lemma` (`outerWeightDbl_eq_two_mul`).
+* `outerWeight`: the outer weights (56) of a class, half-integers in `ℚ`; `outerWeightDbl`
+  is twice (56) in `ℤ`, the convention of `ZetaSeven.rank_lemma`
+  (`outerWeightDbl_eq_two_mul`).
 * `classV`, `classU`, `classT`: `v`, `u` and `t_p` of (58).
 * `gammaOut`: the outer exponent `γ^out_p`, which is (59) for `K/3 < p ≤ K`
   (`gammaOut_of_lt_two_mul`, `gammaOut_of_two_mul_le`) and `0` for `p > K`
@@ -51,24 +52,26 @@ theorem rankCorr_cast (n p : ℕ) :
 `δ = 1_{a ≤ N}`). The source uses it for the classes `1 ≤ a ≤ m`; the definition is total. -/
 def classDelta (n a : ℕ) : ℕ := if a ≤ N n then 1 else 0
 
-/-- (56): the outer weight `w^out_{a,i}` of a class with `ℓ` poles and indicator `δ`,
-`min(0, i + 4δ - (ℓ + 6)/2)` if `i < ℓ - 2` and `0` if `i ≥ ℓ - 2`. The class `1 ≤ a ≤ m`
-has `ℓ = ell p (K n) a` and `δ = classDelta n a`, and the source uses the indices
-`0 ≤ i < ℓ - δ`; the definition is total. The weights are half-integers, so the value is in
-`ℚ`. The natural subtraction `ℓ - 2` agrees with the source: for `ℓ < 2` both make the
-first case empty. -/
-def outerWeight (ell delta i : ℕ) : ℚ :=
-  if i < ell - 2 then min 0 ((i : ℚ) + 4 * delta - ((ell : ℚ) + 6) / 2) else 0
+/-- (56): the outer weight `w^out_{a,i}` of the class `a`, with `ℓ = ℓ_K(a) = ell p (K n) a`
+and `δ = δ_a = classDelta n a`: `min(0, i + 4δ - (ℓ + 6)/2)` if `i < ℓ - 2` and `0` if
+`i ≥ ℓ - 2`. The weights are half-integers, so the value is in `ℚ`. The source uses the
+classes `1 ≤ a ≤ m` and the indices `0 ≤ i < ℓ - δ`; the definition is total. The natural
+subtraction `ℓ - 2` agrees with the source: for `ℓ < 2` both make the first case empty. -/
+def outerWeight (n p a i : ℕ) : ℚ :=
+  if i < ell p (K n) a - 2 then
+    min 0 ((i : ℚ) + 4 * classDelta n a - ((ell p (K n) a : ℚ) + 6) / 2)
+  else 0
 
-/-- Twice the outer weight (56), as an integer: `min(0, 2i + 8δ - ℓ - 6)` if `i < ℓ - 2`
-and `0` if `i ≥ ℓ - 2` (`outerWeightDbl_eq_two_mul`). `ZetaSeven.rank_lemma` takes doubled
-weights. -/
-def outerWeightDbl (ell delta i : ℕ) : ℤ :=
-  if i < ell - 2 then min 0 (2 * (i : ℤ) + 8 * delta - ell - 6) else 0
+/-- Twice the outer weight (56) of a class with `l` poles and indicator `d`, as an integer:
+`min(0, 2i + 8d - l - 6)` if `i < l - 2` and `0` if `i ≥ l - 2`. With `l = ell p (K n) a`
+and `d = classDelta n a` it is `2 w^out_{a,i}` (`outerWeightDbl_eq_two_mul`);
+`ZetaSeven.rank_lemma` takes doubled weights. -/
+def outerWeightDbl (l d i : ℕ) : ℤ :=
+  if i < l - 2 then min 0 (2 * (i : ℤ) + 8 * d - l - 6) else 0
 
-/-- The doubled weight is twice the weight (56). -/
-theorem outerWeightDbl_eq_two_mul (ell delta i : ℕ) :
-    (outerWeightDbl ell delta i : ℚ) = 2 * outerWeight ell delta i := by
+/-- The doubled weight of the class `a` is twice its weight (56). -/
+theorem outerWeightDbl_eq_two_mul (n p a i : ℕ) :
+    (outerWeightDbl (ell p (K n) a) (classDelta n a) i : ℚ) = 2 * outerWeight n p a i := by
   unfold outerWeightDbl outerWeight
   split_ifs
   · rw [Int.cast_min, mul_min_of_nonneg _ _ (by norm_num : (0 : ℚ) ≤ 2)]
