@@ -18,6 +18,19 @@ outer-range estimate that isolates the residue terms from a polynomial
 correction via a rank lemma. Together they feed the normalization
 factor of the next chapter.
 
+The paper's outer-range proof defers its basis, the zero-class
+weights, and the weight count to the zeta(5) predecessor; its claim
+(53) that the corrected matrix is integral is false as written, and
+so is its claim that each residue is `p`-integral when `p > K`. The
+outer range is therefore assembled from the paper's rank
+decomposition of the modified functional and reconstructed steps: the
+paired-pole congruence,
+large-prime integrality, a weight family with reconstructed zero-class
+weights, class rows adapted to the residue classes and indexed like
+the weights, the unimodularity of those rows, weighted entry
+valuations in that basis, a Gauss-valuation form of the rank lemma,
+and the weight count that yields the exponent (59).
+
 ## Local functional
 
 - [Tau pullback identity](tau-pullback.md) — the auxiliary functional and pullback.
@@ -28,8 +41,24 @@ factor of the next chapter.
 ## Estimates
 
 - [Small-prime estimate](small-prime-estimate.md) — the crude global bound and integer-valued basis.
+- [Local range data](local-range-data.md) — the half-range and the class counts shared by both ranges.
 - [Inner range estimate](inner-estimate.md) — determinant valuations in the inner range.
+
+## Outer range
+
+- [Outer range data](outer-range-data.md) — the class indicators, the outer-range hypothesis, the rank correction, the class weights (56), and the exponent (59).
+- [Outer moment integrality](outer-moment-integrality.md) — the polynomial moments are integral below `3p - 4`.
+- [Outer modified functional](outer-modified-functional.md) — the corrected moments `c_e`, `μ_0`, and the matrices `A`, `L` of (53).
+- [Outer rank decomposition](outer-rank-decomposition.md) — the low-rank correction.
+- [Paired-pole congruence](paired-pole-congruence.md) — the residues at a pole pair `a`, `p - a` have `p`-integral sum.
+- [Large-prime integrality](large-prime-integrality.md) — the matrix entries are integral above `K`.
+- [Outer weight family](outer-weight-family.md) — the outer weights (56) with the zero-class weights, one per row.
+- [Outer class rows](outer-class-rows.md) — the rows adapted to residue classes, one per index of the weight family.
+- [Outer class basis](outer-class-basis.md) — the class rows form a unimodular basis.
+- [Outer entry valuations](outer-entry-valuations.md) — weighted valuations of the class Gram matrix.
 - [Rank lemma](rank-lemma.md) — determinant bound under a low-rank correction.
+- [Gauss-valuation rank lemma](gauss-rank-lemma.md) — the same bound for polynomial entries.
+- [Outer weight sum](outer-weight-sum.md) — the weight count giving the exponent.
 - [Outer range estimate](outer-estimate.md) — determinant valuations in the outer range.
 
 ## Background
@@ -42,4 +71,5 @@ factor of the next chapter.
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
   Sections 3.1-3.5 and 4.1-4.2, Lemmas 3.1-3.8 and
-  Propositions 4.4-4.6.
+  Propositions 4.4-4.6. The bridged outer-range nodes reconstruct
+  the steps the paper defers to its zeta(5) predecessor [5].

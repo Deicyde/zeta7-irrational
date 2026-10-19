@@ -4,7 +4,7 @@ declaration: theorem
 origin: cited
 statement: formalized
 proof: formalized
-lean: ZetaSeven.inner_estimate ZetaSeven.eBasis_unimodular ZetaSeven.bA_lt_allocT ZetaSeven.alloc_eq ZetaSeven.card_eIdx ZetaSeven.eBasis_natDegree_lt ZetaSeven.exists_extraRows ZetaSeven.ell_le_ell_add_one ZetaSeven.tauExt_subst_norm_le ZetaSeven.normSqLe_gram ZetaSeven.comparison ZetaSeven.InnerRange ZetaSeven.mHalf ZetaSeven.mN ZetaSeven.mK ZetaSeven.ell ZetaSeven.L0 ZetaSeven.bA ZetaSeven.allocTotal ZetaSeven.allocT ZetaSeven.allocE ZetaSeven.ExtraRows ZetaSeven.allocZ ZetaSeven.allocL ZetaSeven.eBasis ZetaSeven.eIdx ZetaSeven.weight2 ZetaSeven.gammaIn ZetaSeven.ClassDeg ZetaSeven.pfNum ZetaSeven.NormSqLe ZetaSeven.muTail
+lean: ZetaSeven.inner_estimate ZetaSeven.eBasis_unimodular ZetaSeven.bA_lt_allocT ZetaSeven.alloc_eq ZetaSeven.card_eIdx ZetaSeven.eBasis_natDegree_lt ZetaSeven.exists_extraRows ZetaSeven.ell_le_ell_add_one ZetaSeven.tauExt_subst_norm_le ZetaSeven.normSqLe_gram ZetaSeven.comparison ZetaSeven.InnerRange ZetaSeven.L0 ZetaSeven.bA ZetaSeven.allocTotal ZetaSeven.allocT ZetaSeven.allocE ZetaSeven.ExtraRows ZetaSeven.allocZ ZetaSeven.allocL ZetaSeven.eBasis ZetaSeven.eIdx ZetaSeven.weight2 ZetaSeven.gammaIn ZetaSeven.ClassDeg ZetaSeven.pfNum ZetaSeven.NormSqLe ZetaSeven.muTail
 ---
 
 # Inner range estimate
@@ -22,9 +22,11 @@ overlap.
 ## Depends on
 
 - [Matrix and determinant](../determinant-construction/matrix-determinant.md)
+- [Local range data](local-range-data.md)
 - [Distribution formula](distribution-formula.md)
 
 ## Sources
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
-  Section 4.1, Proposition 4.4, equations (42)-(51).
+  Section 4.1, Proposition 4.4, equations (44)-(51), with the
+  definitions (42)-(43) shared through the local range data.

@@ -32,3 +32,7 @@ margin.
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
   comparison-measure appendix A.3, equations (113)-(116).
+- [Zeta 7 preprint source map, errata](../../sources/zeta7-preprint.md#errata-found-during-formalization):
+  Section 6.4, equation (99). The asymptotic bound past 2 that this
+  node proves is the corrected tail bound, with coefficient `29/20`
+  in place of the printed `13/10`, recorded in erratum 2.
