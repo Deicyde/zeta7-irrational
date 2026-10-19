@@ -33,7 +33,7 @@ open until the author's v2 appears.
 ## Exact certificates
 
 - [Exact inner integral](exact-inner-integral.md) — the 192-piece rational value.
-- [Exact outer integral](exact-outer-integral.md) — the nine-piece rational value.
+- [Exact outer integral](exact-outer-integral.md) — the 11-piece rational value, recomputed (erratum 9).
 - [Final rational margins](final-margins.md) — the cutoff constants and the -19000 margin.
 
 ## Main estimate

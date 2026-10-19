@@ -59,7 +59,7 @@ the `M = 200` constant.
 | Potential inequality | Appendix A.3, equations (113)-(116) (p. 32) |
 | Assembly of Theorems 1.1-1.2 | Appendix B.1-B.2, equations (117)-(119) (pp. 33-34) |
 | Exact inner integral, 192 affine pieces | Equations (120)-(121); Tables 2-4 (pp. 34-38) |
-| Exact outer integral | Equation (122); Table 5 (pp. 35, 39) |
+| Exact outer integral | Equation (122); Table 5 (pp. 35, 39); recomputed in erratum 9 |
 | Final rational margins A200, A100000 | Appendix A.3 (p. 35) |
 | Relative matrix norm | Proposition B.1, equations (123)-(127) (pp. 39-40) |
 | Coefficient height, primitive normalization | Appendix B.3, equation (129) (p. 41) |
@@ -203,3 +203,20 @@ dispute in open question 5 is separate.
    `I_out = 453803/288000` under the adopted reading and
    `445163/288000` under (71) read literally; neither is (122)'s
    value (see open question 5).
+9. Appendix A.2, (122) and Table 5: the outer integral
+   `I_out = -11002997/720000 ≈ -15.2819` and the nine affine pieces
+   of Table 5 do not follow from the paper's definitions.
+   Recomputed exactly from (54), (58), (59), (72), and (73), with
+   `γ^out_p = 0` for `p > K` (Section 5.1) and `R_0` read as in
+   erratum 8, the integrand is affine on 11 pieces and
+   `I_out = 453803/288000 ≈ 1.5757`, which matches the external
+   audit of open question 5. Of Table 5's pieces only `1 - 2y` on
+   `[77/80, 1]` agrees; on `[1, 37/20]`, for example,
+   `γ^out_p = 0` and the integrand is the scalar term `37/20 - y`,
+   where Table 5 prints `-239/20 - 2y`. No reading tried reproduces
+   (122): changing the sign of, or dropping, the `γ^out_p` limit,
+   `d`, or the scalar term gives about `-2.47` at closest, extending
+   (59) to `p > K` gives `-635917/288000`, and (71) read literally
+   gives `445163/288000`. The
+   [exact outer integral](../roadmap/normalization-prime-sum/exact-outer-integral.md)
+   node states the recomputed value and its 11 pieces.
