@@ -2,6 +2,8 @@
 article_id: af_d2c5f969d1b551fbd6d91119
 declaration: def
 origin: bridged
+statement: formalized
+lean: ZetaSeven.outerIdx ZetaSeven.outerFamWeight ZetaSeven.outerLen ZetaSeven.outerZeroWeight ZetaSeven.outerFamWeightDbl ZetaSeven.outerZeroWeightDbl ZetaSeven.outerFamWeightDbl_eq_two_mul ZetaSeven.outerZeroWeightDbl_eq_two_mul ZetaSeven.outerFamWeight_zero ZetaSeven.outerFamWeight_of_ne_zero ZetaSeven.outerLen_zero ZetaSeven.outerLen_of_ne_zero ZetaSeven.outerZeroWeight_zero_of_lt ZetaSeven.outerZeroWeight_zero_of_le ZetaSeven.outerZeroWeight_of_ne_zero ZetaSeven.outerFamWeight_nonpos ZetaSeven.outerFamWeight_half_int ZetaSeven.outerFamWeightDbl_nonpos ZetaSeven.OuterRange.mK_eq_one ZetaSeven.OuterRange.mK_eq_two
 ---
 
 # Outer weight family
@@ -18,6 +20,8 @@ with `1 ≤ c ≤ m` and `0 ≤ i < ℓ_K(c) - δ_c`, and by the zero-class
 pairs `(0, i)` with `0 ≤ i < ⌊K/p⌋`. It gives the class pair
 `(c, i)` the outer weight `w^out_{c,i}` and the zero-class pair
 `(0, i)` the zero-class weight `w^out_{0,i}`.
+The formalization defines the family for every natural number `p`;
+for a prime `p` it is the family above.
 
 Remarks, which the consuming theorems discharge where they use
 them: under the outer-range hypothesis (52), `K/3 < p ≤ K`, so
