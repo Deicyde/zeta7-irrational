@@ -88,19 +88,19 @@ def outerIntegral : ℝ := ∫ y in (1 / 3 : ℝ)..2 * (lam : ℝ), outerIntegra
 /-- On `1/3 < y ≤ 1/2`, `g(y)` is given by the formula of the case `K ≥ 2p`. -/
 theorem outerG_of_le_half {y : ℝ} (h1 : 1 / 3 < y) (h2 : y ≤ 1 / 2) :
     outerG y = outerGLow ⌊1 / y⌋ y := by
-  rw [outerG, if_pos (And.intro h1 h2)]
+  rw [outerG, ite_eq_left (And.intro h1 h2)]
 
 /-- On `1/2 < y ≤ 1`, `g(y)` is given by the formula of the case `K < 2p`. -/
 theorem outerG_of_half_lt {y : ℝ} (h1 : 1 / 2 < y) (h2 : y ≤ 1) :
     outerG y = outerGHigh ⌊1 / y⌋ y := by
   have hlow : ¬(1 / 3 < y ∧ y ≤ 1 / 2) := fun h => by linarith [h.2]
-  rw [outerG, if_neg hlow, if_pos (And.intro h1 h2)]
+  rw [outerG, ite_eq_right hlow, ite_eq_left (And.intro h1 h2)]
 
 /-- For `y > 1`, `g(y) = 0`. -/
 theorem outerG_of_one_lt {y : ℝ} (h : 1 < y) : outerG y = 0 := by
   have hlow : ¬(1 / 3 < y ∧ y ≤ 1 / 2) := fun h' => by linarith [h'.2]
   have hhigh : ¬(1 / 2 < y ∧ y ≤ 1) := fun h' => by linarith [h'.2]
-  rw [outerG, if_neg hlow, if_neg hhigh]
+  rw [outerG, ite_eq_right hlow, ite_eq_right hhigh]
 
 /-! ### The integrand of (73) -/
 

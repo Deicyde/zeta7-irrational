@@ -2,6 +2,8 @@
 article_id: af_7332d2b33bf74a81accda2b8
 declaration: def
 origin: cited
+statement: formalized
+lean: ZetaSeven.outerG ZetaSeven.outerD ZetaSeven.outerR0 ZetaSeven.outerIntegral ZetaSeven.outerIntegrand ZetaSeven.outerScalar ZetaSeven.outerIntegrand_eq ZetaSeven.outerIntegral_eq ZetaSeven.intervalIntegrable_outerIntegrand ZetaSeven.outerGLow ZetaSeven.outerGHigh ZetaSeven.outerV ZetaSeven.outerU ZetaSeven.outerT ZetaSeven.outerR ZetaSeven.outerG_of_le_half ZetaSeven.outerG_of_half_lt ZetaSeven.outerG_of_one_lt ZetaSeven.intervalIntegrable_outerG ZetaSeven.intervalIntegrable_outerScalar ZetaSeven.continuous_outerGLow ZetaSeven.continuous_outerGHigh
 ---
 
 # Outer limiting functions
@@ -29,7 +31,9 @@ and the outer integral (73)
 `I_out = ∫_{1/3}^{2λ} (R_0(y) - d(y) - 2λ⌊1/y⌋ + ∑_{j=1}^{7} (2λ - jy)_+) dy`.
 Its integrand is `g(y)` plus the scalar term
 `-2λ⌊1/y⌋ + ∑_{j=1}^{7} (2λ - jy)_+`, which is the continuum limit
-of `-v_p(S_K)/K`.
+of `-v_p(S_K)/K`. In Lean these functions are total in `y`, with
+`g = 0` outside `(1/3, 1]` and the other formulas used for every real
+`y`; only `(1/3, 2λ)` enters `I_out`.
 
 ## Depends on
 
