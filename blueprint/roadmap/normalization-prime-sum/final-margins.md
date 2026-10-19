@@ -11,7 +11,7 @@ The exact rational values of `A_0`, `B_0`, `A_200`, and
 with the strict margin inequalities. In particular this node
 proves `A_200 + U < -95/8`, i.e. `1600(A_200 + U) < -19000`,
 which is the approved `-19000` target and goes beyond the
-paper's proved `(118)` (`A_200 + U < -11`).
+paper's `(118)` (`A_200 + U < -11`).
 
 The planned proof is exact rational arithmetic from the
 certified tables, by cross-multiplication of explicit integers.

@@ -9,7 +9,10 @@ the prime-sum bound with the real bound gives the polynomial decay
 estimates of Theorem 1.2; the standard denominator-clearing argument
 then shows zeta(7) cannot be rational, which is Theorem 1.1. The
 assembly is short because all the work lives in the determinant,
-arithmetic, normalization, and analytic chapters above.
+arithmetic, normalization, and analytic chapters above. With the
+recomputed outer integral the decay step has no proof route
+([source map, open question 5](../../sources/zeta7-preprint.md#open-source-questions)),
+and the statements here are unchanged pending the user's decision.
 
 The Diophantine approximation bound (Corollary 1.3) and the
 coefficient-height estimate are not part of this chapter: they need
