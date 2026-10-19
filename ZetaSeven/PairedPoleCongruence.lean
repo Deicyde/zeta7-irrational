@@ -79,6 +79,7 @@ theorem inv_mem_pInt_of_padicValRat_eq_zero {x : ℚ} (h : padicValRat p x = 0) 
   rw [mem_pInt_iff_padicValRat, padicValRat.inv]
   omega
 
+omit hp in
 /-- An integer prime to `p` is a nonzero rational of valuation `0`. -/
 theorem intCast_ne_zero_and_padicValRat_eq_zero {z : ℤ} (h : ¬ (p : ℤ) ∣ z) :
     (z : ℚ) ≠ 0 ∧ padicValRat p (z : ℚ) = 0 := by
@@ -423,7 +424,9 @@ theorem derivative_prod_eval (S : Finset ℕ) {b : ℕ} (hb : b ∈ S) :
       = ∏ c ∈ S.erase b, ((c : ℚ) ^ 2 - (b : ℚ) ^ 2) := by
   have hT : (∏ c ∈ S, (X + C ((c : ℚ) ^ 2)))
       = Lagrange.nodal S (fun c : ℕ => -((c : ℚ) ^ 2)) := by
-    simp only [Lagrange.nodal, map_neg, sub_neg_eq_add]
+    rw [Lagrange.nodal_eq]
+    refine Finset.prod_congr rfl fun c _ => ?_
+    rw [C_neg, sub_neg_eq_add]
   have h : (derivative (Lagrange.nodal S (fun c : ℕ => -((c : ℚ) ^ 2)))).eval (-((b : ℚ) ^ 2))
       = (Lagrange.nodal (S.erase b) (fun c : ℕ => -((c : ℚ) ^ 2))).eval (-((b : ℚ) ^ 2)) :=
     Lagrange.eval_nodal_derivative_eval_node_eq hb
@@ -519,6 +522,7 @@ theorem paired_residues (hp7 : 7 ≤ p) {a : ℕ} (ha1 : 1 ≤ a) (ha : a ≤ (p
   have hM : ((p - 2 * a : ℕ) : ℚ) = p - 2 * a := by
     rw [Nat.cast_sub hap.le]
     push_cast
+    ring
   have hsq : ((p - a : ℕ) : ℚ) ^ 2 - (a : ℚ) ^ 2 = p * ((p - 2 * a : ℕ) : ℚ) := by
     rw [hA', hM]
     ring
