@@ -2,6 +2,9 @@
 article_id: af_5501e328f0f561b7f427a60e
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.outerIntegral_value ZetaSeven.outerIntegrand_piece_1 ZetaSeven.outerIntegrand_piece_2 ZetaSeven.outerIntegrand_piece_3 ZetaSeven.outerIntegrand_piece_4 ZetaSeven.outerIntegrand_piece_5 ZetaSeven.outerIntegrand_piece_6 ZetaSeven.outerIntegrand_piece_7 ZetaSeven.outerIntegrand_piece_8 ZetaSeven.outerIntegrand_piece_9 ZetaSeven.outerIntegrand_piece_10 ZetaSeven.outerIntegrand_piece_11 ZetaSeven.outerIntegrand_jump_half ZetaSeven.outerIntegrand_jump_one
 ---
 
 # Exact outer integral
