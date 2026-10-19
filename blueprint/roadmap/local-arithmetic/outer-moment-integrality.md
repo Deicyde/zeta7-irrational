@@ -2,6 +2,9 @@
 article_id: af_ce5a6926482dde7b0796b669
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.outer_moment_integrality ZetaSeven.muMonomial_padicValRat_ge ZetaSeven.muMonomial_padicValRat_nonneg ZetaSeven.muFunctional_X_pow ZetaSeven.muMonomial_eq_kappa ZetaSeven.dvd_descFactorial_of_sub_one_dvd ZetaSeven.norm_muMonomial_le ZetaSeven.norm_muMonomial_le_one
 ---
 
 # Outer moment integrality
