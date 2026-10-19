@@ -2,6 +2,9 @@
 article_id: af_426ee1f8522ffe7c192def45
 declaration: lemma
 origin: bridged
+statement: formalized
+proof: formalized
+lean: ZetaSeven.muPole_paired_congruence ZetaSeven.paired_residues ZetaSeven.poleResidue ZetaSeven.H7_reflect_congruence
 ---
 
 # Paired-pole congruence
@@ -21,6 +24,10 @@ for the pole values of the functional `μ_X`.
    with equality when `Q(-a^2)` is a `p`-unit, while `ρ_a + ρ_{a'}`
    is `p`-integral. Consequently `ρ_a π_a + ρ_{a'} π_{a'}` has
    `p`-integral coefficients.
+
+The Lean statement takes `S` to be a finite set of natural numbers, so
+it also allows `0 ∈ S`, and for a set of positive integers it is the
+second part as stated.
 
 The proof of the first part, whose key input is the congruence
 `H^(7)_{a'} ≡ H^(7)_{a-1} (mod p)`: since `1 ≤ a, a' < p` and
