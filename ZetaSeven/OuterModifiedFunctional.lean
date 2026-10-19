@@ -39,11 +39,11 @@ def outerCe (p e : ℕ) : ℕ :=
 
 /-- `c_e = 0` for `e < 3p - 4`. -/
 theorem outerCe_of_lt {p e : ℕ} (he : e < 3 * p - 4) : outerCe p e = 0 :=
-  if_pos he
+  ite_eq_left he
 
 /-- `c_e ∈ {0, …, p - 1}`. -/
 theorem outerCe_lt {p : ℕ} (hp : p.Prime) (e : ℕ) : outerCe p e < p := by
-  haveI : NeZero p := ⟨hp.ne_zero⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
   unfold outerCe
   split_ifs
   · exact hp.pos
@@ -54,7 +54,7 @@ theorem outerCe_lt {p : ℕ} (hp : p.Prime) (e : ℕ) : outerCe p e < p := by
 theorem outerCe_of_dvd {p e : ℕ} (he : 3 * p - 4 ≤ e)
     (hv : p ∣ ((p : ℚ) * muMonomial e).den) : outerCe p e = 0 := by
   unfold outerCe
-  rw [if_neg (not_lt.mpr he), (ZMod.natCast_eq_zero_iff _ _).mpr hv, ZMod.inv_zero,
+  rw [ite_eq_right (not_lt.mpr he), (ZMod.natCast_eq_zero_iff _ _).mpr hv, ZMod.inv_zero,
     mul_zero, ZMod.val_zero]
 
 /-- For `e ≥ 3p - 4` and `p ∤ v`, where `p μ(t^e) = u/v` in lowest terms,
@@ -63,12 +63,12 @@ theorem outerCe_spec {p e : ℕ} (hp : p.Prime) (he : 3 * p - 4 ≤ e)
     (hv : ¬ p ∣ ((p : ℚ) * muMonomial e).den) :
     (outerCe p e : ZMod p) * (((p : ℚ) * muMonomial e).den : ZMod p) =
       (((p : ℚ) * muMonomial e).num : ZMod p) := by
-  haveI : Fact p.Prime := ⟨hp⟩
-  haveI : NeZero p := ⟨hp.ne_zero⟩
+  have : Fact p.Prime := ⟨hp⟩
+  have : NeZero p := ⟨hp.ne_zero⟩
   have hv0 : ((((p : ℚ) * muMonomial e).den : ℕ) : ZMod p) ≠ 0 := fun h =>
     hv ((ZMod.natCast_eq_zero_iff _ _).mp h)
   unfold outerCe
-  rw [if_neg (not_lt.mpr he), ZMod.natCast_zmod_val, mul_assoc, inv_mul_cancel₀ hv0, mul_one]
+  rw [ite_eq_right (not_lt.mpr he), ZMod.natCast_zmod_val, mul_assoc, inv_mul_cancel₀ hv0, mul_one]
 
 /-- For `e ≥ 3p - 4` and `p ∤ v`, `c_e` is the unique `c ∈ {0, …, p - 1}` with
 `c v ≡ u (mod p)`, where `p μ(t^e) = u/v` in lowest terms. -/
@@ -81,7 +81,7 @@ theorem outerCe_eq_iff {p e c : ℕ} (hp : p.Prime) (he : 3 * p - 4 ≤ e)
   · rintro rfl
     exact outerCe_spec hp he hv
   · intro h
-    haveI : Fact p.Prime := ⟨hp⟩
+    have : Fact p.Prime := ⟨hp⟩
     have hv0 : ((((p : ℚ) * muMonomial e).den : ℕ) : ZMod p) ≠ 0 := fun h0 =>
       hv ((ZMod.natCast_eq_zero_iff _ _).mp h0)
     have hcast : (outerCe p e : ZMod p) = (c : ZMod p) :=
@@ -231,10 +231,8 @@ private theorem outer_DN8_partialFraction (n i j : ℕ) :
           ∏ b ∈ (Finset.Icc (N n + 1) (K n)).erase a, (X + C ((b : ℚ) ^ 2))) := by
   rw [outer_DN8_eq, outer_Rnum_partialFraction n i j, outer_Dpoly_K_eq, mul_add,
     Finset.mul_sum]
-  congr 1
-  · ring
-  · refine Finset.sum_congr rfl fun a _ => ?_
-    ring
+  exact congrArg₂ (· + ·) (mul_assoc _ _ _).symm
+    (Finset.sum_congr rfl fun a _ => mul_left_comm _ _ _)
 
 /-- The partial-fraction decomposition of the article:
 `D_N⁸ t^{i+j}/D_K = P_{ij}(t) + ∑_{N<a≤K} ρ_{ij,a}/(t + a²)` in `RatFunc ℚ`, with
@@ -252,8 +250,7 @@ theorem entry_partialFraction (n i j : ℕ) :
   rw [map_add, map_mul (algebraMap ℚ[X] (RatFunc ℚ)) (Dpoly (K n)), map_sum] at h
   rw [div_eq_iff hK, h, add_mul, Finset.sum_mul,
     mul_comm (algebraMap ℚ[X] (RatFunc ℚ) (Dpoly (K n)))]
-  congr 1
-  refine Finset.sum_congr rfl fun a ha => ?_
+  refine congrArg₂ (· + ·) rfl (Finset.sum_congr rfl fun a ha => ?_)
   have hX : algebraMap ℚ[X] (RatFunc ℚ) (X + C ((a : ℚ) ^ 2)) ≠ 0 :=
     RatFunc.algebraMap_ne_zero (X_add_C_ne_zero _)
   rw [outer_Dpoly_K_eq_mul_erase n ha]
