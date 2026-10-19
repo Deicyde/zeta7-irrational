@@ -22,8 +22,9 @@ define the `h × h` matrices `A_{ij} = μ_0(D_N^8 t^{i+j}/D_K)` and
 
 Remark, which the consuming theorems discharge where they use it:
 for `p ≥ 7` the outer moment integrality gives `v_p(μ(t^e)) ≥ -1`
-for every `e`, so `p ∣ b` never happens, `p μ(t^e) ≡ c_e (mod p)`,
-and every `μ_0(t^e)` is `p`-integral. That is what the choice of
+for every `e`, and `v_p(μ(t^e)) ≥ 0` for `e < 3p - 4`, so `p ∣ b`
+never happens, `p μ(t^e) ≡ c_e (mod p)`, and every `μ_0(t^e)` is
+`p`-integral. That is what the choice of
 `c_e` in (53) is for.
 
 ## Depends on
