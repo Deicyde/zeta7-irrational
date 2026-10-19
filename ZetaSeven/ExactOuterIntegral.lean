@@ -69,11 +69,6 @@ private theorem floor_one_div_eq_zero {y : ℝ} (h : 1 < y) : ⌊1 / y⌋ = 0 :=
 /-- The sum over `j ∈ [1, 7]` written out. -/
 private theorem sum_Icc_one_seven (f : ℕ → ℝ) :
     ∑ j ∈ Finset.Icc (1 : ℕ) 7, f j = f 1 + f 2 + f 3 + f 4 + f 5 + f 6 + f 7 := by
-  simp only [← Finset.Ico_add_one_right_eq_Icc, Finset.sum_Ico_eq_sum_range,
-    Finset.sum_range_succ, Finset.sum_range_zero, zero_add]
-
-private theorem sum_Icc_one_seven' (f : ℕ → ℝ) :
-    ∑ j ∈ Finset.Icc (1 : ℕ) 7, f j = f 1 + f 2 + f 3 + f 4 + f 5 + f 6 + f 7 := by
   have h : Finset.Icc (1 : ℕ) 7 = {1, 2, 3, 4, 5, 6, 7} := by decide
   rw [h]
   simp [Finset.sum_insert, add_assoc]
@@ -133,6 +128,67 @@ private theorem tendsto_nhdsGT_of_affine {x b B C L : ℝ} (hxb : x < b) (hL : B
   filter_upwards [Ioo_mem_nhdsGT hxb] with y hy
   exact (h y hy.1 hy.2).symm
 
+/-! ### The branches of `g` and of the scalar term
+
+Each lemma resolves one `max` or `min` of `g` or of the scalar term on a range of `y`,
+for `k = ⌊1/y⌋ = 2` (on `(1/3, 1/2]`) or `k = 1` (on `(1/2, 1]`). -/
+
+private theorem outerV_two (y : ℝ) : outerV 2 y = 1 - 2 * y := by
+  norm_num [outerV]
+
+private theorem outerV_one (y : ℝ) : outerV 1 y = 1 - y := by
+  norm_num [outerV]
+
+private theorem outerU_two_pos {y : ℝ} (h : y ≤ 43 / 120) : outerU 2 y = 43 / 40 - 3 * y := by
+  rw [outerU, outerV_two, alpha_cast, max_eq_right (by linarith)]
+  ring
+
+private theorem outerU_two_zero {y : ℝ} (h : 43 / 120 ≤ y) : outerU 2 y = 0 := by
+  rw [outerU, outerV_two, alpha_cast, max_eq_left (by linarith)]
+
+private theorem outerU_one_pos {y : ℝ} (h : y ≤ 43 / 80) : outerU 1 y = 43 / 40 - 2 * y := by
+  rw [outerU, outerV_one, alpha_cast, max_eq_right (by linarith)]
+  ring
+
+private theorem outerU_one_zero {y : ℝ} (h : 43 / 80 ≤ y) : outerU 1 y = 0 := by
+  rw [outerU, outerV_one, alpha_cast, max_eq_left (by linarith)]
+
+private theorem outerT_two_of_le {y : ℝ} (h : y ≤ 37 / 80) :
+    outerT 2 y = 3 / 40 + outerU 2 y := by
+  rw [outerT, outerV_two, alpha_cast, min_eq_left (by linarith)]
+
+private theorem outerT_two_of_ge {y : ℝ} (h : 37 / 80 ≤ y) :
+    outerT 2 y = 1 - 2 * y + outerU 2 y := by
+  rw [outerT, outerV_two, alpha_cast, min_eq_right (by linarith)]
+
+private theorem outerT_one_of_le {y : ℝ} (h : y ≤ 37 / 40) :
+    outerT 1 y = 3 / 40 + outerU 1 y := by
+  rw [outerT, outerV_one, alpha_cast, min_eq_left (by linarith)]
+
+private theorem outerT_one_of_ge {y : ℝ} (h : 37 / 40 ≤ y) :
+    outerT 1 y = 1 - y + outerU 1 y := by
+  rw [outerT, outerV_one, alpha_cast, min_eq_right (by linarith)]
+
+private theorem outerR_of_le {y : ℝ} (h1 : 7 / 40 ≤ y) (h2 : y ≤ 29 / 60) :
+    outerR y = 29 / 20 - 3 * y := by
+  rw [outerR, alpha_cast, lam_cast, max_eq_right (by linarith), min_eq_right (by linarith)]
+  ring
+
+private theorem outerR_of_ge {y : ℝ} (h : 29 / 60 ≤ y) : outerR y = 0 := by
+  rw [outerR, alpha_cast, lam_cast, max_eq_left (by linarith), min_eq_right (by linarith)]
+
+/-- A term `(2λ - jy)_+` of the scalar term that is positive. -/
+private theorem scalar_pos (j : ℕ) {y : ℝ} (h : (j : ℝ) * y ≤ 37 / 20) :
+    max (2 * (lam : ℝ) - (j : ℝ) * y) 0 = 37 / 20 - (j : ℝ) * y := by
+  rw [two_mul_lam]
+  exact max_eq_left (by linarith)
+
+/-- A term `(2λ - jy)_+` of the scalar term that vanishes. -/
+private theorem scalar_neg (j : ℕ) {y : ℝ} (h : 37 / 20 ≤ (j : ℝ) * y) :
+    max (2 * (lam : ℝ) - (j : ℝ) * y) 0 = 0 := by
+  rw [two_mul_lam]
+  exact max_eq_right (by linarith)
+
 /-! ### The integrand on the eleven pieces
 
 On `(1/3, 1/2)` we have `⌊1/y⌋ = 2` and the formula `outerGLow`, on `(1/2, 1)`
@@ -143,111 +199,152 @@ Inside each piece every `max` and `min` is resolved by a linear inequality. -/
 theorem outerIntegrand_piece_1 {y : ℝ} (h0 : 1 / 3 < y) (h1 : y < 43 / 120) :
     outerIntegrand y = 51 / 8 - 5 * y := by
   rw [outerIntegrand_eq, outerG_of_le_half (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_two (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGLow, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_two (y := y) (by linarith) (by linarith), outerGLow, alpha_cast,
+    outerT_two_of_le (y := y) (by linarith), outerU_two_pos (y := y) (by linarith),
+    outerR_of_le (y := y) (by linarith) (by linarith), min_eq_right (by linarith),
+    sum_Icc_one_seven, scalar_pos 1 (y := y) (by push_cast; linarith),
+    scalar_pos 2 (y := y) (by push_cast; linarith), scalar_pos 3 (y := y) (by push_cast; linarith),
+    scalar_pos 4 (y := y) (by push_cast; linarith), scalar_pos 5 (y := y) (by push_cast; linarith),
+    scalar_neg 6 (y := y) (by push_cast; linarith), scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(43/120, 29/80)`, `T(y) = 513/40 - 23y`. -/
 theorem outerIntegrand_piece_2 {y : ℝ} (h0 : 43 / 120 < y) (h1 : y < 29 / 80) :
     outerIntegrand y = 513 / 40 - 23 * y := by
   rw [outerIntegrand_eq, outerG_of_le_half (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_two (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGLow, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_two (y := y) (by linarith) (by linarith), outerGLow, alpha_cast,
+    outerT_two_of_le (y := y) (by linarith), outerU_two_zero (y := y) (by linarith),
+    outerR_of_le (y := y) (by linarith) (by linarith), min_eq_right (by linarith),
+    sum_Icc_one_seven, scalar_pos 1 (y := y) (by push_cast; linarith),
+    scalar_pos 2 (y := y) (by push_cast; linarith), scalar_pos 3 (y := y) (by push_cast; linarith),
+    scalar_pos 4 (y := y) (by push_cast; linarith), scalar_pos 5 (y := y) (by push_cast; linarith),
+    scalar_neg 6 (y := y) (by push_cast; linarith), scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(29/80, 37/100)`, `T(y) = 571/40 - 27y`. -/
 theorem outerIntegrand_piece_3 {y : ℝ} (h0 : 29 / 80 < y) (h1 : y < 37 / 100) :
     outerIntegrand y = 571 / 40 - 27 * y := by
   rw [outerIntegrand_eq, outerG_of_le_half (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_two (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGLow, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_two (y := y) (by linarith) (by linarith), outerGLow, alpha_cast,
+    outerT_two_of_le (y := y) (by linarith), outerU_two_zero (y := y) (by linarith),
+    outerR_of_le (y := y) (by linarith) (by linarith), min_eq_left (by linarith), sum_Icc_one_seven,
+    scalar_pos 1 (y := y) (by push_cast; linarith), scalar_pos 2 (y := y) (by push_cast; linarith),
+    scalar_pos 3 (y := y) (by push_cast; linarith), scalar_pos 4 (y := y) (by push_cast; linarith),
+    scalar_pos 5 (y := y) (by push_cast; linarith), scalar_neg 6 (y := y) (by push_cast; linarith),
+    scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(37/100, 37/80)`, `T(y) = 497/40 - 22y`. -/
 theorem outerIntegrand_piece_4 {y : ℝ} (h0 : 37 / 100 < y) (h1 : y < 37 / 80) :
     outerIntegrand y = 497 / 40 - 22 * y := by
   rw [outerIntegrand_eq, outerG_of_le_half (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_two (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGLow, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_two (y := y) (by linarith) (by linarith), outerGLow, alpha_cast,
+    outerT_two_of_le (y := y) (by linarith), outerU_two_zero (y := y) (by linarith),
+    outerR_of_le (y := y) (by linarith) (by linarith), min_eq_left (by linarith), sum_Icc_one_seven,
+    scalar_pos 1 (y := y) (by push_cast; linarith), scalar_pos 2 (y := y) (by push_cast; linarith),
+    scalar_pos 3 (y := y) (by push_cast; linarith), scalar_pos 4 (y := y) (by push_cast; linarith),
+    scalar_neg 5 (y := y) (by push_cast; linarith), scalar_neg 6 (y := y) (by push_cast; linarith),
+    scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(37/80, 29/60)`, `T(y) = 41/10 - 4y`. -/
 theorem outerIntegrand_piece_5 {y : ℝ} (h0 : 37 / 80 < y) (h1 : y < 29 / 60) :
     outerIntegrand y = 41 / 10 - 4 * y := by
   rw [outerIntegrand_eq, outerG_of_le_half (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_two (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGLow, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_two (y := y) (by linarith) (by linarith), outerGLow, alpha_cast,
+    outerT_two_of_ge (y := y) (by linarith), outerU_two_zero (y := y) (by linarith),
+    outerR_of_le (y := y) (by linarith) (by linarith), min_eq_left (by linarith), sum_Icc_one_seven,
+    scalar_pos 1 (y := y) (by push_cast; linarith), scalar_pos 2 (y := y) (by push_cast; linarith),
+    scalar_pos 3 (y := y) (by push_cast; linarith), scalar_neg 4 (y := y) (by push_cast; linarith),
+    scalar_neg 5 (y := y) (by push_cast; linarith), scalar_neg 6 (y := y) (by push_cast; linarith),
+    scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(29/60, 1/2)`, `T(y) = 53/20 - y`. -/
 theorem outerIntegrand_piece_6 {y : ℝ} (h0 : 29 / 60 < y) (h1 : y < 1 / 2) :
     outerIntegrand y = 53 / 20 - y := by
   rw [outerIntegrand_eq, outerG_of_le_half (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_two (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGLow, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_two (y := y) (by linarith) (by linarith), outerGLow, alpha_cast,
+    outerT_two_of_ge (y := y) (by linarith), outerU_two_zero (y := y) (by linarith),
+    outerR_of_ge (y := y) (by linarith), min_eq_left (by linarith), sum_Icc_one_seven,
+    scalar_pos 1 (y := y) (by push_cast; linarith), scalar_pos 2 (y := y) (by push_cast; linarith),
+    scalar_pos 3 (y := y) (by push_cast; linarith), scalar_neg 4 (y := y) (by push_cast; linarith),
+    scalar_neg 5 (y := y) (by push_cast; linarith), scalar_neg 6 (y := y) (by push_cast; linarith),
+    scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(1/2, 43/80)`, `T(y) = 7/2 + y`. -/
 theorem outerIntegrand_piece_7 {y : ℝ} (h0 : 1 / 2 < y) (h1 : y < 43 / 80) :
     outerIntegrand y = 7 / 2 + y := by
   rw [outerIntegrand_eq, outerG_of_half_lt (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_one (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGHigh, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_one (y := y) (by linarith) (by linarith), outerGHigh, alpha_cast,
+    outerT_one_of_le (y := y) (by linarith), outerU_one_pos (y := y) (by linarith),
+    outerR_of_ge (y := y) (by linarith), min_eq_left (by linarith), sum_Icc_one_seven,
+    scalar_pos 1 (y := y) (by push_cast; linarith), scalar_pos 2 (y := y) (by push_cast; linarith),
+    scalar_pos 3 (y := y) (by push_cast; linarith), scalar_neg 4 (y := y) (by push_cast; linarith),
+    scalar_neg 5 (y := y) (by push_cast; linarith), scalar_neg 6 (y := y) (by push_cast; linarith),
+    scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(43/80, 37/60)`, `T(y) = 121/10 - 15y`. -/
 theorem outerIntegrand_piece_8 {y : ℝ} (h0 : 43 / 80 < y) (h1 : y < 37 / 60) :
     outerIntegrand y = 121 / 10 - 15 * y := by
   rw [outerIntegrand_eq, outerG_of_half_lt (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_one (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGHigh, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_one (y := y) (by linarith) (by linarith), outerGHigh, alpha_cast,
+    outerT_one_of_le (y := y) (by linarith), outerU_one_zero (y := y) (by linarith),
+    outerR_of_ge (y := y) (by linarith), min_eq_left (by linarith), sum_Icc_one_seven,
+    scalar_pos 1 (y := y) (by push_cast; linarith), scalar_pos 2 (y := y) (by push_cast; linarith),
+    scalar_pos 3 (y := y) (by push_cast; linarith), scalar_neg 4 (y := y) (by push_cast; linarith),
+    scalar_neg 5 (y := y) (by push_cast; linarith), scalar_neg 6 (y := y) (by push_cast; linarith),
+    scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(37/60, 37/40)`, `T(y) = 41/4 - 12y`. -/
 theorem outerIntegrand_piece_9 {y : ℝ} (h0 : 37 / 60 < y) (h1 : y < 37 / 40) :
     outerIntegrand y = 41 / 4 - 12 * y := by
   rw [outerIntegrand_eq, outerG_of_half_lt (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_one (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGHigh, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_one (y := y) (by linarith) (by linarith), outerGHigh, alpha_cast,
+    outerT_one_of_le (y := y) (by linarith), outerU_one_zero (y := y) (by linarith),
+    outerR_of_ge (y := y) (by linarith), min_eq_left (by linarith), sum_Icc_one_seven,
+    scalar_pos 1 (y := y) (by push_cast; linarith), scalar_pos 2 (y := y) (by push_cast; linarith),
+    scalar_neg 3 (y := y) (by push_cast; linarith), scalar_neg 4 (y := y) (by push_cast; linarith),
+    scalar_neg 5 (y := y) (by push_cast; linarith), scalar_neg 6 (y := y) (by push_cast; linarith),
+    scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(37/40, 1)`, `T(y) = 1 - 2y`. -/
 theorem outerIntegrand_piece_10 {y : ℝ} (h0 : 37 / 40 < y) (h1 : y < 1) :
     outerIntegrand y = 1 - 2 * y := by
   rw [outerIntegrand_eq, outerG_of_half_lt (y := y) (by linarith) (by linarith), outerScalar,
-    floor_one_div_eq_one (y := y) (by linarith) (by linarith), sum_Icc_one_seven]
-  simp only [outerGHigh, outerT, outerU, outerV, outerR, alpha_cast, lam_cast]
+    floor_one_div_eq_one (y := y) (by linarith) (by linarith), outerGHigh, alpha_cast,
+    outerT_one_of_ge (y := y) (by linarith), outerU_one_zero (y := y) (by linarith),
+    outerR_of_ge (y := y) (by linarith), min_eq_left (by linarith), sum_Icc_one_seven,
+    scalar_pos 1 (y := y) (by push_cast; linarith), scalar_neg 2 (y := y) (by push_cast; linarith),
+    scalar_neg 3 (y := y) (by push_cast; linarith), scalar_neg 4 (y := y) (by push_cast; linarith),
+    scalar_neg 5 (y := y) (by push_cast; linarith), scalar_neg 6 (y := y) (by push_cast; linarith),
+    scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right, min_eq_left, min_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-- On `(1, 37/20)`, where `g = 0`, `T(y) = 37/20 - y`. -/
 theorem outerIntegrand_piece_11 {y : ℝ} (h0 : 1 < y) (h1 : y < 37 / 20) :
     outerIntegrand y = 37 / 20 - y := by
   rw [outerIntegrand_eq, outerG_of_one_lt h0, outerScalar, floor_one_div_eq_zero h0,
-    sum_Icc_one_seven]
-  simp only [lam_cast]
+    sum_Icc_one_seven, scalar_pos 1 (y := y) (by push_cast; linarith),
+    scalar_neg 2 (y := y) (by push_cast; linarith), scalar_neg 3 (y := y) (by push_cast; linarith),
+    scalar_neg 4 (y := y) (by push_cast; linarith), scalar_neg 5 (y := y) (by push_cast; linarith),
+    scalar_neg 6 (y := y) (by push_cast; linarith), scalar_neg 7 (y := y) (by push_cast; linarith)]
   push_cast
-  simp (disch := linarith) only [max_eq_left, max_eq_right]
-  ring
+  linarith [lam_cast]
 
 /-! ### The eleven contributions -/
 
