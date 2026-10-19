@@ -2,6 +2,9 @@
 article_id: af_ad1ec8a1c04c5d41f0121260
 declaration: lemma
 origin: bridged
+statement: formalized
+proof: formalized
+lean: ZetaSeven.gauss_rank_lemma ZetaSeven.coeff_det_eq_sum ZetaSeven.coeffMatrix_add_smul_map ZetaSeven.rank_of_ite_le
 ---
 
 # Gauss-valuation rank lemma

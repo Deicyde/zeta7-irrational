@@ -16,14 +16,16 @@ As in `ZetaSeven.rank_lemma`, the weights are doubled integers (`w i` is twice
 the paper's weight). The Gauss valuation is stated coefficientwise with
 `padicValRat`; see the docstring of `ZetaSeven.gauss_rank_lemma`.
 
-Proof (following the project's article): expanding the Leibniz formula column by
-column, the `X^k`-coefficient of `det(A + p⁻¹ L)` is the sum, over all splittings
-`l` of `k` among the columns, of `det(B_l + p⁻¹ L_l)`, where column `j` of `B_l`
-is the `X^{l j}`-coefficient of column `j` of `A` and `L_l` is `L` with the
-columns having `l j ≠ 0` replaced by zero (`ZetaSeven.coeff_det_eq_sum`,
+Proof (following the project's article): expanding the determinant
+multilinearly in the rows by `X`-degree, the `X^k`-coefficient of
+`det(A + p⁻¹ L)` is the sum, over all choices `l` of an `X`-degree `l i` in every
+row with `∑ i, l i = k`, of `det(B_l + p⁻¹ L_l)`, where row `i` of `B_l` is the
+`X^{l i}`-coefficient of row `i` of `A` and `L_l` is `L` with the rows having
+`l i ≠ 0` replaced by zero (`ZetaSeven.coeff_det_eq_sum`,
 `ZetaSeven.coeffMatrix_add_smul_map`). Each `B_l` satisfies the entry bounds and
-each `L_l = L * D` is `p`-integral of rank at most `rank L`, so the rational rank
-lemma bounds every term, and the ultrametric inequality bounds the sum.
+each `L_l = D * L` is `p`-integral of rank at most `rank L`
+(`ZetaSeven.rank_of_ite_le`), so the rational rank lemma bounds every term, and
+the ultrametric inequality bounds the sum.
 -/
 
 open Polynomial Finset
@@ -51,39 +53,53 @@ theorem coeff_prod_eq_sum_finsuppAntidiag {ι : Type*} [DecidableEq ι] (s : Fin
     _ = ∑ l ∈ s.finsuppAntidiag k, ∏ i ∈ s, (f i).coeff (l i) := by
         simp only [coeToPowerSeries.ringHom_apply, Polynomial.coeff_coe]
 
-/-- Multilinear expansion of a determinant over `ℚ[X]` by `X`-degree, column by
-column: the `X^k`-coefficient of `det M` is the sum, over all splittings `l` of
-`k` among the columns, of the determinant of the rational matrix whose column
+/-- Column form of the multilinear expansion of a determinant over `ℚ[X]` by
+`X`-degree: the `X^k`-coefficient of `det M` is the sum, over all splittings `l`
+of `k` among the columns, of the determinant of the rational matrix whose column
 `j` is the `X^{l j}`-coefficient of column `j` of `M`. -/
-theorem coeff_det_eq_sum (M : Matrix (Fin h) (Fin h) ℚ[X]) (k : ℕ) :
+theorem coeff_det_eq_sum_cols (M : Matrix (Fin h) (Fin h) ℚ[X]) (k : ℕ) :
     M.det.coeff k = ∑ l ∈ (univ : Finset (Fin h)).finsuppAntidiag k,
       (Matrix.of fun i j => (M i j).coeff (l j)).det := by
   simp only [Matrix.det_apply', finsetSum_coeff, ← C_eq_intCast, coeff_C_mul,
     coeff_prod_eq_sum_finsuppAntidiag, Finset.mul_sum, Matrix.of_apply]
   exact Finset.sum_comm
 
+/-- Multilinear expansion of a determinant over `ℚ[X]` by `X`-degree in the
+rows: the `X^k`-coefficient of `det M` is the sum, over all choices `l` of an
+`X`-degree `l i` in every row `i` with `∑ i, l i = k`, of the determinant of the
+rational matrix whose row `i` is the `X^{l i}`-coefficient of row `i` of `M`. -/
+theorem coeff_det_eq_sum (M : Matrix (Fin h) (Fin h) ℚ[X]) (k : ℕ) :
+    M.det.coeff k = ∑ l ∈ (univ : Finset (Fin h)).finsuppAntidiag k,
+      (Matrix.of fun i j => (M i j).coeff (l i)).det := by
+  rw [← Matrix.det_transpose M, coeff_det_eq_sum_cols]
+  refine Finset.sum_congr rfl fun l _ => ?_
+  rw [← Matrix.det_transpose (Matrix.of fun i j => (M i j).coeff (l i))]
+  congr 1
+  ext i j
+  simp
+
 /-- The coefficient matrices of `A + c L` (with `L` rational, hence constant):
-taking the `X^{l j}`-coefficient in column `j` gives `B_l + c L_l`, where `B_l`
-takes the same coefficients of `A` and `L_l` is `L` with the columns having
-`l j ≠ 0` replaced by zero. -/
+taking the `X^{l i}`-coefficient in row `i` gives `B_l + c L_l`, where `B_l`
+takes the same coefficients of `A` and `L_l` is `L` with the rows having
+`l i ≠ 0` replaced by zero. -/
 theorem coeffMatrix_add_smul_map (A : Matrix (Fin h) (Fin h) ℚ[X])
     (L : Matrix (Fin h) (Fin h) ℚ) (c : ℚ) (l : Fin h →₀ ℕ) :
-    (Matrix.of fun i j => ((A + (c • L).map C) i j).coeff (l j)) =
-      Matrix.of (fun i j => (A i j).coeff (l j)) +
-        c • Matrix.of (fun i j => if l j = 0 then L i j else 0) := by
+    (Matrix.of fun i j => ((A + (c • L).map C) i j).coeff (l i)) =
+      Matrix.of (fun i j => (A i j).coeff (l i)) +
+        c • Matrix.of (fun i j => if l i = 0 then L i j else 0) := by
   ext i j
-  by_cases hl : l j = 0 <;> simp [hl, coeff_C]
+  by_cases hl : l i = 0 <;> simp [hl, coeff_C]
 
-/-- Zeroing some columns of `L` does not increase its rank: the result is
-`L * D` for a diagonal `0/1` matrix `D`. -/
+/-- Zeroing some rows of `L` does not increase its rank: the result is `D * L`
+for a diagonal `0/1` matrix `D`. -/
 theorem rank_of_ite_le (L : Matrix (Fin h) (Fin h) ℚ) (l : Fin h →₀ ℕ) :
-    (Matrix.of fun i j => if l j = 0 then L i j else 0).rank ≤ L.rank := by
-  have hmul : (Matrix.of fun i j => if l j = 0 then L i j else 0) =
-      L * Matrix.diagonal (fun j => if l j = 0 then (1 : ℚ) else 0) := by
+    (Matrix.of fun i j => if l i = 0 then L i j else 0).rank ≤ L.rank := by
+  have hmul : (Matrix.of fun i j => if l i = 0 then L i j else 0) =
+      Matrix.diagonal (fun i => if l i = 0 then (1 : ℚ) else 0) * L := by
     ext i j
-    by_cases hl : l j = 0 <;> simp [Matrix.mul_diagonal, hl]
+    by_cases hl : l i = 0 <;> simp [Matrix.diagonal_mul, hl]
   rw [hmul]
-  exact Matrix.rank_mul_le_left _ _
+  exact Matrix.rank_mul_le_right _ _
 
 /-! ## The Gauss-valuation rank lemma -/
 
@@ -129,11 +145,11 @@ theorem gauss_rank_lemma {r z : ℕ}
   rw [coeff_det_eq_sum]
   refine le_padicValRat_sum _ _ (by linarith) fun l _ => ?_
   rw [coeffMatrix_add_smul_map]
-  refine rank_lemma w (Matrix.of fun i j => (A i j).coeff (l j))
-    (Matrix.of fun i j => if l j = 0 then L i j else 0) hw0 hz (fun i j => ?_)
+  refine rank_lemma w (Matrix.of fun i j => (A i j).coeff (l i))
+    (Matrix.of fun i j => if l i = 0 then L i j else 0) hw0 hz (fun i j => ?_)
     (fun i j => ?_) ((rank_of_ite_le L l).trans hr)
   · simp only [Matrix.of_apply]
-    exact hA i j (l j)
+    exact hA i j (l i)
   · simp only [Matrix.of_apply]
     split_ifs
     · exact hL i j
