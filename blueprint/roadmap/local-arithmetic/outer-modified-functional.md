@@ -2,6 +2,8 @@
 article_id: af_67346953e303bdfb5e41a80d
 declaration: def
 origin: cited
+statement: formalized
+lean: ZetaSeven.outerCe ZetaSeven.muZeroMonomial ZetaSeven.muZeroFunctional ZetaSeven.outerAentry ZetaSeven.outerAmat ZetaSeven.outerLentry ZetaSeven.outerLmat ZetaSeven.outerCe_of_lt ZetaSeven.outerCe_lt ZetaSeven.outerCe_of_dvd ZetaSeven.outerCe_spec ZetaSeven.outerCe_eq_iff ZetaSeven.muZeroFunctional_X_pow ZetaSeven.muZeroFunctional_single ZetaSeven.polyPart_eq_divByMonic ZetaSeven.entry_partialFraction
 ---
 
 # Outer modified functional
@@ -19,6 +21,9 @@ values of `μ_X` on the simple poles `1/(t + a^2)`. For
 `D_N^8 t^{i+j}/D_K = P_{ij}(t) + ∑_{N<a≤K} ρ_{ij,a}/(t + a^2)`, and
 define the `h × h` matrices `A_{ij} = μ_0(D_N^8 t^{i+j}/D_K)` and
 `L_{ij} = ∑_e c_e [t^e] P_{ij}`.
+The Lean definitions and identities take any natural number `p`
+and any `i, j`, and specialize exactly to the prime `p` and
+`0 ≤ i, j < h` here.
 
 Remark, which the consuming theorems discharge where they use it:
 for `p ≥ 7` the outer moment integrality gives `v_p(μ(t^e)) ≥ -1`
