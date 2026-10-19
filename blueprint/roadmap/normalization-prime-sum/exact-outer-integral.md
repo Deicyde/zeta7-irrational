@@ -9,8 +9,9 @@ origin: cited
 The outer integral of the outer limiting functions has the exact
 rational value `I_out = 453803/288000 ≈ 1.5757049`. Its integrand
 `T(y) = g(y) - 2λ⌊1/y⌋ + ∑_{j=1}^{7} (2λ - jy)_+` is affine,
-`T(y) = b + cy`, on each of the following 11 pieces of
-`[1/3, 37/20]`:
+`T(y) = b + cy`, on the interior of each of the following 11
+pieces of `[1/3, 37/20]` (it jumps at `y = 1/2` and `y = 1`, where
+`⌊1/y⌋` does, which does not change the integral):
 
 | `y`-interval | `b` | `c` |
 | --- | --- | --- |
