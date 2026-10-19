@@ -22,7 +22,8 @@ basis; `det U` is prime to `p` by the outer class basis, and
 `A'_{rs} = μ_0(r s D_N^7 / D_tail)` and `U L U^T` is integral of
 rank at most `r_p`. The entry valuations give
 `v^G_p(A'_{rs}) ≥ w_r + w_s` with the outer weight family on the
-outer class rows, the Gauss-valuation rank lemma gives
+outer class rows, whose weights are nonpositive half-integers by
+their definition, the Gauss-valuation rank lemma gives
 `v^G_p det(U G_K U^T) ≥ 2∑w - min(r_p, z)`, and the weight sum
 bounds this below by `γ^out_p`. Since
 `det(U G_K U^T) = (det U)^2 Δ_K` with `det U` a `p`-unit, the
