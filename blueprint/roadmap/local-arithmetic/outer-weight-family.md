@@ -23,8 +23,7 @@ pairs `(0, i)` with `0 ≤ i < ⌊K/p⌋`. It gives the class pair
 The formalization defines the family for every natural number `p`;
 for a prime `p` it is the family above.
 
-Remarks, which the consuming theorems discharge where they use
-them: under the outer-range hypothesis (52), `K/3 < p ≤ K`, so
+Remarks, which the formalization proves with the family: under the outer-range hypothesis (52), `K/3 < p ≤ K`, so
 `⌊K/p⌋` is 1 when `K < 2p` and 2 when `K ≥ 2p`, and the zero class
 carries the weight `-1/2`, respectively the weights `-3/2, 0`.
 Every weight is a nonpositive half-integer: the outer range
@@ -33,6 +32,7 @@ the outer entry valuations use that the weights are at most `0`.
 
 ## Depends on
 
+- [Local range data](local-range-data.md)
 - [Outer range data](outer-range-data.md)
 
 ## Sources

@@ -4,7 +4,7 @@ declaration: theorem
 origin: cited
 statement: formalized
 proof: formalized
-lean: ZetaSeven.outer_rank_decomposition ZetaSeven.Gmat_eq_outerAmat_add ZetaSeven.exists_outerLmat_eq_map_intCast ZetaSeven.rank_outerLmat_le ZetaSeven.Gentry_eq_outerAentry_add ZetaSeven.outerLentry_eq_intCast ZetaSeven.DpolyZ ZetaSeven.DtailZ ZetaSeven.RnumZ ZetaSeven.monic_DtailZ ZetaSeven.polyPart_eq_map ZetaSeven.le_of_mem_support_polyPart ZetaSeven.outerLentry_eq_zero ZetaSeven.outerLmat_row_eq_zero ZetaSeven.nonzero_rows_outerLmat_le ZetaSeven.two_hDim_sub_threshold
+lean: ZetaSeven.outer_rank_decomposition ZetaSeven.Gmat_eq_outerAmat_add ZetaSeven.exists_outerLmat_eq_map_intCast ZetaSeven.rank_outerLmat_le ZetaSeven.Gentry_eq_outerAentry_add ZetaSeven.outerLentry_eq_intCast ZetaSeven.DpolyZ ZetaSeven.DtailZ ZetaSeven.RnumZ ZetaSeven.monic_DtailZ ZetaSeven.polyPart_eq_map ZetaSeven.le_of_mem_support_polyPart ZetaSeven.outerLentry_eq_zero ZetaSeven.outerLmat_row_eq_zero ZetaSeven.nonzero_rows_outerLmat_le ZetaSeven.two_hDim_sub_threshold ZetaSeven.map_DpolyZ ZetaSeven.map_DtailZ ZetaSeven.map_RnumZ ZetaSeven.natDegree_DpolyZ_le ZetaSeven.natDegree_RnumZ_le ZetaSeven.natDegree_DtailZ
 ---
 
 # Outer rank decomposition
@@ -30,6 +30,8 @@ integer matrix, and `L_{ij} = 0` when
 Row `i` of `L` vanishes when `i ≤ T - h`, so at most
 `min(h, max(0, 2h - T))` rows are nonzero, and
 `2h - T = K + 6N - 3p + 4` because `h = 37K/40`, `N = 3K/40`.
+(The rows not forced to vanish number at most `max(0, 2h - T - 1)`,
+one fewer than this count; the weaker bound is all that is needed.)
 The proof uses nothing about the size of the moments `μ(t^e)`.
 
 ## Depends on
