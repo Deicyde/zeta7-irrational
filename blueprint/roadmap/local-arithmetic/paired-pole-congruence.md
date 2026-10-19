@@ -12,7 +12,6 @@ for the pole values of the functional `μ_X`.
 
 1. The pole values `π_a` and `π_{a'}` have `p`-integral
    coefficients and are congruent modulo `p`, coefficientwise.
-   The key input is `H^(7)_{a'} ≡ H^(7)_{a-1} (mod p)`.
 2. Let `S` be a finite set of positive integers that contains `a`
    and `a'` and no other integer congruent to `±a` modulo `p`, put
    `T(t) = ∏_{b ∈ S} (t + b^2)`, and let `Q` be a polynomial with
@@ -23,9 +22,10 @@ for the pole values of the functional `μ_X`.
    is `p`-integral. Consequently `ρ_a π_a + ρ_{a'} π_{a'}` has
    `p`-integral coefficients.
 
-The proof of the first part: since `1 ≤ a, a' < p` and `p ∤ 6`,
-every denominator in `π_a` and `π_{a'}` is prime to `p`. Because
-`p - 1` does not divide `7`, the power sum
+The proof of the first part, whose key input is the congruence
+`H^(7)_{a'} ≡ H^(7)_{a-1} (mod p)`: since `1 ≤ a, a' < p` and
+`p ∤ 6`, every denominator in `π_a` and `π_{a'}` is prime to `p`.
+Because `p - 1` does not divide `7`, the power sum
 `∑_{v=1}^{p-1} v^{-7} ≡ ∑_{v ∈ 𝔽_p^×} v^7` vanishes modulo `p`, so
 `H^(7)_{p-a} ≡ -∑_{w=1}^{a-1} (p - w)^{-7} ≡ H^(7)_{a-1} (mod p)`.
 Hence `π_{a'} ≡ a^6 (X - H^(7)_{a-1}) - 1/(2a) - 1/6 (mod p)`,

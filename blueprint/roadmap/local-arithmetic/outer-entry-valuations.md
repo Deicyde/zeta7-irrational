@@ -35,14 +35,18 @@ least `(i + j) + 7δ - (ℓ - δ - 1)`, from `(t + c^2)^{i+j}`, from
 the factor `t + c^2` of `D_N` when `δ = 1`, and from the
 derivative of `F_c`; the pole value
 `b^6 (X - H^(7)_b) + 1/(2b) - 1/6` has valuation at least `-7`,
-so the entry has valuation at least
-`i + j + 8δ - ℓ - 6 ≥ w^out_{c,i} + w^out_{c,j}`. For two
-zero-class rows, the poles are `-(kp)^2` with `1 ≤ k ≤ ⌊K/p⌋`,
-the pole values have valuation at least `-1`, and the residues
-of `P_0 t^{i+j} D_N^7 / F_0` have valuation at least `2(i + j)`
-when `K < 2p` and `2(i + j) - 2` when `K ≥ 2p`, so these entries
-have valuation at least `2(i + j) - 1`, respectively
-`2(i + j) - 3`, which the zero-class weights allow.
+and the polynomial part is `p`-integral, so the entry has
+valuation at least `min(0, i + j + 8δ - ℓ - 6)`, which is at least
+`w^out_{c,i} + w^out_{c,j}` because
+`min(0, x) + min(0, y) ≤ min(0, x + y)`. For two zero-class rows,
+the poles are `-(kp)^2` with `1 ≤ k ≤ ⌊K/p⌋`, the pole values have
+valuation at least `-1`, and the residues of
+`P_0 t^{i+j} D_N^7 / F_0` have valuation at least `2(i + j)` when
+`K < 2p` and `2(i + j) - 2` when `K ≥ 2p`, so these entries have
+valuation at least `min(0, 2(i + j) - 1)`, respectively
+`min(0, 2(i + j) - 3)`, which is at least the sum of the two
+zero-class weights. Every weight is at most `0`, so the
+`p`-integral entries also satisfy `v^G_p(A'_{rs}) ≥ w_r + w_s`.
 
 ## Depends on
 
