@@ -55,19 +55,19 @@ theorem outerZeroWeightDbl_eq_two_mul (n p i : ℕ) :
 theorem outerZeroWeight_zero_of_lt {n p : ℕ} (h : K n < 2 * p) :
     outerZeroWeight n p 0 = -1 / 2 := by
   unfold outerZeroWeight
-  rw [if_pos rfl, if_pos h]
+  rw [ite_eq_left rfl, ite_eq_left h]
 
 /-- `w^out_{0,0} = -3/2` when `K ≥ 2p`. -/
 theorem outerZeroWeight_zero_of_le {n p : ℕ} (h : 2 * p ≤ K n) :
     outerZeroWeight n p 0 = -3 / 2 := by
   unfold outerZeroWeight
-  rw [if_pos rfl, if_neg (Nat.not_lt.mpr h)]
+  rw [ite_eq_left rfl, ite_eq_right (Nat.not_lt.mpr h)]
 
 /-- `w^out_{0,i} = 0` for `i ≥ 1`. -/
 theorem outerZeroWeight_of_ne_zero (n p : ℕ) {i : ℕ} (hi : i ≠ 0) :
     outerZeroWeight n p i = 0 := by
   unfold outerZeroWeight
-  rw [if_neg hi]
+  rw [ite_eq_right hi]
 
 /-- The zero-class weights are at most `0`. -/
 theorem outerZeroWeight_nonpos (n p i : ℕ) : outerZeroWeight n p i ≤ 0 := by
@@ -92,13 +92,13 @@ def outerLen (n p c : ℕ) : ℕ :=
 /-- The zero class has `⌊K/p⌋` pairs. -/
 theorem outerLen_zero (n p : ℕ) : outerLen n p 0 = mK n p := by
   unfold outerLen
-  rw [if_pos rfl]
+  rw [ite_eq_left rfl]
 
 /-- A class `c ≥ 1` has `ℓ_K(c) - δ_c` pairs. -/
 theorem outerLen_of_ne_zero (n p : ℕ) {c : ℕ} (hc : c ≠ 0) :
     outerLen n p c = ell p (K n) c - classDelta n c := by
   unfold outerLen
-  rw [if_neg hc]
+  rw [ite_eq_right hc]
 
 /-- The index type of the outer weight family: the pairs `(c, i)` with `0 ≤ c ≤ m`
 (`m = mHalf p`) and `0 ≤ i < outerLen n p c`, that is, the zero-class pairs `(0, i)` with
@@ -130,13 +130,13 @@ theorem outerFamWeightDbl_eq_two_mul (n p c i : ℕ) :
 /-- The zero class gets the zero-class weights. -/
 theorem outerFamWeight_zero (n p i : ℕ) : outerFamWeight n p 0 i = outerZeroWeight n p i := by
   unfold outerFamWeight
-  rw [if_pos rfl]
+  rw [ite_eq_left rfl]
 
 /-- A class `c ≥ 1` gets the outer weights (56). -/
 theorem outerFamWeight_of_ne_zero (n p : ℕ) {c : ℕ} (hc : c ≠ 0) (i : ℕ) :
     outerFamWeight n p c i = outerWeight n p c i := by
   unfold outerFamWeight
-  rw [if_neg hc]
+  rw [ite_eq_right hc]
 
 /-! ## The remarks: nonpositive half-integer weights, and `⌊K/p⌋` under (52) -/
 
