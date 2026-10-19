@@ -122,8 +122,8 @@ in article citations disambiguate them.
    (117)-(118). The project has checked this, and no author v2 has
    appeared:
    - The outer integral recomputes exactly to `453803/288000`, matching
-     the external audit, and no reading of the definitions reproduces
-     (122) (errata 8 and 9).
+     the external audit, and no reading tried reproduces (122)
+     (errata 8 and 9).
    - The inner side checks out: `R(x)` from Definition 5.2 matches
      Table 2 at spot checks, and `∫_3^20 R(x)/x^3 dx` recomputes
      numerically to `0.17035`, matching (121).
