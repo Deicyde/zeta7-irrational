@@ -2,6 +2,9 @@
 article_id: af_99b09565a05d0763806d1c5f
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.outer_rank_decomposition ZetaSeven.Gmat_eq_outerAmat_add ZetaSeven.exists_outerLmat_eq_map_intCast ZetaSeven.rank_outerLmat_le ZetaSeven.Gentry_eq_outerAentry_add ZetaSeven.outerLentry_eq_intCast ZetaSeven.DpolyZ ZetaSeven.DtailZ ZetaSeven.RnumZ ZetaSeven.monic_DtailZ ZetaSeven.polyPart_eq_map ZetaSeven.le_of_mem_support_polyPart ZetaSeven.outerLentry_eq_zero ZetaSeven.outerLmat_row_eq_zero ZetaSeven.nonzero_rows_outerLmat_le ZetaSeven.two_hDim_sub_threshold
 ---
 
 # Outer rank decomposition
@@ -10,6 +13,8 @@ Let `p` be prime, take the matrices `A` and `L` of the outer
 modified functional, and the rank correction `r_p` (54) of the
 outer range data. Then `G_K = A + p^{-1} L`, `L` is an integer
 matrix, and `rank_ℚ L ≤ r_p`.
+The Lean statements hold for every natural number `p` and specialize
+exactly to the prime `p` here.
 Nothing is claimed about the integrality of `A`: the paper's (53)
 asserts it, but it fails in the monomial basis, and the outer
 estimate uses a weighted bound in the class basis instead.
