@@ -105,7 +105,11 @@ in article citations disambiguate them.
    the class rows, the zero-class weights, and the derivation of (59)
    to [5]; these are reconstructed as bridged nodes in the local
    arithmetic chapter. The residue bounds (50)-(51) of Proposition 4.4
-   are also deferred to [5, Section 4.1] and remain to be checked.
+   are also deferred to [5, Section 4.1], but Proposition 4.4 is proved
+   in Lean (`ZetaSeven.inner_estimate` on main at `9487e76`, whose CI
+   kernel-trust audit, run 39160466154, passed allowing only `propext`,
+   `Classical.choice`, and `Quot.sound`), so no hidden lemma from [5]
+   is needed for it.
 3. RESOLVED except Hermite/Hurwitz: von Staudt-Clausen is upstream
    (`Bernoulli.vonStaudt_clausen`), Bernoulli multiplication and Andreief
    were proved directly in Lean. Hermite/Hurwitz verdict (2026-10-17):
