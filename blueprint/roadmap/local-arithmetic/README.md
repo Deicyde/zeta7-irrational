@@ -40,11 +40,12 @@ exponent (59).
 ## Estimates
 
 - [Small-prime estimate](small-prime-estimate.md) — the crude global bound and integer-valued basis.
+- [Local range data](local-range-data.md) — the half-range and the class counts shared by both ranges.
 - [Inner range estimate](inner-estimate.md) — determinant valuations in the inner range.
 
 ## Outer range
 
-- [Outer range data](outer-range-data.md) — class counts, the outer-range hypothesis, the rank correction, the class weights (56), and the exponent (59).
+- [Outer range data](outer-range-data.md) — the class indicators, the outer-range hypothesis, the rank correction, the class weights (56), and the exponent (59).
 - [Outer moment integrality](outer-moment-integrality.md) — the polynomial moments are integral below `3p - 4`.
 - [Outer rank decomposition](outer-rank-decomposition.md) — the low-rank correction.
 - [Paired-pole congruence](paired-pole-congruence.md) — the residues at a pole pair `a`, `p - a` have `p`-integral sum.

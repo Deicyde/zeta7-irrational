@@ -6,10 +6,9 @@ origin: cited
 
 # Outer range data
 
-Fix a prime `p` and put `m = (p-1)/2`. For `A ≥ 0` and
-`1 ≤ a ≤ m` define the class count (43)
-`ℓ_A(a) = #{1 ≤ j ≤ A : j ≡ a or j ≡ -a (mod p)}`, and the class
-indicator `δ_a = 1` if `a ≤ N`, `δ_a = 0` otherwise. The
+Fix a prime `p`, and take the half-range `m` and the class counts
+`ℓ_A(a)` from the local range data. For `1 ≤ a ≤ m` define the
+class indicator `δ_a = 1` if `a ≤ N`, `δ_a = 0` otherwise. The
 outer-range hypothesis (52) is the conjunction of `p ≥ 11`,
 `K/3 < p ≤ K`, `p^2 > 2K`, and `7N ≤ 2p - 2`. The rank correction
 (54) is `r_p = min(h, max(0, K + 6N - 3p + 4))`.
@@ -32,12 +31,12 @@ for every prime `p > K/3`, in two ranges. For `K/3 < p ≤ K` it is
 ## Depends on
 
 - [Functional mu](../determinant-construction/functional-mu.md)
+- [Local range data](local-range-data.md)
 
 ## Sources
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
-  Section 4, equations (42)-(43) (the half-range `m` and the class
-  counts), and Section 4.2, equations (52), (54), (56), and
-  (58)-(59); Section 5.1, first sentence ("For `p > K`, put
-  `γ^out_p = 0`"), for the value above `K`, which the
-  normalization (60) and the outer limiting functions use.
+  Section 4.2, equations (52), (54), (56), and (58)-(59);
+  Section 5.1, first sentence ("For `p > K`, put `γ^out_p = 0`"),
+  for the value above `K`, which the normalization (60) and the
+  outer limiting functions use.

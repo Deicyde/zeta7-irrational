@@ -6,9 +6,9 @@ origin: bridged
 
 # Outer class basis
 
-Let `p` satisfy the outer-range hypothesis (52), and take `m`,
-the class counts `ℓ_K(c)`, and the class indicators `δ_c` from the
-outer range data. For `0 ≤ c ≤ m` let
+Let `p` satisfy the outer-range hypothesis (52), and take `m` and
+the class counts `ℓ_K(c)` of the local range data and the class
+indicators `δ_c` from the outer range data. For `0 ≤ c ≤ m` let
 `S_c = {N < j ≤ K : j ≡ ±c (mod p)}`, so `S_0` is the set of
 multiples of `p` in `(N, K]`, and `F_c(t) = ∏_{j ∈ S_c} (t + j^2)`.
 For `1 ≤ c ≤ m` write `ℓ = ℓ_K(c)` and `δ = δ_c`, so
