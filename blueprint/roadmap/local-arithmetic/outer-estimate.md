@@ -11,17 +11,18 @@ the outer range data, and let `γ^out_p` be the outer exponent (59)
 defined there. Then `v^G_p(Δ_K) ≥ γ^out_p`. Also
 `v^G_p(Δ_K) ≥ 0` for every prime `p > K`.
 
-The second clause is the conclusion of the large-prime
-integrality, restated unchanged so that this node mirrors the
-cited Proposition 4.6. Under (52), the rank decomposition writes
-`G_K = A + p^{-1} L` with the modified functional `μ_0` and an
-integral `L` of rank at most `r_p`. Let `U` be the integer matrix
-of the outer class rows in the monomial basis; `det U` is prime
-to `p` by the outer class basis, and `U G_K U^T = A' + p^{-1} U L U^T`, where
+For `p > K`, the large-prime integrality makes every entry of
+`G_K` a polynomial with `p`-integral coefficients, hence also their
+determinant `Δ_K`, which is the second clause. Under (52), the
+rank decomposition writes `G_K = A + p^{-1} L` with the modified
+functional `μ_0` and an integral `L` of rank at most `r_p`. Let
+`U` be the integer matrix of the outer class rows in the monomial
+basis; `det U` is prime to `p` by the outer class basis, and
+`U G_K U^T = A' + p^{-1} U L U^T`, where
 `A'_{rs} = μ_0(r s D_N^7 / D_tail)` and `U L U^T` is integral of
 rank at most `r_p`. The entry valuations give
 `v^G_p(A'_{rs}) ≥ w_r + w_s` with the outer weight family on the
-rows of the outer class basis, the Gauss-valuation rank lemma gives
+outer class rows, the Gauss-valuation rank lemma gives
 `v^G_p det(U G_K U^T) ≥ 2∑w - min(r_p, z)`, and the weight sum
 bounds this below by `γ^out_p`. Since
 `det(U G_K U^T) = (det U)^2 Δ_K` with `det U` a `p`-unit, the

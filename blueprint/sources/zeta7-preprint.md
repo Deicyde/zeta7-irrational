@@ -217,9 +217,12 @@ route to Theorems 1.1-1.2 does not close (open question 5).
    pair contribution to the entry has `v_41 = 0`. The conclusion
    `v^G_p(Δ_K) ≥ 0` is not contradicted; the
    [large-prime integrality](../roadmap/local-arithmetic/large-prime-integrality.md)
-   node plans to prove it with this pairing, which the
+   node plans to prove the entrywise integrality behind it with this
+   pairing, which the
    [paired-pole congruence](../roadmap/local-arithmetic/paired-pole-congruence.md)
-   node states.
+   node states, and the
+   [outer range estimate](../roadmap/local-arithmetic/outer-estimate.md)
+   derives the determinant bound from it.
 8. Section 5.3, (71): the definition
    `R_0(y) = lim -γ^out_p/K` contradicts the last sentence of
    Section 5.3 ("Formula (59) gives

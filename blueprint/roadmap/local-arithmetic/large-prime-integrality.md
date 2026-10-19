@@ -8,8 +8,7 @@ origin: bridged
 
 For every prime `p > K`, each entry
 `G_K(i,j) = μ_X(D_N^8 t^{i+j}/D_K)` has `p`-integral coefficients
-as a polynomial in `X`; hence `Δ_K` has `p`-integral coefficients,
-that is, `v^G_p(Δ_K) ≥ 0`.
+as a polynomial in `X`.
 
 The proof: write `R = D_N^7 t^{i+j}` and
 `D_tail = D_K/D_N = ∏_{N<b≤K} (t + b^2)`. The polynomial part of
@@ -43,8 +42,8 @@ can have valuation `-1`.
   proof are reconstructed by this project, because the paper
   defers the outer-range argument to its zeta(5) predecessor [5].
   It is labeled bridged, not cited, because the outer range
-  estimate is the cited target for Proposition 4.6 and restates
-  this conclusion, while the entrywise statement and the paired
-  proof here are the project's.
+  estimate is the cited target for Proposition 4.6 and owns its
+  determinant bound `v^G_p(Δ_K) ≥ 0` for `p > K`, while the
+  entrywise statement and the paired proof here are the project's.
 - [Source-map erratum 7](../../sources/zeta7-preprint.md#errata-found-during-formalization)
   records the paired-pole finding.

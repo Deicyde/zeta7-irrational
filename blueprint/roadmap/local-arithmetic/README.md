@@ -50,7 +50,7 @@ and the weight count that yields the exponent (59).
 - [Outer modified functional](outer-modified-functional.md) — the corrected moments `c_e`, `μ_0`, and the matrices `A`, `L` of (53).
 - [Outer rank decomposition](outer-rank-decomposition.md) — the low-rank correction.
 - [Paired-pole congruence](paired-pole-congruence.md) — the residues at a pole pair `a`, `p - a` have `p`-integral sum.
-- [Large-prime integrality](large-prime-integrality.md) — the determinant is integral above `K`.
+- [Large-prime integrality](large-prime-integrality.md) — the matrix entries are integral above `K`.
 - [Outer weight family](outer-weight-family.md) — the outer weights (56) with the zero-class weights, one per row.
 - [Outer class rows](outer-class-rows.md) — the rows adapted to residue classes, one per index of the weight family.
 - [Outer class basis](outer-class-basis.md) — the class rows form a unimodular basis.
