@@ -13,6 +13,7 @@ import ZetaSeven.EnergyComputation
 import ZetaSeven.ExactOuterIntegral
 import ZetaSeven.ExternalField
 import ZetaSeven.FunctionalMu
+import ZetaSeven.GaussRankLemma
 import ZetaSeven.HermiteHurwitz
 import ZetaSeven.InnerEstimate
 import ZetaSeven.InnerLimiting
