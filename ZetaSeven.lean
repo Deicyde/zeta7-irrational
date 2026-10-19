@@ -10,6 +10,7 @@ import ZetaSeven.DegreeLemma
 import ZetaSeven.DistributionFormula
 import ZetaSeven.Enclosures
 import ZetaSeven.EnergyComputation
+import ZetaSeven.ExactOuterIntegral
 import ZetaSeven.ExternalField
 import ZetaSeven.FunctionalMu
 import ZetaSeven.HermiteHurwitz
@@ -20,6 +21,8 @@ import ZetaSeven.MatrixDet
 import ZetaSeven.OuterLimiting
 import ZetaSeven.OuterModifiedFunctional
 import ZetaSeven.OuterRangeData
+import ZetaSeven.OuterRankDecomposition
+import ZetaSeven.OuterWeightFamily
 import ZetaSeven.PositiveIntegral
 import ZetaSeven.PotentialInequality
 import ZetaSeven.PrimeNumberTheorem
