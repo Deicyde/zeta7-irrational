@@ -186,3 +186,20 @@ dispute in open question 5 is separate.
    node plans to prove it with this pairing, which the
    [paired-pole congruence](../roadmap/local-arithmetic/paired-pole-congruence.md)
    node states.
+8. Section 5.3, (71): the definition
+   `R_0(y) = lim -γ^out_p/K` contradicts the last sentence of
+   Section 5.3 ("Formula (59) gives
+   `-γ^out_p = K(R_0(p/K) - d(p/K)) + O(1)` uniformly in the outer
+   range") and the outer-range step of the proof of Proposition 5.4
+   (`L_p = v_p(S_K) + γ^out_p = -K(R_0 - d - 2λ⌊1/y⌋ + ∑_j (2λ - jy)_+) + O(1)`),
+   which both use `R_0 - d = lim -γ^out_p/K`. Proposition 5.4 holds
+   only under the second reading: under (71), the outer contribution
+   to the prime sum exceeds the integral (73) by the integral of `d`,
+   which is `3/100`, so (90) would not follow. The
+   [outer limiting functions](../roadmap/normalization-prime-sum/outer-limiting.md)
+   node adopts the second reading, `R_0 = g + d` with
+   `g = lim -γ^out_p/K` and `γ^out_p = 0` for `p > K`. By exact
+   rational computation from (54), (58), (59), (72), and (73),
+   `I_out = 453803/288000` under the adopted reading and
+   `445163/288000` under (71) read literally; neither is (122)'s
+   value (see open question 5).

@@ -13,6 +13,13 @@ inner integral via the prime number theorem, and the outer
 integral, then splitting the inner integral at `T = 20`
 against the tail bound.
 
+In the outer range `K/3 < p ≤ 2h` the proof first establishes
+`-γ^out_p = K g(p/K) + O(1)` uniformly, with `g` from the outer
+limiting functions (bounded arithmetic in (54), (58), and (59),
+and `γ^out_p = 0` for `p > K`), so that
+`L_p = v_p(S_K) + γ^out_p` is `-K` times the integrand of (73) at
+`y = p/K`, up to `O(1)`.
+
 ## Depends on
 
 - [Normalization and integrality](normalization-integrality.md)
