@@ -46,10 +46,12 @@ the `M = 200` constant. Open question 5 records that the printed
 | Inner-range estimate | Proposition 4.4, equations (44)-(51) (pp. 17-19), with (42)-(43) |
 | Outer range data | Section 4.2, outer-range hypothesis (52), equations (54), (56), (58)-(59) (pp. 19-21); Section 5.1, first sentence, `γ^out_p = 0` for `p > K` (p. 22) |
 | Outer moment integrality | Lemma 3.4 with (24) (pp. 9, 12); Section 4.2.1, first paragraph (pp. 19-20) |
+| Outer modified functional | Section 4.2.1, second paragraph (`c_e`, `µ_0`) and (53) (p. 20) |
 | Outer rank decomposition, rank lemma, Gauss-valuation form | Section 4.2.1, equations (53)-(54); Lemma 4.5, (55), and its last sentence (pp. 20-21) |
 | Paired-pole congruence | Proof of Proposition 4.6, "the two remaining pole values at `a` and `p − a` are integral and congruent modulo `p`", and the case `p > K` (p. 21); erratum 7 |
 | Large-prime integrality | Proposition 4.6 and its proof, case `p > K` (p. 21); erratum 7 |
-| Outer class basis | Proof of Proposition 4.6, the rows `P_a q_{a,i}` and the zero-class rows (p. 21); reconstructed |
+| Outer class rows | Proof of Proposition 4.6, the rows `P_a q_{a,i}` with `q_{a,i}`, `E_a`, and the zero-class rows (p. 21); `P_a` and the zero-class rows reconstructed |
+| Outer class basis | Proof of Proposition 4.6, "these form a `Z_p`-unimodular basis" (p. 21); reconstructed |
 | Outer weight family | Equation (56) and the proof of Proposition 4.6 (p. 21); zero-class weights reconstructed |
 | Outer entry valuations | Proof of Proposition 4.6, the residue bound `i + j + 8δ - ℓ - 6` (p. 21); reconstructed |
 | Outer weight sum | Equations (56)-(59) and the proof of Proposition 4.6, "Applying Lemma 4.5 to the weights (56) and summing over classes yields `γ^out_p`" (p. 21); reconstructed |

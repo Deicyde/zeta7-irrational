@@ -6,21 +6,25 @@ origin: bridged
 
 # Outer entry valuations
 
-Let `p` satisfy the outer-range hypothesis (52), take the class
-rows and zero-class rows of the outer class basis, and let `μ_0`
-be the modified functional of the rank decomposition. For two rows
-`r`, `s` put `A'_{rs} = μ_0(r(t) s(t) D_N(t)^7 / D_tail(t))`, a
-polynomial of degree at most one in `X`, where
-`D_tail = D_K/D_N`. Give each row the weight `w_r` of its index in
-the outer weight family: the outer weight `w^out_{c,i}` (56) to the
+Let `p` satisfy the outer-range hypothesis (52), take the outer
+class rows and the modified functional `μ_0` of the outer modified
+functional, and give each row the weight `w_r` of its index in the
+outer weight family: the outer weight `w^out_{c,i}` (56) to the
 class row `P_c q_{c,i}`, and the zero-class weight `w^out_{0,i}` to
-the zero-class row `P_0 t^i`. Then every entry satisfies
-`v^G_p(A'_{rs}) ≥ w_r + w_s`.
+the zero-class row `P_0 t^i`. For two rows `r`, `s` put
+`A'_{rs} = μ_0(r(t) s(t) D_N(t)^7 / D_tail(t))`, a polynomial of
+degree at most one in `X`, where `D_tail = D_K/D_N`. Then every
+entry satisfies `v^G_p(A'_{rs}) ≥ w_r + w_s`.
 
-The proof: for rows of different classes, `r s` is divisible by
-`D_tail`, so `A'_{rs}` is `μ_0` of an integer polynomial and is
-`p`-integral. For two rows of class `c`, with `ℓ = ℓ_K(c)` and
-`δ = δ_c`, the poles are the `-b^2` with `b ∈ S_c`, the factor
+The proof: by the outer moment integrality, `μ_0` is `p`-integral
+on monomials, since `c_e = 0` and `μ(t^e)` is `p`-integral for
+`e < 3p - 4`, while for larger `e` the number `p μ(t^e)` is
+`p`-integral and congruent to `c_e` modulo `p`; so `μ_0` of an
+integer polynomial is `p`-integral. For rows of different classes,
+`r s` is divisible by `D_tail`, so `A'_{rs}` is `μ_0` of an integer
+polynomial and is `p`-integral. For two rows of class `c`, with
+`ℓ = ℓ_K(c)` and `δ = δ_c`, the poles are the `-b^2` with
+`b ∈ S_c`, a set of `ℓ - δ` elements under (52); the factor
 `P_c(-b^2)` is a `p`-unit, and each factor `b'^2 - b^2` of the
 derivative of `F_c` has valuation exactly one because
 `b + b' ≤ 2K < p^2`. If either row index is at least `ℓ - 2`, the
@@ -51,12 +55,13 @@ zero-class weights. Every weight is at most `0`, so the
 ## Depends on
 
 - [Outer range data](outer-range-data.md)
-- [Outer class basis](outer-class-basis.md)
+- [Outer class rows](outer-class-rows.md)
 - [Outer weight family](outer-weight-family.md)
-- [Outer rank decomposition](outer-rank-decomposition.md)
+- [Outer modified functional](outer-modified-functional.md)
 
 ## Proof depends on
 
+- [Outer moment integrality](outer-moment-integrality.md)
 - [Paired-pole congruence](paired-pole-congruence.md)
 
 ## Sources

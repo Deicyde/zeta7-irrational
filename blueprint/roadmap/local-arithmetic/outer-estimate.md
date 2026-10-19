@@ -16,8 +16,8 @@ integrality, restated unchanged so that this node mirrors the
 cited Proposition 4.6. Under (52), the rank decomposition writes
 `G_K = A + p^{-1} L` with the modified functional `μ_0` and an
 integral `L` of rank at most `r_p`. Let `U` be the integer matrix
-of the outer class basis in the monomial basis; `det U` is prime
-to `p`, and `U G_K U^T = A' + p^{-1} U L U^T`, where
+of the outer class rows in the monomial basis; `det U` is prime
+to `p` by the outer class basis, and `U G_K U^T = A' + p^{-1} U L U^T`, where
 `A'_{rs} = μ_0(r s D_N^7 / D_tail)` and `U L U^T` is integral of
 rank at most `r_p`. The entry valuations give
 `v^G_p(A'_{rs}) ≥ w_r + w_s` with the outer weight family on the
@@ -38,8 +38,10 @@ bound in the class basis.
 
 ## Proof depends on
 
+- [Outer modified functional](outer-modified-functional.md)
 - [Outer rank decomposition](outer-rank-decomposition.md)
 - [Large-prime integrality](large-prime-integrality.md)
+- [Outer class rows](outer-class-rows.md)
 - [Outer class basis](outer-class-basis.md)
 - [Outer weight family](outer-weight-family.md)
 - [Outer entry valuations](outer-entry-valuations.md)
