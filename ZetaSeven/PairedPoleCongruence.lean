@@ -429,7 +429,8 @@ theorem derivative_prod_eval (S : Finset ℕ) {b : ℕ} (hb : b ∈ S) :
     rw [C_neg, sub_neg_eq_add]
   have h : (derivative (Lagrange.nodal S (fun c : ℕ => -((c : ℚ) ^ 2)))).eval (-((b : ℚ) ^ 2))
       = (Lagrange.nodal (S.erase b) (fun c : ℕ => -((c : ℚ) ^ 2))).eval (-((b : ℚ) ^ 2)) :=
-    Lagrange.eval_nodal_derivative_eval_node_eq hb
+    Lagrange.eval_nodal_derivative_eval_node_eq (s := S) (v := fun c : ℕ => -((c : ℚ) ^ 2))
+      (i := b) hb
   rw [hT, h, Lagrange.eval_nodal]
   refine Finset.prod_congr rfl fun c _ => ?_
   ring
