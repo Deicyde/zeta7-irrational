@@ -74,9 +74,6 @@ theorem coeff_det_eq_sum (M : Matrix (Fin h) (Fin h) ℚ[X]) (k : ℕ) :
   rw [← Matrix.det_transpose M, coeff_det_eq_sum_cols]
   refine Finset.sum_congr rfl fun l _ => ?_
   rw [← Matrix.det_transpose (Matrix.of fun i j => (M i j).coeff (l i))]
-  congr 1
-  ext i j
-  simp
 
 /-- The coefficient matrices of `A + c L` (with `L` rational, hence constant):
 taking the `X^{l i}`-coefficient in row `i` gives `B_l + c L_l`, where `B_l`
