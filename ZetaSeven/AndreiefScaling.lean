@@ -797,6 +797,7 @@ private lemma scaled_weight_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
       -(K n : ℝ) * Vfield t + 7 * Real.log (1 + Real.sqrt t) := by
     rw [Real.log_mul (Real.exp_pos _).ne' (by positivity), Real.log_exp, Real.log_pow]
     push_cast
+    ring
   rw [Real.log_mul hAB0.ne' hC0.ne', Real.log_mul hX0.ne' hZ0.ne', eAB, eX, eZ]
   have hA := log_rhoW_scaled_le n hn ht
   have F7 : Real.log (N n : ℝ) ≤ Real.log (K n : ℝ) :=
@@ -808,9 +809,11 @@ private lemma scaled_weight_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
   have hNc : ((N n : ℕ) : ℝ) = 3 * (n : ℝ) := by
     unfold N
     push_cast
+    ring
   have hKc : ((K n : ℕ) : ℝ) = 40 * (n : ℝ) := by
     unfold K
     push_cast
+    ring
   have hNL : ((N n : ℕ) : ℝ) * Real.log (K n : ℝ) = 3 * (n : ℝ) * Real.log (K n : ℝ) := by
     rw [hNc]
   have hKL : ((K n : ℕ) : ℝ) * Real.log (K n : ℝ) = 40 * (n : ℝ) * Real.log (K n : ℝ) := by
@@ -820,11 +823,13 @@ private lemma scaled_weight_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
     have h' : 2 * (hDim n - 1) = 74 * n - 2 := by unfold hDim; omega
     rw [h', Nat.cast_sub (by omega : 2 ≤ 74 * n)]
     push_cast
+    ring
   have E2 : ((2 * (hDim n + 8 * N n - K n) + 16 : ℕ) : ℝ) * Real.log (K n : ℝ) =
       (42 * (n : ℝ) + 16) * Real.log (K n : ℝ) := by
     have h' : 2 * (hDim n + 8 * N n - K n) + 16 = 42 * n + 16 := by unfold hDim N K; omega
     rw [h']
     push_cast
+    ring
   linarith only [hA, F7, F8, F9, hNL, hKL, E1, E2]
 
 /-- The constant `K^{2(h+8N-K)+16} 4096 e¹²` of the per-variable bound. -/
