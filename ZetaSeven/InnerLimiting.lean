@@ -112,7 +112,8 @@ theorem gammaIntegrand_eq (x z : ℝ) :
         * ((TLim x : ℝ) + 4 * ((⌊(alpha : ℝ) * x - z⌋ : ℝ) + (⌊(alpha : ℝ) * x + z⌋ : ℝ) + 1)
           - ((⌊x - z⌋ : ℝ) + (⌊x + z⌋ : ℝ) + 1) - 7) := by
   simp only [gammaIntegrand, bLim, ellLim]
-  push_cast <;> ring
+  push_cast
+  ring
 
 theorem measurable_gammaIntegrand (x : ℝ) : Measurable (gammaIntegrand x) := by
   have h1 : Measurable fun z : ℝ => ((⌊x - z⌋ : ℤ) : ℝ) :=
@@ -327,12 +328,14 @@ noncomputable def badCells (m p : ℕ) (F : ℝ → ℤ) : Finset ℕ := by
 theorem eq_of_not_mem_badCells {m p : ℕ} {F : ℝ → ℤ} {k : ℕ} (hk : k < m)
     (hkS : k ∉ badCells m p F) {z : ℝ} (hz1 : (k : ℝ) / p < z)
     (hz2 : z ≤ ((k : ℝ) + 1) / p) : F z = F (((k : ℝ) + 1) / p) := by
+  classical
   by_contra hne
   exact hkS (Finset.mem_filter.mpr ⟨Finset.mem_range.mpr hk, z, hz1, hz2, hne⟩)
 
 /-- `z ↦ ⌊y + z⌋` jumps on at most one cell of `(0, 1/2]`. -/
 theorem card_badCells_floor_add_le {m p : ℕ} (hp : 2 * m + 1 = p) (y : ℝ) :
     (badCells m p fun z => ⌊y + z⌋).card ≤ 1 := by
+  classical
   have hpR : (0 : ℝ) < p := by
     have : 0 < p := by omega
     exact_mod_cast this
@@ -378,6 +381,7 @@ theorem card_badCells_floor_add_le {m p : ℕ} (hp : 2 * m + 1 = p) (y : ℝ) :
 /-- `z ↦ ⌊y - z⌋` jumps on at most one cell of `(0, 1/2]`. -/
 theorem card_badCells_floor_sub_le {m p : ℕ} (hp : 2 * m + 1 = p) (y : ℝ) :
     (badCells m p fun z => ⌊y - z⌋).card ≤ 1 := by
+  classical
   have hpR : (0 : ℝ) < p := by
     have : 0 < p := by omega
     exact_mod_cast this
@@ -707,7 +711,8 @@ theorem gammaRiemann (hR : InnerRange n M p) [Fact p.Prime] {x : ℝ}
     have h2 : (bA n p a : ℝ) = (bLim x ((a : ℝ) / p) : ℝ) := by
       have e := ell_eq_ellLim hm (N n) a ha1 ham
       rw [bLim, hαx, ← e, bA]
-      push_cast <;> ring
+      push_cast
+      ring
     rw [gammaIntegrand, h1, h2]
   rw [Finset.sum_congr rfl hterm]
   have hre : ∑ a ∈ Icc 1 (mHalf p), gammaIntegrand x ((a : ℝ) / p)
@@ -849,7 +854,8 @@ theorem gammaIn_approx (M : ℕ) : ∃ C : ℝ, ∀ (n p : ℕ) (ε : ℕ → �
   have hpx : (p : ℝ) * x = 40 * n := by
     rw [hx, mul_div_cancel₀ _ hpR.ne']
     simp only [K]
-    push_cast <;> ring
+    push_cast
+    ring
   -- `T = ⌊2Hx⌋` and `q = ⌊2x⌋`
   have hT0 : (0 : ℝ) ≤ (TLim x : ℝ) := by
     have : (0 : ℤ) ≤ TLim x := Int.floor_nonneg.mpr (by rw [bigH_real]; linarith)
@@ -987,7 +993,9 @@ theorem gammaIn_approx (M : ℕ) : ∃ C : ℝ, ∀ (n p : ℕ) (ε : ℕ → �
     rw [nPlus]
     have e : (p : ℝ) * ((2 * x - (qLim x : ℝ)) / 2) = p * x - p * (qLim x : ℝ) / 2 := by ring
     rw [e, hpx]
-  have hKR : (K n : ℝ) = 40 * n := by push_cast [K] <;> ring
+  have hKR : (K n : ℝ) = 40 * n := by
+    push_cast [K]
+    ring
   -- the allocation identity `mT + E = h - L_0 + 4(N - m_N)`
   have hdm : mHalf p * allocT n M p + allocE n M p = allocTotal n M p :=
     Nat.div_add_mod (allocTotal n M p) (mHalf p)
@@ -1107,7 +1115,8 @@ theorem padicValRat_SK {n p : ℕ} [Fact p.Prime] (h4 : ¬ p ∣ 4) (hsq : 2 * h
     have hi2 : 2 * i < p ^ 2 :=
       lt_of_le_of_lt (by have := (Finset.mem_Icc.mp hi).2; omega) hsq
     rw [padicValRat.pow, hfac _ hi2]
-    push_cast <;> ring
+    push_cast
+    ring
   rw [hsum, ← Finset.mul_sum]
   push_cast
   ring
