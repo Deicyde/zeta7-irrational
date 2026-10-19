@@ -29,3 +29,6 @@ In Lean, (101) and (104) are stated for every `n`, the case `n = 0`
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
   Section 6.5, equations (101)-(104).
+- [Source-map erratum 10](../../sources/zeta7-preprint.md#errata-found-during-formalization):
+  the printed constants in (102) and (104) are true, but the paper's
+  derivations do not reach them; the Lean proofs use sharper steps.

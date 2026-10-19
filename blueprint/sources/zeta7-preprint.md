@@ -57,7 +57,7 @@ the `M = 200` constant. Open question 5 records that the printed
 | Outer weight sum | Equations (56)-(59) and the proof of Proposition 4.6, "Applying Lemma 4.5 to the weights (56) and summing over classes yields `γ^out_p`" (p. 21); reconstructed |
 | Outer-range estimate | Proposition 4.6, equations (52)-(59) (pp. 19-21); assembled from the rows above |
 | Normalization factor, integrality | Section 5.1, first sentence; equations (60)-(62); Proposition 5.1 (p. 22) |
-| Inner limiting function | Section 5.2, equations (65)-(70) (p. 23) |
+| Inner limiting function | Section 5.2, equations (64)-(70) (pp. 22-23) |
 | Outer limiting function | Section 5.3, equations (71)-(73) and its last sentence (pp. 23-24); outer-range step of the proof of Proposition 5.4 (p. 26); erratum 8 |
 | Tail integral | Section 5.4, equations (74)-(86) (pp. 24-25) |
 | Prime-sum bound | Proposition 5.4, equations (87)-(90) (pp. 25-26) |
@@ -149,8 +149,8 @@ in article citations disambiguate them.
 
 Only items confirmed independently of the paper's own text are listed:
 by exact or high-precision recomputation from the paper's definitions
-and Table 1, or by a Lean proof. Items 1-8 do not break the main
-theorem as far as the formalization has checked; item 8 is resolved
+and Table 1, or by a Lean proof. Items 1-8 and 10 do not break the
+main theorem as far as the formalization has checked; item 8 is resolved
 in favor of the reading that the proof of Proposition 5.4 uses. Item 9
 does: with the recomputed outer integral, (118) fails and the v1
 route to Theorems 1.1-1.2 does not close (open question 5).
@@ -269,3 +269,15 @@ route to Theorems 1.1-1.2 does not close (open question 5).
    read literally gives `445163/288000`. The
    [exact outer integral](../roadmap/normalization-prime-sum/exact-outer-integral.md)
    node states the recomputed value and its 11 pieces.
+10. Section 6.5, (102) and (104): both printed bounds are true, and
+    the [Andreief scaling](../roadmap/real-bound/andreief-scaling.md)
+    node proves them in Lean, but the paper's derivations do not reach
+    the printed constants. For (102), the closed form of
+    `∑ ℓ^6 q^ℓ` with `1 - e^{-u} ≥ u/(1+u)` gives only about
+    `2^7 π^6 ≈ 1.2·10^5` in place of `8192` for large `y`; the Lean
+    proof splits off the `ℓ = 1` term and bounds the rest with
+    `x^6 e^{-x} ≤ 6!`. For (104), the chain from (102) and (103) as
+    written gives `K^{2h(h+8N-K)+22h} (4096 e^{16})^h`; the printed
+    `K^{2h(h+8N-K)+16h} (4096 e^{12})^h` needs the sharper bound
+    `log N + 2` for the difference in (103) at `m = N`, which follows
+    from Stirling's formula. (105) is unaffected.
