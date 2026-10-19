@@ -20,6 +20,7 @@ import ZetaSeven.IntegerValued
 import ZetaSeven.MatrixDet
 import ZetaSeven.OuterLimiting
 import ZetaSeven.OuterModifiedFunctional
+import ZetaSeven.OuterMomentIntegrality
 import ZetaSeven.OuterRangeData
 import ZetaSeven.OuterRankDecomposition
 import ZetaSeven.OuterWeightFamily
