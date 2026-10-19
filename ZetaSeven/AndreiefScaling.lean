@@ -550,11 +550,9 @@ private lemma integrableOn_comp_mul_sqrt_iff (g : ℝ → ℝ) {c : ℝ} (hc : 0
   · intro h
     refine IntegrableOn.congr_fun (Integrable.const_mul h (1 / 2)) (fun t ht => ?_)
       measurableSet_Ioi
-    beta_reduce
     rw [rpow_half_smul_eq g c ht]
   · intro h
     refine IntegrableOn.congr_fun (Integrable.const_mul h 2) (fun t ht => ?_) measurableSet_Ioi
-    beta_reduce
     rw [rpow_half_smul_eq g c ht]
     ring
 
@@ -573,11 +571,11 @@ private lemma integral_rhoW_moment_eq (n k : ℕ) (hn : 0 < n) :
     ∫ y in Ioi (0 : ℝ), (y ^ 2) ^ k * rhoW n y =
       (K n : ℝ) / 2 * (((K n : ℝ) ^ 2) ^ k * ∫ t in Ioi (0 : ℝ), t ^ k * sigmaW n t) := by
   have hK : (0 : ℝ) < K n := Nat.cast_pos.mpr (by unfold K; omega)
-  rw [integral_comp_mul_sqrt (fun y => (y ^ 2) ^ k * rhoW n y) hK, ← integral_const_mul]
+  rw [integral_comp_mul_sqrt (fun y => (y ^ 2) ^ k * rhoW n y) hK]
   congr 1
+  rw [← integral_const_mul]
   refine setIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
   have ht' : (0 : ℝ) ≤ t := le_of_lt ht
-  beta_reduce
   rw [sigmaW, mul_pow, Real.sq_sqrt ht', mul_pow]
   ring
 
@@ -587,14 +585,12 @@ private lemma integrableOn_sigmaW_moment (n k : ℕ) (hn : 0 < n) :
   have hg : IntegrableOn (fun y => ((y / (K n : ℝ)) ^ 2) ^ k * rhoW n y) (Ioi 0) := by
     refine IntegrableOn.congr_fun (Integrable.const_mul (integrableOn_rhoW_moment n k 0)
       (((K n : ℝ) ^ 2) ^ k)⁻¹) (fun y _ => ?_) measurableSet_Ioi
-    beta_reduce
     rw [div_pow, div_pow, pow_zero, mul_one]
     ring
   have h := (integrableOn_comp_mul_sqrt_iff (fun y => ((y / (K n : ℝ)) ^ 2) ^ k * rhoW n y)
     hK).mpr hg
   refine IntegrableOn.congr_fun h (fun t ht => ?_) measurableSet_Ioi
   have ht' : (0 : ℝ) ≤ t := le_of_lt ht
-  beta_reduce
   rw [sigmaW, mul_div_cancel_left₀ _ hK.ne', Real.sq_sqrt ht']
   ring
 
@@ -640,13 +636,11 @@ private lemma aeval_DeltaK_eq_scaled_det (n : ℕ) :
     have h1 : (∫ y in Ioi (0 : ℝ), (y ^ 2) ^ (i : ℕ) * rhoW n y * (y ^ 2) ^ (j : ℕ)) =
         ∫ y in Ioi (0 : ℝ), (y ^ 2) ^ ((i : ℕ) + (j : ℕ)) * rhoW n y := by
       refine setIntegral_congr_fun measurableSet_Ioi fun y _ => ?_
-      beta_reduce
       rw [pow_add]
       ring
     have h2 : momT n i j = ∫ t in Ioi (0 : ℝ), t ^ ((i : ℕ) + (j : ℕ)) * sigmaW n t := by
       rw [momT]
       refine setIntegral_congr_fun measurableSet_Ioi fun t _ => ?_
-      beta_reduce
       rw [pow_add]
       ring
     rw [h1, h2, integral_rhoW_moment_eq n _ (pos_of_fin i), pow_add]
@@ -691,19 +685,31 @@ private lemma log_aeval_Dpoly_scaled (m : ℕ) {k t : ℝ} (hk : 0 < k) (ht : 0 
   rw [aeval_Dpoly_eq_prod, Finset.prod_congr rfl fun j _ => hfac j, Finset.prod_mul_distrib,
     Finset.prod_const, Finset.card_range, Real.log_mul (pow_ne_zero _ (pow_ne_zero 2 hk.ne'))
       hprod, Real.log_pow, Real.log_pow, Real.log_prod (fun j _ => (hpos j).ne')]
-  push_cast <;> ring
+  push_cast
+  ring
 
-/-- The per-variable bound behind (104): with `y = K√t`,
-`K^{2(h-1)} (K/2) ρ(K√t) ≤ K^{2(h+8N-K)+16} 4096 e¹² e^{-K V(t)} (1 + √t)⁷`.
-It combines (102), the sharp form of (103) (with `m = N`, where `N/K = α`, and with `m = K`)
-and the definition (91) of `V`. -/
-private lemma scaled_weight_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
-    (K n : ℝ) ^ (2 * (hDim n - 1)) * ((K n : ℝ) / 2) * rhoW n ((K n : ℝ) * Real.sqrt t) ≤
-      (K n : ℝ) ^ (2 * (hDim n + 8 * N n - K n) + 16) * (4096 * Real.exp 12) *
-        (Real.exp (-(K n : ℝ) * Vfield t) * (1 + Real.sqrt t) ^ 7) := by
+/-- `2 ≤ log K` for `K = 40n ≥ 40 > e²`. -/
+private lemma two_le_log_K (n : ℕ) (hn : 0 < n) : 2 ≤ Real.log (K n : ℝ) := by
+  have hK40 : (40 : ℝ) ≤ (K n : ℝ) := by
+    have h1 : 40 ≤ K n := by unfold K; omega
+    exact_mod_cast h1
+  rw [Real.le_log_iff_exp_le (by linarith)]
+  have h1 := Real.exp_one_lt_d9
+  have h2 : Real.exp 2 = Real.exp 1 * Real.exp 1 := by
+    rw [← Real.exp_add]
+    norm_num
+  nlinarith [Real.exp_pos 1]
+
+/-- The logarithm of the scaled weight: with `y = K√t`,
+`log ρ(K√t) ≤ (16N - 2K + 7) log K + 8 log N + 16 + log 8192 + 7 log(1 + √t) - K V(t)`.
+It combines (102), the sharp form of (103) with `m = N` (where `N/K = α`), the lower bound
+of (103) with `m = K`, and the definition (91) of `V`. -/
+private lemma log_rhoW_scaled_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
+    Real.log (rhoW n ((K n : ℝ) * Real.sqrt t)) ≤
+      (16 * (N n : ℝ) - 2 * (K n : ℝ) + 7) * Real.log (K n : ℝ) + 8 * Real.log (N n : ℝ) + 16 +
+        Real.log 8192 + 7 * Real.log (1 + Real.sqrt t) - (K n : ℝ) * Vfield t := by
   have hK : 0 < K n := by unfold K; omega
   have hN : 0 < N n := by unfold N; omega
-  have hNK : N n ≤ K n := by unfold N K; omega
   have hK0 : (0 : ℝ) < (K n : ℝ) := Nat.cast_pos.mpr hK
   have hK40 : (40 : ℝ) ≤ (K n : ℝ) := by
     have h1 : 40 ≤ K n := by unfold K; omega
@@ -721,39 +727,9 @@ private lemma scaled_weight_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
       aeval (((K n : ℝ) * Real.sqrt t) ^ 2) (Dpoly (N n)) ^ 8 /
         aeval (((K n : ℝ) * Real.sqrt t) ^ 2) (Dpoly (K n)) * w7 ((K n : ℝ) * Real.sqrt t) :=
     rfl
-  have hC0 : 0 < aeval (((K n : ℝ) * Real.sqrt t) ^ 2) (Dpoly (N n)) ^ 8 /
-      aeval (((K n : ℝ) * Real.sqrt t) ^ 2) (Dpoly (K n)) * w7 ((K n : ℝ) * Real.sqrt t) :=
-    mul_pos (div_pos (pow_pos hPN0 8) hPK0) hw0
-  have hAB0 : 0 < (K n : ℝ) ^ (2 * (hDim n - 1)) * ((K n : ℝ) / 2) :=
-    mul_pos (pow_pos hK0 _) (div_pos hK0 two_pos)
-  have hX0 : 0 < (K n : ℝ) ^ (2 * (hDim n + 8 * N n - K n) + 16) * (4096 * Real.exp 12) :=
-    mul_pos (pow_pos hK0 _) (mul_pos (by norm_num) (Real.exp_pos 12))
-  have hZ0 : 0 < Real.exp (-(K n : ℝ) * Vfield t) * (1 + Real.sqrt t) ^ 7 := by positivity
-  rw [hρ]
-  refine (Real.log_le_log_iff (mul_pos hAB0 hC0) (mul_pos hX0 hZ0)).mp ?_
-  -- logarithms of the two sides
-  have eC : Real.log (aeval (((K n : ℝ) * Real.sqrt t) ^ 2) (Dpoly (N n)) ^ 8 /
-      aeval (((K n : ℝ) * Real.sqrt t) ^ 2) (Dpoly (K n)) * w7 ((K n : ℝ) * Real.sqrt t)) =
-      8 * Real.log (aeval (((K n : ℝ) * Real.sqrt t) ^ 2) (Dpoly (N n))) -
-        Real.log (aeval (((K n : ℝ) * Real.sqrt t) ^ 2) (Dpoly (K n))) +
-        Real.log (w7 ((K n : ℝ) * Real.sqrt t)) := by
-    rw [Real.log_mul (div_pos (pow_pos hPN0 8) hPK0).ne' hw0.ne',
-      Real.log_div (pow_pos hPN0 8).ne' hPK0.ne', Real.log_pow]
-    push_cast <;> ring
-  have eAB : Real.log ((K n : ℝ) ^ (2 * (hDim n - 1)) * ((K n : ℝ) / 2)) =
-      ((2 * (hDim n - 1) : ℕ) : ℝ) * Real.log (K n : ℝ) + (Real.log (K n : ℝ) - Real.log 2) := by
-    rw [Real.log_mul (pow_pos hK0 _).ne' (div_pos hK0 two_pos).ne', Real.log_pow,
-      Real.log_div hK0.ne' two_ne_zero]
-  have eX : Real.log ((K n : ℝ) ^ (2 * (hDim n + 8 * N n - K n) + 16) * (4096 * Real.exp 12)) =
-      ((2 * (hDim n + 8 * N n - K n) + 16 : ℕ) : ℝ) * Real.log (K n : ℝ) +
-        (Real.log 4096 + 12) := by
-    rw [Real.log_mul (pow_pos hK0 _).ne' (mul_pos (by norm_num) (Real.exp_pos 12)).ne',
-      Real.log_pow, Real.log_mul (by norm_num) (Real.exp_pos 12).ne', Real.log_exp]
-  have eZ : Real.log (Real.exp (-(K n : ℝ) * Vfield t) * (1 + Real.sqrt t) ^ 7) =
-      -(K n : ℝ) * Vfield t + 7 * Real.log (1 + Real.sqrt t) := by
-    rw [Real.log_mul (Real.exp_pos _).ne' (by positivity), Real.log_exp, Real.log_pow]
-    push_cast <;> ring
-  rw [Real.log_mul hAB0.ne' hC0.ne', Real.log_mul hX0.ne' hZ0.ne', eC, eAB, eX, eZ]
+  rw [hρ, Real.log_mul (div_pos (pow_pos hPN0 8) hPK0).ne' hw0.ne',
+    Real.log_div (pow_pos hPN0 8).ne' hPK0.ne', Real.log_pow]
+  push_cast
   -- (103) with `m = N` (sharp form) and with `m = K` (lower bound)
   have F1 := log_aeval_Dpoly_scaled (N n) hK0 ht.le
   have F3 := log_aeval_Dpoly_scaled (K n) hK0 ht.le
@@ -770,7 +746,8 @@ private lemma scaled_weight_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
   have F4 := le_riemann_sum (K n) (K n) hK ht.le
   rw [hKK', hJ1] at F4
   -- (102) at `y = K√t`, with `1 + K√t ≤ K(1 + √t)`
-  have h1ks : 1 + (K n : ℝ) * Real.sqrt t ≤ (K n : ℝ) * (1 + Real.sqrt t) := by nlinarith
+  have h1ks : 1 + (K n : ℝ) * Real.sqrt t ≤ (K n : ℝ) * (1 + Real.sqrt t) := by
+    linarith only [hK40]
   have hw' : w7 ((K n : ℝ) * Real.sqrt t) ≤ 8192 * ((K n : ℝ) * (1 + Real.sqrt t)) ^ 7 *
       Real.exp (-(2 * π * ((K n : ℝ) * Real.sqrt t))) :=
     (w7_le hKs).trans (mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left
@@ -782,46 +759,73 @@ private lemma scaled_weight_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
     Real.log_mul (by norm_num) hA.ne', Real.log_pow,
     Real.log_mul hK0.ne' (by positivity)] at F5
   push_cast at F5
-  -- the definition (91) of `V`, the exponents, and `log N ≤ log K`, `2 ≤ log K`
+  -- the definition (91) of `V`
   have F6 : (K n : ℝ) * Vfield t = 2 * π * ((K n : ℝ) * Real.sqrt t) +
       (K n : ℝ) * Jfield 1 t - 8 * ((K n : ℝ) * Jfield eAlpha t) := by
     rw [Vfield]
     ring
+  linarith only [F1, F2, F3, F4, F5, F6]
+
+/-- The per-variable bound behind (104): with `y = K√t`,
+`K^{2(h-1)} (K/2) ρ(K√t) ≤ K^{2(h+8N-K)+16} 4096 e¹² e^{-K V(t)} (1 + √t)⁷`. -/
+private lemma scaled_weight_le (n : ℕ) (hn : 0 < n) {t : ℝ} (ht : 0 < t) :
+    (K n : ℝ) ^ (2 * (hDim n - 1)) * ((K n : ℝ) / 2) * rhoW n ((K n : ℝ) * Real.sqrt t) ≤
+      (K n : ℝ) ^ (2 * (hDim n + 8 * N n - K n) + 16) * (4096 * Real.exp 12) *
+        (Real.exp (-(K n : ℝ) * Vfield t) * (1 + Real.sqrt t) ^ 7) := by
+  have hK : 0 < K n := by unfold K; omega
+  have hN : 0 < N n := by unfold N; omega
+  have hNK : N n ≤ K n := by unfold N K; omega
+  have hK0 : (0 : ℝ) < (K n : ℝ) := Nat.cast_pos.mpr hK
+  have hKs : 0 < (K n : ℝ) * Real.sqrt t := mul_pos hK0 (Real.sqrt_pos.mpr ht)
+  have hC0 : 0 < rhoW n ((K n : ℝ) * Real.sqrt t) := rhoW_pos n hKs
+  have hAB0 : 0 < (K n : ℝ) ^ (2 * (hDim n - 1)) * ((K n : ℝ) / 2) :=
+    mul_pos (pow_pos hK0 _) (div_pos hK0 two_pos)
+  have hX0 : 0 < (K n : ℝ) ^ (2 * (hDim n + 8 * N n - K n) + 16) * (4096 * Real.exp 12) :=
+    mul_pos (pow_pos hK0 _) (mul_pos (by norm_num) (Real.exp_pos 12))
+  have hZ0 : 0 < Real.exp (-(K n : ℝ) * Vfield t) * (1 + Real.sqrt t) ^ 7 := by positivity
+  refine (Real.log_le_log_iff (mul_pos hAB0 hC0) (mul_pos hX0 hZ0)).mp ?_
+  have eAB : Real.log ((K n : ℝ) ^ (2 * (hDim n - 1)) * ((K n : ℝ) / 2)) =
+      ((2 * (hDim n - 1) : ℕ) : ℝ) * Real.log (K n : ℝ) + (Real.log (K n : ℝ) - Real.log 2) := by
+    rw [Real.log_mul (pow_pos hK0 _).ne' (div_pos hK0 two_pos).ne', Real.log_pow,
+      Real.log_div hK0.ne' two_ne_zero]
+  have eX : Real.log ((K n : ℝ) ^ (2 * (hDim n + 8 * N n - K n) + 16) * (4096 * Real.exp 12)) =
+      ((2 * (hDim n + 8 * N n - K n) + 16 : ℕ) : ℝ) * Real.log (K n : ℝ) +
+        (Real.log 4096 + 12) := by
+    rw [Real.log_mul (pow_pos hK0 _).ne' (mul_pos (by norm_num) (Real.exp_pos 12)).ne',
+      Real.log_pow, Real.log_mul (by norm_num) (Real.exp_pos 12).ne', Real.log_exp]
+  have eZ : Real.log (Real.exp (-(K n : ℝ) * Vfield t) * (1 + Real.sqrt t) ^ 7) =
+      -(K n : ℝ) * Vfield t + 7 * Real.log (1 + Real.sqrt t) := by
+    rw [Real.log_mul (Real.exp_pos _).ne' (by positivity), Real.log_exp, Real.log_pow]
+    push_cast
+  rw [Real.log_mul hAB0.ne' hC0.ne', Real.log_mul hX0.ne' hZ0.ne', eAB, eX, eZ]
+  have hA := log_rhoW_scaled_le n hn ht
   have F7 : Real.log (N n : ℝ) ≤ Real.log (K n : ℝ) :=
     Real.log_le_log (Nat.cast_pos.mpr hN) (Nat.cast_le.mpr hNK)
-  have F8 : 2 ≤ Real.log (K n : ℝ) := by
-    rw [Real.le_log_iff_exp_le hK0]
-    have h1 := Real.exp_one_lt_d9
-    have h2 : Real.exp 2 = Real.exp 1 * Real.exp 1 := by
-      rw [← Real.exp_add]
-      norm_num
-    nlinarith [Real.exp_pos 1]
+  have F8 := two_le_log_K n hn
   have F9 : Real.log 8192 = Real.log 2 + Real.log 4096 := by
     rw [← Real.log_mul (by norm_num) (by norm_num)]
     norm_num
   have hNc : ((N n : ℕ) : ℝ) = 3 * (n : ℝ) := by
     unfold N
-    push_cast <;> ring
+    push_cast
   have hKc : ((K n : ℕ) : ℝ) = 40 * (n : ℝ) := by
     unfold K
-    push_cast <;> ring
-  have F1' : 2 * ((N n : ℕ) : ℝ) * Real.log (K n : ℝ) = 6 * (n : ℝ) * Real.log (K n : ℝ) := by
+    push_cast
+  have hNL : ((N n : ℕ) : ℝ) * Real.log (K n : ℝ) = 3 * (n : ℝ) * Real.log (K n : ℝ) := by
     rw [hNc]
-    ring
-  have F3' : 2 * ((K n : ℕ) : ℝ) * Real.log (K n : ℝ) = 80 * (n : ℝ) * Real.log (K n : ℝ) := by
+  have hKL : ((K n : ℕ) : ℝ) * Real.log (K n : ℝ) = 40 * (n : ℝ) * Real.log (K n : ℝ) := by
     rw [hKc]
-    ring
   have E1 : ((2 * (hDim n - 1) : ℕ) : ℝ) * Real.log (K n : ℝ) =
       (74 * (n : ℝ) - 2) * Real.log (K n : ℝ) := by
     have h' : 2 * (hDim n - 1) = 74 * n - 2 := by unfold hDim; omega
     rw [h', Nat.cast_sub (by omega : 2 ≤ 74 * n)]
-    push_cast <;> ring
+    push_cast
   have E2 : ((2 * (hDim n + 8 * N n - K n) + 16 : ℕ) : ℝ) * Real.log (K n : ℝ) =
       (42 * (n : ℝ) + 16) * Real.log (K n : ℝ) := by
     have h' : 2 * (hDim n + 8 * N n - K n) + 16 = 42 * n + 16 := by unfold hDim N K; omega
     rw [h']
-    push_cast <;> ring
-  linarith [F1, F1', F2, F3, F3', F4, F5, F6, F7, F8, F9, E1, E2]
+    push_cast
+  linarith only [hA, F7, F8, F9, hNL, hKL, E1, E2]
 
 /-- The constant `K^{2(h+8N-K)+16} 4096 e¹²` of the per-variable bound. -/
 private noncomputable def scaleA (n : ℕ) : ℝ :=
@@ -937,7 +941,6 @@ private lemma integrableOn_sqrt_pow_exp (M : ℕ) {b : ℝ} (hb : 0 < b) :
     have hs : Measurable Real.sqrt := Real.continuous_sqrt.measurable
     exact (hs.inv.mul ((measurable_const.add hs).pow_const M)).mul (measurable_const.mul hs).exp
   · refine (ae_restrict_mem measurableSet_Ioi).mono fun t ht => ?_
-    beta_reduce
     have ht' : (0 : ℝ) < t := ht
     have hs0 : 0 < Real.sqrt t := Real.sqrt_pos.mpr ht'
     have e1 : t ^ (((M : ℝ) - 1) / 2) = Real.sqrt t ^ M * (Real.sqrt t)⁻¹ := by
@@ -1047,6 +1050,12 @@ private lemma integrableOn_resF_moment' (n : ℕ) (i j : Fin (hDim n)) :
     rw [pow_add]
     ring) measurableSet_Ioi
 
+/-- Scaling a weight by a constant keeps its mixed moments integrable. -/
+private lemma integrableOn_const_mul_moment (n : ℕ) (i j : Fin (hDim n)) (c : ℝ) (w : ℝ → ℝ)
+    (hw : IntegrableOn (fun t => t ^ (i : ℕ) * w t * t ^ (j : ℕ)) (Ioi 0)) :
+    IntegrableOn (fun t => t ^ (i : ℕ) * (c * w t) * t ^ (j : ℕ)) (Ioi 0) :=
+  IntegrableOn.congr_fun (Integrable.const_mul hw c) (fun t _ => by ring) measurableSet_Ioi
+
 /-- The integrand of (104) is integrable on `(0, ∞)^h`, so the bound (104) is between finite
 values. -/
 theorem integrable_scaled_integrand (n : ℕ) :
@@ -1113,25 +1122,19 @@ theorem aeval_DeltaK_zeta_le_scaled (n : ℕ) :
       (Measure.pi fun _ => volume.restrict (Ioi (0 : ℝ))) := by
     refine (integrable_det_mul_det (volume.restrict (Ioi (0 : ℝ)))
       (fun i t => t ^ (i : ℕ) * (scaleC n * sigmaW n t)) (fun j t => t ^ (j : ℕ))
-      (fun i j => ?_)).congr ?_
-    · refine IntegrableOn.congr_fun (Integrable.const_mul (integrableOn_sigmaW_moment' n i j)
-        (scaleC n)) (fun t _ => ?_) measurableSet_Ioi
-      beta_reduce
-      ring
-    · filter_upwards with t
-      exact det_mul_det_eq (fun x => x) (fun t => scaleC n * sigmaW n t) t
+      (fun i j => integrableOn_const_mul_moment n i j (scaleC n) (sigmaW n)
+        (integrableOn_sigmaW_moment' n i j))).congr ?_
+    filter_upwards with t
+    exact det_mul_det_eq (fun x => x) (fun t => scaleC n * sigmaW n t) t
   have hintR : Integrable (fun t : Fin (hDim n) → ℝ =>
       (∏ i, ∏ j ∈ Finset.Ioi i, (t i - t j) ^ 2) * ∏ i, (scaleA n * resF n (t i)))
       (Measure.pi fun _ => volume.restrict (Ioi (0 : ℝ))) := by
     refine (integrable_det_mul_det (volume.restrict (Ioi (0 : ℝ)))
       (fun i t => t ^ (i : ℕ) * (scaleA n * resF n t)) (fun j t => t ^ (j : ℕ))
-      (fun i j => ?_)).congr ?_
-    · refine IntegrableOn.congr_fun (Integrable.const_mul (integrableOn_resF_moment' n i j)
-        (scaleA n)) (fun t _ => ?_) measurableSet_Ioi
-      beta_reduce
-      ring
-    · filter_upwards with t
-      exact det_mul_det_eq (fun x => x) (fun t => scaleA n * resF n t) t
+      (fun i j => integrableOn_const_mul_moment n i j (scaleA n) (resF n)
+        (integrableOn_resF_moment' n i j))).congr ?_
+    filter_upwards with t
+    exact det_mul_det_eq (fun x => x) (fun t => scaleA n * resF n t) t
   -- the pointwise comparison on `(0, ∞)^h`
   have hpos : ∀ᵐ t ∂(Measure.pi fun _ : Fin (hDim n) => volume.restrict (Ioi (0 : ℝ))),
       ∀ i, 0 < t i := by
@@ -1145,7 +1148,7 @@ theorem aeval_DeltaK_zeta_le_scaled (n : ℕ) :
         ∂(Measure.pi fun _ => volume.restrict (Ioi (0 : ℝ))) := by
     refine integral_mono_ae hintL hintR ?_
     filter_upwards [hpos] with t ht
-    refine mul_le_mul_of_nonneg_left (Finset.prod_le_prod (fun i _ => ?_) (fun i _ => ?_))
+    refine mul_le_mul_of_nonneg_left (Finset.prod_le_prod₀ (fun i _ => ?_) (fun i _ => ?_))
       (Finset.prod_nonneg fun i _ => Finset.prod_nonneg fun j _ => sq_nonneg _)
     · exact scaleC_mul_sigmaW_nonneg n (pos_of_fin i) (ht i)
     · exact scaleC_mul_sigmaW_le n (pos_of_fin i) (ht i)
