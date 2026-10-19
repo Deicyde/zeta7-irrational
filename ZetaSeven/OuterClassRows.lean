@@ -99,14 +99,14 @@ theorem outerClassSet_zero (n p : ℕ) :
 theorem outerQ_of_lt {n p c i : ℕ} (h : i < ell p (K n) c - 2) :
     outerQ n p c i = (X + C ((c : ℤ) ^ 2)) ^ i := by
   unfold outerQ
-  rw [if_pos h]
+  rw [ite_eq_left h]
 
 /-- `q_{c,i} = E_c(t) (t + c²)^{i - (ℓ - 2)}` for `i ≥ ℓ - 2`, with `ℓ = ℓ_K(c)`; the exponent
 `i + 2 - ℓ` is the integer `i - (ℓ - 2)` (`outerQ_exp_cast`). -/
 theorem outerQ_of_le {n p c i : ℕ} (h : ell p (K n) c - 2 ≤ i) :
     outerQ n p c i = outerHighPoly n p c * (X + C ((c : ℤ) ^ 2)) ^ (i + 2 - ell p (K n) c) := by
   unfold outerQ
-  rw [if_neg (Nat.not_lt.mpr h)]
+  rw [ite_eq_right (Nat.not_lt.mpr h)]
 
 /-- In the second case of `q_{c,i}`, the exponent `i + 2 - ℓ` is the integer `i - (ℓ - 2)`. -/
 theorem outerQ_exp_cast {n p c i : ℕ} (h : ell p (K n) c - 2 ≤ i) :
@@ -116,25 +116,25 @@ theorem outerQ_exp_cast {n p c i : ℕ} (h : ell p (K n) c - 2 ≤ i) :
 /-- The row of a zero-class pair `(0, i)` is `P_0 t^i`. -/
 theorem outerRowPoly_zero (n p i : ℕ) : outerRowPoly n p 0 i = outerCofactor n p 0 * X ^ i := by
   unfold outerRowPoly
-  rw [if_pos rfl]
+  rw [ite_eq_left rfl]
 
 /-- The row of a class pair `(c, i)` with `c ≥ 1` is `P_c q_{c,i}`. -/
 theorem outerRowPoly_of_ne_zero (n p : ℕ) {c : ℕ} (hc : c ≠ 0) (i : ℕ) :
     outerRowPoly n p c i = outerCofactor n p c * outerQ n p c i := by
   unfold outerRowPoly
-  rw [if_neg hc]
+  rw [ite_eq_right hc]
 
 /-- On the index type of the outer weight family, the zero-class pair `(0, i)` carries the
 zero-class row `P_0 t^i`. -/
 theorem outerRow_of_val_eq_zero (n p : ℕ) (ρ : outerIdx n p) (h : (ρ.1 : ℕ) = 0) :
     outerRow n p ρ = outerCofactor n p 0 * X ^ (ρ.2 : ℕ) := by
-  rw [outerRow, outerRowPoly, if_pos h]
+  rw [outerRow, outerRowPoly, ite_eq_left h]
 
 /-- On the index type of the outer weight family, the class pair `(c, i)` with `c ≥ 1` carries
 the class row `P_c q_{c,i}`. -/
 theorem outerRow_of_val_ne_zero (n p : ℕ) (ρ : outerIdx n p) (h : (ρ.1 : ℕ) ≠ 0) :
     outerRow n p ρ = outerCofactor n p ρ.1 * outerQ n p ρ.1 ρ.2 := by
-  rw [outerRow, outerRowPoly, if_neg h]
+  rw [outerRow, outerRowPoly, ite_eq_right h]
 
 /-! ## Monicity and degrees -/
 
