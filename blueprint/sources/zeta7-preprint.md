@@ -42,12 +42,21 @@ the `M = 200` constant. Open question 5 records that the printed
 | p-adic completion | Lemmas 3.4-3.5, equations (32)-(33) (pp. 12-13) |
 | Distribution formula | Lemmas 3.6-3.7, equations (34)-(36) (pp. 14-15) |
 | Small-prime estimate, integer-valued basis | Lemma 3.8, equations (37)-(41) (pp. 15-16) |
-| Inner-range estimate | Proposition 4.4, equations (42)-(51) (pp. 17-19) |
-| Outer rank bound and rank lemma | Equations (53)-(55), Lemma 4.5 (pp. 20-21) |
-| Outer-range estimate | Proposition 4.6, equations (56)-(59) (p. 21) |
-| Normalization factor, integrality | Equations (60)-(62); Proposition 5.1 (p. 22) |
+| Local range data: half-range, class counts | Section 4, opening paragraph, equations (42)-(43) (p. 17) |
+| Inner-range estimate | Proposition 4.4, equations (44)-(51) (pp. 17-19), with (42)-(43) |
+| Outer range data | Section 4.2, outer-range hypothesis (52), equations (54), (56), (58)-(59) (pp. 19-21); Section 5.1, first sentence, `γ^out_p = 0` for `p > K` (p. 22) |
+| Outer moment integrality | Lemma 3.4 with (24) (pp. 9, 12); Section 4.2.1, first paragraph (pp. 19-20) |
+| Outer rank decomposition, rank lemma, Gauss-valuation form | Section 4.2.1, equations (53)-(54); Lemma 4.5, (55), and its last sentence (pp. 20-21) |
+| Paired-pole congruence | Proof of Proposition 4.6, "the two remaining pole values at `a` and `p − a` are integral and congruent modulo `p`", and the case `p > K` (p. 21); erratum 7 |
+| Large-prime integrality | Proposition 4.6 and its proof, case `p > K` (p. 21); erratum 7 |
+| Outer class basis | Proof of Proposition 4.6, the rows `P_a q_{a,i}` and the zero-class rows (p. 21); reconstructed |
+| Outer weight family | Equation (56) and the proof of Proposition 4.6 (p. 21); zero-class weights reconstructed |
+| Outer entry valuations | Proof of Proposition 4.6, the residue bound `i + j + 8δ - ℓ - 6` (p. 21); reconstructed |
+| Outer weight sum | Equations (56)-(59) and the proof of Proposition 4.6, "Applying Lemma 4.5 to the weights (56) and summing over classes yields `γ^out_p`" (p. 21); reconstructed |
+| Outer-range estimate | Proposition 4.6, equations (52)-(59) (pp. 19-21); assembled from the rows above |
+| Normalization factor, integrality | Section 5.1, first sentence; equations (60)-(62); Proposition 5.1 (p. 22) |
 | Inner limiting function | Section 5.2, equations (65)-(70) (p. 23) |
-| Outer limiting function | Section 5.3, equations (71)-(73) (pp. 23-24) |
+| Outer limiting function | Section 5.3, equations (71)-(73) and its last sentence (pp. 23-24); outer-range step of the proof of Proposition 5.4 (p. 26); erratum 8 |
 | Tail integral | Section 5.4, equations (74)-(86) (pp. 24-25) |
 | Prime-sum bound | Proposition 5.4, equations (87)-(90) (pp. 25-26) |
 | External field | Section 6.1, equations (91)-(93) (p. 27) |
