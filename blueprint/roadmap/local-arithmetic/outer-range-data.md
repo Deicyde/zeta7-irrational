@@ -20,11 +20,14 @@ The outer weights (56): for a class `1 ≤ a ≤ m`, with
 `w^out_{a,i} = 0` if `i ≥ ℓ - 2`.
 
 Finally, (58) puts `v = K - p⌊K/p⌋`, `u = max(0, N + v - p + 1)`,
-and `t_p = min(N, v) + u`, and (59) defines the outer exponent
+and `t_p = min(N, v) + u`. The outer exponent `γ^out_p` is defined
+for every prime `p > K/3`, in two ranges. For `K/3 < p ≤ K` it is
+(59):
 `γ^out_p = -9(K - p) + 8t_p - 1 - min(r_p, p - 1 - N + u)` when
-`K < 2p` and
+`K < 2p`, and
 `γ^out_p = -9(K - p) + 3 + 16N + 7t_p - min(r_p, p + u)` when
-`K ≥ 2p`.
+`K ≥ 2p`; the outer estimates use this range under (52). For
+`p > K` it is `γ^out_p = 0`.
 
 ## Depends on
 
@@ -35,4 +38,6 @@ and `t_p = min(N, v) + u`, and (59) defines the outer exponent
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
   Section 4, equations (42)-(43) (the half-range `m` and the class
   counts), and Section 4.2, equations (52), (54), (56), and
-  (58)-(59).
+  (58)-(59); Section 5.1, first sentence ("For `p > K`, put
+  `γ^out_p = 0`"), for the value above `K`, which the
+  normalization (60) and the outer limiting functions use.
