@@ -18,7 +18,7 @@ functional, and the rank correction `r_p` (`ZetaSeven.rankCorr`) of the outer ra
   `e ≤ i + j + 8N - K` (`le_of_mem_support_polyPart`), and `c_e = 0` for `e < 3p - 4`, so
   `L_{ij} = 0` for `i + j < T = K - 8N + 3p - 4` (`outerLentry_eq_zero`), row `i` of `L`
   vanishes for `i ≤ T - h` (`outerLmat_row_eq_zero`), and at most
-  `min(h, max(0, 2h - T)) = r_p` rows are nonzero (`card_nonzero_rows_outerLmat_le`,
+  `min(h, max(0, 2h - T)) = r_p` rows are nonzero (`nonzero_rows_outerLmat_le`,
   `two_hDim_sub_threshold`).
 
 The paper's (53) also asserts that `A` is integral at every prime; that is false in the
@@ -68,7 +68,8 @@ theorem polyPart_eq_map (n i j : ℕ) :
 theorem natDegree_DpolyZ_le (m : ℕ) : (DpolyZ m).natDegree ≤ m := by
   unfold DpolyZ
   refine (natDegree_prod_le _ _).trans ?_
-  simp [natDegree_X_add_C]
+  simp only [natDegree_X_add_C, Finset.sum_const, Finset.card_range, smul_eq_mul, mul_one,
+    le_refl]
 
 theorem natDegree_RnumZ_le (n i j : ℕ) : (RnumZ n i j).natDegree ≤ 7 * N n + (i + j) := by
   unfold RnumZ
@@ -81,7 +82,8 @@ theorem natDegree_RnumZ_le (n i j : ℕ) : (RnumZ n i j).natDegree ≤ 7 * N n +
 theorem natDegree_DtailZ (n : ℕ) : (DtailZ n).natDegree = K n - N n := by
   unfold DtailZ
   rw [natDegree_prod_of_monic _ _ fun _ _ => monic_X_add_C _]
-  simp only [natDegree_X_add_C, Finset.sum_const, Nat.card_Icc, smul_eq_mul, mul_one] <;> omega
+  simp only [natDegree_X_add_C, Finset.sum_const, Nat.card_Icc, smul_eq_mul, mul_one]
+  omega
 
 /-- The degree bound for the polynomial part: `[t^e] P_{ij} ≠ 0` forces
 `e ≤ i + j + 8N - K`. -/
@@ -127,7 +129,7 @@ theorem Gentry_eq_outerAentry_add (p n i j : ℕ) :
 /-- (53): `G_K = A + p⁻¹ L`, with the rational matrix `L` lifted to `ℚ[X]` by `C`. -/
 theorem Gmat_eq_outerAmat_add (p n : ℕ) :
     Gmat n = outerAmat p n + (p : ℚ)⁻¹ • (outerLmat p n).map C := by
-  ext i j
+  refine Matrix.ext fun i j => ?_
   simp only [Gmat, outerAmat, outerLmat, Matrix.add_apply, Matrix.smul_apply, Matrix.map_apply,
     Matrix.of_apply, smul_C, smul_eq_mul]
   exact Gentry_eq_outerAentry_add p n i j
@@ -148,7 +150,7 @@ theorem exists_outerLmat_eq_map_intCast (p n : ℕ) :
     ∃ L : Matrix (Fin (hDim n)) (Fin (hDim n)) ℤ, outerLmat p n = L.map (Int.cast : ℤ → ℚ) := by
   refine ⟨Matrix.of fun i j =>
     (RnumZ n (i : ℕ) (j : ℕ) /ₘ DtailZ n).sum fun e a => (outerCe p e : ℤ) * a, ?_⟩
-  ext i j
+  refine Matrix.ext fun i j => ?_
   simp only [outerLmat, Matrix.map_apply, Matrix.of_apply]
   exact outerLentry_eq_intCast p n i j
 
@@ -180,44 +182,47 @@ theorem outerLmat_row_eq_zero {p n : ℕ} (i : Fin (hDim n))
   simp only [outerLmat, Matrix.of_apply, Pi.zero_apply]
   exact outerLentry_eq_zero (by omega)
 
-/-- At most `min(h, max(0, 2h - T)) = r_p` rows of `L` are nonzero. -/
-theorem card_nonzero_rows_outerLmat_le (p n : ℕ) :
-    (Finset.univ.filter fun i => outerLmat p n i ≠ 0).card ≤ rankCorr n p := by
-  have hmaps : Set.MapsTo (fun i : Fin (hDim n) => (i : ℕ))
-      (Finset.univ.filter fun i => outerLmat p n i ≠ 0)
-      (Finset.Ico (Int.toNat ((K n : ℤ) - 8 * N n + 3 * p - 4 - hDim n + 1)) (hDim n)) := by
-    intro i hi
-    simp only [Finset.mem_coe, Finset.mem_filter, Finset.mem_univ, true_and,
-      Finset.mem_Ico] at hi ⊢
-    refine ⟨?_, i.isLt⟩
-    by_contra hlt
-    exact hi (outerLmat_row_eq_zero i (by omega))
-  have h1 := Finset.card_le_card_of_injOn _ hmaps Fin.val_injective.injOn
-  rw [Nat.card_Ico] at h1
-  have hK : K n = 40 * n := rfl
-  have hN : N n = 3 * n := rfl
-  have hh : hDim n = 37 * n := rfl
-  unfold rankCorr
-  omega
+/-- At most `min(h, max(0, 2h - T)) = r_p` rows of `L` are nonzero: the rows `i ≤ T - h`
+vanish, and at most `r_p` indices `0 ≤ i < h` satisfy `i > T - h`. -/
+theorem nonzero_rows_outerLmat_le (p n : ℕ) :
+    ∃ S : Finset (Fin (hDim n)), S.card ≤ rankCorr n p ∧ ∀ i ∉ S, outerLmat p n i = 0 := by
+  obtain ⟨a, ha⟩ : ∃ a : ℕ, a = Int.toNat ((K n : ℤ) - 8 * N n + 3 * p - 4 - hDim n + 1) :=
+    ⟨_, rfl⟩
+  refine ⟨Finset.univ.filter fun i : Fin (hDim n) => a ≤ (i : ℕ), ?_, fun i hi => ?_⟩
+  · have hmaps : Set.MapsTo (fun i : Fin (hDim n) => (i : ℕ))
+        (Finset.univ.filter fun i : Fin (hDim n) => a ≤ (i : ℕ)) (Finset.Ico a (hDim n)) := by
+      intro i hi
+      exact Finset.mem_coe.2
+        (Finset.mem_Ico.2 ⟨(Finset.mem_filter.1 (Finset.mem_coe.1 hi)).2, i.isLt⟩)
+    have h1 := Finset.card_le_card_of_injOn _ hmaps Fin.val_injective.injOn
+    rw [Nat.card_Ico] at h1
+    have hK : K n = 40 * n := rfl
+    have hN : N n = 3 * n := rfl
+    have hh : hDim n = 37 * n := rfl
+    unfold rankCorr
+    omega
+  · have hlt : ¬ a ≤ (i : ℕ) := fun h => hi (Finset.mem_filter.2 ⟨Finset.mem_univ _, h⟩)
+    exact outerLmat_row_eq_zero i (by omega)
 
-/-- A rational matrix has rank at most the number of its nonzero rows. -/
-private theorem rank_le_card_nonzero_rows {m : Type*} [Fintype m] {k : ℕ}
-    (A : Matrix m (Fin k) ℚ) : A.rank ≤ (Finset.univ.filter fun i => A i ≠ 0).card := by
+/-- A rational matrix whose rows outside `S` vanish has rank at most `|S|`. -/
+private theorem rank_le_card_of_row_eq_zero {m : Type*} [Fintype m] {k : ℕ}
+    (A : Matrix m (Fin k) ℚ) (S : Finset m) (hS : ∀ i ∉ S, A i = 0) : A.rank ≤ S.card := by
   have hle : Submodule.span ℚ (Set.range A.row) ≤
-      Submodule.span ℚ (Set.range fun i : (Finset.univ.filter fun i => A i ≠ 0) => A i) := by
+      Submodule.span ℚ (Set.range fun i : S => A i) := by
     rw [Submodule.span_le]
     rintro _ ⟨i, rfl⟩
-    by_cases hi : A i = 0
-    · rw [Matrix.row_apply', hi]
+    by_cases hi : i ∈ S
+    · exact Submodule.subset_span ⟨⟨i, hi⟩, rfl⟩
+    · rw [Matrix.row_apply', hS i hi]
       exact Submodule.zero_mem _
-    · exact Submodule.subset_span ⟨⟨i, Finset.mem_filter.mpr ⟨Finset.mem_univ _, hi⟩⟩, rfl⟩
   rw [Matrix.rank_eq_finrank_span_row]
   refine (Submodule.finrank_mono hle).trans ((finrank_range_le_card (R := ℚ) _).trans ?_)
   exact (Fintype.card_coe _).le
 
 /-- (54): `rank_ℚ L ≤ r_p`. -/
-theorem rank_outerLmat_le (p n : ℕ) : (outerLmat p n).rank ≤ rankCorr n p :=
-  (rank_le_card_nonzero_rows _).trans (card_nonzero_rows_outerLmat_le p n)
+theorem rank_outerLmat_le (p n : ℕ) : (outerLmat p n).rank ≤ rankCorr n p := by
+  obtain ⟨S, hS, hrow⟩ := nonzero_rows_outerLmat_le p n
+  exact (rank_le_card_of_row_eq_zero _ S hrow).trans hS
 
 /-- Section 4.2.1, (53)-(54): `G_K = A + p⁻¹ L` with `L` lifted to `ℚ[X]` by `C`, `L` is an
 integer matrix, and `rank_ℚ L ≤ r_p`. Stated for every natural number `p`; the source
