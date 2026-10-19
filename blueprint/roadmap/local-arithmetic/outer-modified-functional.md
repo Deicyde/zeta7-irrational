@@ -9,8 +9,8 @@ origin: cited
 Fix a prime `p`, and write `μ(t^e) = μ_X(t^e)` for the polynomial
 moments of the functional `μ_X`. Put `c_e = 0` for `e < 3p - 4`.
 For `e ≥ 3p - 4` let `c_e ∈ {0, …, p - 1}` be the representative
-of `p μ(t^e)` modulo `p`: writing `p μ(t^e) = a/b` in lowest terms,
-`c_e ≡ a b^{-1} (mod p)` when `p ∤ b`, and `c_e = 0` when `p ∣ b`.
+of `p μ(t^e)` modulo `p`: writing `p μ(t^e) = u/v` in lowest terms,
+`c_e ≡ u v^{-1} (mod p)` when `p ∤ v`, and `c_e = 0` when `p ∣ v`.
 The modified functional `μ_0` is the functional defined like `μ_X`,
 with the values `μ_0(t^e) = μ(t^e) - c_e/p` on monomials and the
 values of `μ_X` on the simple poles `1/(t + a^2)`. For
@@ -22,7 +22,7 @@ define the `h × h` matrices `A_{ij} = μ_0(D_N^8 t^{i+j}/D_K)` and
 
 Remark, which the consuming theorems discharge where they use it:
 for `p ≥ 7` the outer moment integrality gives `v_p(μ(t^e)) ≥ -1`
-for every `e`, and `v_p(μ(t^e)) ≥ 0` for `e < 3p - 4`, so `p ∣ b`
+for every `e`, and `v_p(μ(t^e)) ≥ 0` for `e < 3p - 4`, so `p ∣ v`
 never happens, `p μ(t^e) ≡ c_e (mod p)`, and every `μ_0(t^e)` is
 `p`-integral. That is what the choice of
 `c_e` in (53) is for.
@@ -30,6 +30,7 @@ never happens, `p μ(t^e) ≡ c_e (mod p)`, and every `μ_0(t^e)` is
 ## Depends on
 
 - [Functional mu](../determinant-construction/functional-mu.md)
+- [Matrix and determinant](../determinant-construction/matrix-determinant.md)
 
 ## Sources
 

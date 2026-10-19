@@ -22,8 +22,9 @@ The paper's outer-range proof defers its basis, the zero-class
 weights, and the weight count to the zeta(5) predecessor; its claim
 (53) that the corrected matrix is integral is false as written, and
 so is its claim that each residue is `p`-integral when `p > K`. The
-outer range is therefore assembled from reconstructed steps: the rank
-decomposition of the modified functional, the paired-pole congruence,
+outer range is therefore assembled from the paper's rank
+decomposition of the modified functional and reconstructed steps: the
+paired-pole congruence,
 large-prime integrality, a weight family with reconstructed zero-class
 weights, class rows adapted to the residue classes and indexed like
 the weights, the unimodularity of those rows, weighted entry

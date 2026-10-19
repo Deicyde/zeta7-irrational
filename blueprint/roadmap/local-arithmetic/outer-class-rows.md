@@ -10,11 +10,11 @@ Fix a prime `p`, and take `m` and the class counts `ℓ_K(c)` of the
 local range data, the class indicators `δ_c` of the outer range
 data, and the index set of the outer weight family. For
 `0 ≤ c ≤ m` let `S_c = {N < j ≤ K : j ≡ ±c (mod p)}`, so `S_0` is
-the set of multiples of `p` in `(N, K]`, and
-`F_c(t) = ∏_{j ∈ S_c} (t + j^2)`. For `1 ≤ c ≤ m` write
+the set of multiples of `p` in `(N, K]`,
+`F_c(t) = ∏_{j ∈ S_c} (t + j^2)`, and
+`P_c = ∏_{0 ≤ d ≤ m, d ≠ c} F_d`. For `1 ≤ c ≤ m` write
 `ℓ = ℓ_K(c)` and `δ = δ_c`, and put
-`E_c(t) = ∏_{j ∈ S_c, j > p} (t + j^2)`,
-`P_c = ∏_{0 ≤ d ≤ m, d ≠ c} F_d`, and
+`E_c(t) = ∏_{j ∈ S_c, j > p} (t + j^2)` and
 `q_{c,i} = (t + c^2)^i` for `0 ≤ i < ℓ - 2`,
 `q_{c,i} = E_c(t) (t + c^2)^{i - (ℓ - 2)}` for `ℓ - 2 ≤ i < ℓ - δ`.
 The outer class rows are the integer polynomials indexed by the

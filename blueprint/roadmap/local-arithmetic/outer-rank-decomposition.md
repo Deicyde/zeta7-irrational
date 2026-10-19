@@ -25,9 +25,7 @@ integer matrix, and `L_{ij} = 0` when
 Row `i` of `L` vanishes when `i ≤ T - h`, so at most
 `min(h, max(0, 2h - T))` rows are nonzero, and
 `2h - T = K + 6N - 3p + 4` because `h = 37K/40`, `N = 3K/40`.
-The proof uses nothing about the size of the moments `μ(t^e)`:
-the outer moment integrality is needed only where the
-`p`-integrality of `μ_0` is used, in the outer entry valuations.
+The proof uses nothing about the size of the moments `μ(t^e)`.
 
 ## Depends on
 
@@ -41,4 +39,6 @@ the outer moment integrality is needed only where the
   Section 4.2.1, equations (53)-(54) and the rank count between
   them. The statement drops (53)'s claim that `A` is integral at
   every prime, which is false as written (source-map erratum 1),
-  and makes explicit the integrality of `L` that Lemma 4.5 needs.
+  makes explicit the integrality of `L` that Lemma 4.5 needs, and
+  states it for every prime, since the decomposition and the rank
+  count use nothing from (52).

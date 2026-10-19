@@ -33,8 +33,7 @@ of `-v_p(S_K)/K`.
 
 ## Depends on
 
-- [Outer range data](../local-arithmetic/outer-range-data.md)
-- [Matrix and determinant](../determinant-construction/matrix-determinant.md)
+- [Functional mu](../determinant-construction/functional-mu.md)
 
 ## Sources
 
@@ -46,7 +45,7 @@ of `-v_p(S_K)/K`.
   proof of Proposition 5.4, which both use
   `R_0 - d = lim -γ^out_p/K`, and not (71), which sets
   `R_0 = lim -γ^out_p/K`. The proof of Proposition 5.4 (its `L_p`
-  identity) uses the first reading; under (71) that proof is off by
+  identity) uses the adopted reading; under (71) that proof is off by
   the integral of `d`, `3/100`, and (90) would then rest on the
   slack in `A_0`. The explicit formula for `g` is derived by this
   project by scaling (54), (58), and (59).
