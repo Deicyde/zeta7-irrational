@@ -2,6 +2,8 @@
 article_id: af_d6d819b199888798d6232c46
 declaration: def
 origin: cited
+statement: formalized
+lean: ZetaSeven.OuterRange ZetaSeven.rankCorr ZetaSeven.classDelta ZetaSeven.outerWeight ZetaSeven.outerWeightDbl ZetaSeven.classV ZetaSeven.classU ZetaSeven.classT ZetaSeven.gammaOut ZetaSeven.gammaOut_of_lt_two_mul ZetaSeven.gammaOut_of_two_mul_le ZetaSeven.gammaOut_of_K_lt ZetaSeven.rankCorr_cast ZetaSeven.outerWeightDbl_eq_two_mul ZetaSeven.classV_eq_mod
 ---
 
 # Outer range data
@@ -26,7 +28,8 @@ for every prime `p > K/3`, in two ranges. For `K/3 < p ≤ K` it is
 `K < 2p`, and
 `γ^out_p = -9(K - p) + 3 + 16N + 7t_p - min(r_p, p + u)` when
 `K ≥ 2p`; the outer estimates use this range under (52). For
-`p > K` it is `γ^out_p = 0`.
+`p > K` it is `γ^out_p = 0`. For `p ≤ K/3`, which the source
+leaves unspecified, the formalization uses the `K ≥ 2p` formula.
 
 ## Depends on
 
