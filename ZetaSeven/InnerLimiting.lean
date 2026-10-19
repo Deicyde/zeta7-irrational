@@ -112,8 +112,7 @@ theorem gammaIntegrand_eq (x z : ℝ) :
         * ((TLim x : ℝ) + 4 * ((⌊(alpha : ℝ) * x - z⌋ : ℝ) + (⌊(alpha : ℝ) * x + z⌋ : ℝ) + 1)
           - ((⌊x - z⌋ : ℝ) + (⌊x + z⌋ : ℝ) + 1) - 7) := by
   simp only [gammaIntegrand, bLim, ellLim]
-  push_cast
-  ring
+  push_cast <;> ring
 
 theorem measurable_gammaIntegrand (x : ℝ) : Measurable (gammaIntegrand x) := by
   have h1 : Measurable fun z : ℝ => ((⌊x - z⌋ : ℤ) : ℝ) :=
@@ -294,11 +293,11 @@ theorem riemann_cells {φ : ℝ → ℝ} {m p : ℕ} (hp : 2 * m + 1 = p) {B : �
     linarith
   rw [hsplit, mul_add, Finset.mul_sum]
   have hrw : ∑ k ∈ range m, φ (((k : ℝ) + 1) / p)
-      - (∑ k ∈ range m, (p : ℝ) * ∫ z in ((k : ℝ) / p)..(((k + 1 : ℕ) : ℝ) / p), φ z
-        + (p : ℝ) * ∫ z in ((m : ℝ) / p)..(1 / 2), φ z)
-      = ∑ k ∈ range m, (φ (((k : ℝ) + 1) / p)
-          - (p : ℝ) * ∫ z in ((k : ℝ) / p)..(((k + 1 : ℕ) : ℝ) / p), φ z)
-        - (p : ℝ) * ∫ z in ((m : ℝ) / p)..(1 / 2), φ z := by
+      - ((∑ k ∈ range m, (p : ℝ) * (∫ z in ((k : ℝ) / p)..(((k + 1 : ℕ) : ℝ) / p), φ z))
+        + (p : ℝ) * (∫ z in ((m : ℝ) / p)..(1 / 2), φ z))
+      = (∑ k ∈ range m, (φ (((k : ℝ) + 1) / p)
+          - (p : ℝ) * (∫ z in ((k : ℝ) / p)..(((k + 1 : ℕ) : ℝ) / p), φ z)))
+        - (p : ℝ) * (∫ z in ((m : ℝ) / p)..(1 / 2), φ z) := by
     rw [Finset.sum_sub_distrib]
     ring
   rw [hrw]
@@ -319,10 +318,10 @@ theorem riemann_cells {φ : ℝ → ℝ} {m p : ℕ} (hp : 2 * m + 1 = p) {B : �
   rw [abs_le]
   constructor <;> linarith
 
-open Classical in
 /-- The cells `(k/p, (k+1)/p]`, `k < m`, on which `F` is not constant. -/
-noncomputable def badCells (m p : ℕ) (F : ℝ → ℤ) : Finset ℕ :=
-  (range m).filter fun k =>
+noncomputable def badCells (m p : ℕ) (F : ℝ → ℤ) : Finset ℕ := by
+  classical
+  exact (range m).filter fun k =>
     ∃ z : ℝ, (k : ℝ) / p < z ∧ z ≤ ((k : ℝ) + 1) / p ∧ F z ≠ F (((k : ℝ) + 1) / p)
 
 theorem eq_of_not_mem_badCells {m p : ℕ} {F : ℝ → ℤ} {k : ℕ} (hk : k < m)
@@ -435,8 +434,7 @@ theorem floor_natCast_div (a b : ℕ) (hb : 0 < b) : ⌊(a : ℝ) / b⌋ = ((a /
   have h2 : ((a % b : ℕ) : ℝ) + 1 ≤ b := by
     exact_mod_cast Nat.succ_le_of_lt (Nat.mod_lt a hb)
   have h3 : (0 : ℝ) ≤ ((a % b : ℕ) : ℝ) := Nat.cast_nonneg _
-  rw [Int.floor_eq_iff, le_div_iff₀ hbR, div_lt_iff₀ hbR]
-  push_cast
+  rw [Int.floor_eq_iff, Int.cast_natCast, le_div_iff₀ hbR, div_lt_iff₀ hbR]
   constructor <;> linarith
 
 /-- For `1 ≤ a ≤ m` the class count (43) is the floor count (64):
@@ -542,9 +540,9 @@ theorem sum_mul_eq_min {s : Finset ℕ} {e d : ℕ → ℝ} (he : ∀ a ∈ s, e
           norm_num at hab
         · rw [heb, hdb]
           exact ⟨one_mul 1, le_rfl⟩
-    rw [Finset.sum_congr rfl fun b hb => (hb b hb).1,
-      min_eq_left (Finset.sum_le_sum fun b hb => (hb b hb).2)]
-  · push_neg at h
+    rw [Finset.sum_congr rfl fun b hb' => (hb b hb').1,
+      min_eq_left (Finset.sum_le_sum fun b hb' => (hb b hb').2)]
+  · have h' : ∀ a ∈ s, d a = 1 → e a ≠ 0 := fun a ha hda hea => h ⟨a, ha, hda, hea⟩
     have hb : ∀ b ∈ s, e b * d b = d b ∧ d b ≤ e b := by
       intro b hb
       rcases hd b hb with hdb | hdb
@@ -552,13 +550,13 @@ theorem sum_mul_eq_min {s : Finset ℕ} {e d : ℕ → ℝ} (he : ∀ a ∈ s, e
         rcases he b hb with heb | heb
         · rw [heb]; exact ⟨rfl, le_rfl⟩
         · rw [heb]; exact ⟨rfl, zero_le_one⟩
-      · have hne := h b hb hdb
+      · have hne := h' b hb hdb
         rcases he b hb with heb | heb
         · exact absurd heb hne
         · rw [heb, hdb]
           exact ⟨one_mul 1, le_rfl⟩
-    rw [Finset.sum_congr rfl fun b hb => (hb b hb).1,
-      min_eq_right (Finset.sum_le_sum fun b hb => (hb b hb).2)]
+    rw [Finset.sum_congr rfl fun b hb' => (hb b hb').1,
+      min_eq_right (Finset.sum_le_sum fun b hb' => (hb b hb').2)]
 
 /-- The allocation bookkeeping behind the first formula of (70), as pure real arithmetic.
 Here `ΦT'` is the weight sum with `T' ∈ {T, T - 1}` rows per class, `E = mT' + E - mT'` the
@@ -613,18 +611,18 @@ theorem gammaIn_split (hR : InnerRange n M p) [Fact p.Prime] :
   rw [gammaIn, Finset.sum_range_eq_add_Ico _ (by omega : 0 < mHalf p + 1),
     Finset.Ico_add_one_right_eq_Icc]
   push_cast
-  have hL0 : allocL n M p ε 0 = L0 M := by rw [allocL, if_pos rfl]
+  have hL0 : allocL n M p ε 0 = L0 M := by rw [allocL, ite_eq_left rfl]
   rw [hL0]
   congr 1
   refine Finset.sum_congr rfl fun a ha => ?_
   obtain ⟨ha1, ham⟩ := Finset.mem_Icc.mp ha
   have hb := bA_lt_allocT hR ha1 ham
   have hL : allocL n M p ε a = allocT n M p + ε a - bA n p a := by
-    rw [allocL, if_neg (by omega), allocZ]
+    rw [allocL, ite_eq_right (by omega), allocZ]
   have hw : ∀ i, (weight2 n M p ε a i : ℝ)
       = 2 * (i : ℝ) + (8 * (ell p (N n) a : ℝ) - (ell p (K n) a : ℝ) - 6) := by
     intro i
-    rw [weight2, if_neg (by omega)]
+    rw [weight2, ite_eq_right (by omega)]
     push_cast
     ring
   simp only [hw]
@@ -645,15 +643,15 @@ theorem abs_weight2_zero_le (hR : InnerRange n M p) [Fact p.Prime] {i : ℕ} (hi
     obtain ⟨hc1, hcm⟩ := Finset.mem_Icc.mp hc
     have h1 := mul_ell_le hm (K n) c hc1 hcm
     by_contra hcon
-    push_neg at hcon
-    have h2 : p * (2 * M + 2) ≤ p * ell p (K n) c := Nat.mul_le_mul_left p hcon
+    have hcon' : 2 * M + 2 ≤ ell p (K n) c := Nat.succ_le_of_lt (not_le.mp hcon)
+    have h2 : p * (2 * M + 2) ≤ p * ell p (K n) c := Nat.mul_le_mul_left p hcon'
     linarith
   have hupper : weight2 n M p ε 0 i ≤ 4 * (i : ℤ) + 16 * mN n p - 2 * mK n p + 1 := by
-    rw [weight2, if_pos rfl]
-    exact Finset.fold_min_le.mpr (Or.inl le_rfl)
+    rw [weight2, ite_eq_left rfl]
+    exact (Finset.fold_min_le _).mpr (Or.inl le_rfl)
   have hlower : -(2 * (M : ℤ) + 8) ≤ weight2 n M p ε 0 i := by
-    rw [weight2, if_pos rfl]
-    refine Finset.le_fold_min.mpr ⟨?_, fun c hc => ?_⟩
+    rw [weight2, ite_eq_left rfl]
+    refine (Finset.le_fold_min _).mpr ⟨?_, fun c hc => ?_⟩
     · have : (mK n p : ℤ) < M := by exact_mod_cast hmK
       omega
     · have h1 := hell c hc
@@ -709,7 +707,7 @@ theorem gammaRiemann (hR : InnerRange n M p) [Fact p.Prime] {x : ℝ}
     have h2 : (bA n p a : ℝ) = (bLim x ((a : ℝ) / p) : ℝ) := by
       have e := ell_eq_ellLim hm (N n) a ha1 ham
       rw [bLim, hαx, ← e, bA]
-      push_cast
+      push_cast <;> ring
     rw [gammaIntegrand, h1, h2]
   rw [Finset.sum_congr rfl hterm]
   have hre : ∑ a ∈ Icc 1 (mHalf p), gammaIntegrand x ((a : ℝ) / p)
@@ -721,8 +719,7 @@ theorem gammaRiemann (hR : InnerRange n M p) [Fact p.Prime] {x : ℝ}
     ring
   rw [hre]
   have hT0 : (0 : ℝ) ≤ (TLim x : ℝ) := by
-    have : (0 : ℤ) ≤ ⌊2 * (bigH : ℝ) * x⌋ :=
-      Int.floor_nonneg.mpr (by rw [bigH_real]; linarith)
+    have : (0 : ℤ) ≤ TLim x := Int.floor_nonneg.mpr (by rw [bigH_real]; linarith)
     exact_mod_cast this
   have hTle : (TLim x : ℝ) ≤ 2 * (bigH : ℝ) * x := Int.floor_le (2 * (bigH : ℝ) * x)
   rw [bigH_real] at hTle
@@ -767,8 +764,8 @@ theorem gammaRiemann (hR : InnerRange n M p) [Fact p.Prime] {x : ℝ}
   have key := riemann_cells hm hB (gammaIntegrand_intervalIntegrable x) S hgood
   have hB0 : (0 : ℝ) ≤ (11 * M + 20) * (13 * M + 32) := by positivity
   have hc4 : (S.card : ℝ) ≤ 4 := by exact_mod_cast hcard
-  calc _ ≤ (2 * S.card + 1) * ((11 * M + 20) * (13 * M + 32)) := key
-    _ ≤ 9 * ((11 * M + 20) * (13 * M + 32)) := by
+  calc _ ≤ (2 * (S.card : ℝ) + 1) * ((11 * (M : ℝ) + 20) * (13 * M + 32)) := key
+    _ ≤ 9 * ((11 * (M : ℝ) + 20) * (13 * M + 32)) := by
       apply mul_le_mul_of_nonneg_right _ hB0
       linarith
 
@@ -831,7 +828,7 @@ theorem gammaIn_approx (M : ℕ) : ∃ C : ℝ, ∀ (n p : ℕ) (ε : ℕ → �
       |(gammaIn n M p ε : ℝ) - p * innerGamma ((K n : ℝ) / p)| ≤ C := by
   refine ⟨(6 * M + 10) * (40 * M + 37) + 9 * ((11 * M + 20) * (13 * M + 32))
     + ((12 * M + 10) * ((7 * M + 7) + 8) + 2 * M), fun n p ε hp hR hε => ?_⟩
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   obtain ⟨x, hx⟩ : ∃ x : ℝ, x = (K n : ℝ) / p := ⟨_, rfl⟩
   rw [← hx]
   have hm := hR.two_mul_mHalf
@@ -852,16 +849,15 @@ theorem gammaIn_approx (M : ℕ) : ∃ C : ℝ, ∀ (n p : ℕ) (ε : ℕ → �
   have hpx : (p : ℝ) * x = 40 * n := by
     rw [hx, mul_div_cancel₀ _ hpR.ne']
     simp only [K]
-    push_cast
+    push_cast <;> ring
   -- `T = ⌊2Hx⌋` and `q = ⌊2x⌋`
   have hT0 : (0 : ℝ) ≤ (TLim x : ℝ) := by
-    have : (0 : ℤ) ≤ ⌊2 * (bigH : ℝ) * x⌋ :=
-      Int.floor_nonneg.mpr (by rw [bigH_real]; linarith)
+    have : (0 : ℤ) ≤ TLim x := Int.floor_nonneg.mpr (by rw [bigH_real]; linarith)
     exact_mod_cast this
   have hTle : (TLim x : ℝ) ≤ 2 * (bigH : ℝ) * x := Int.floor_le (2 * (bigH : ℝ) * x)
   rw [bigH_real] at hTle
   have hq0 : (0 : ℝ) ≤ (qLim x : ℝ) := by
-    have : (0 : ℤ) ≤ ⌊2 * x⌋ := Int.floor_nonneg.mpr (by linarith)
+    have : (0 : ℤ) ≤ qLim x := Int.floor_nonneg.mpr (by linarith)
     exact_mod_cast this
   have hqle : (qLim x : ℝ) ≤ 2 * x := Int.floor_le (2 * x)
   -- the zero class
@@ -870,7 +866,7 @@ theorem gammaIn_approx (M : ℕ) : ∃ C : ℝ, ∀ (n p : ℕ) (ε : ℕ → �
     calc _ ≤ ∑ i ∈ range (L0 M), |(weight2 n M p ε 0 i : ℝ)| := Finset.abs_sum_le_sum_abs _ _
       _ ≤ ∑ i ∈ range (L0 M), (40 * (M : ℝ) + 37) :=
           Finset.sum_le_sum fun i hi => abs_weight2_zero_le hR (Finset.mem_range.mp hi)
-      _ = (6 * M + 10) * (40 * M + 37) := by
+      _ = (6 * (M : ℝ) + 10) * (40 * M + 37) := by
           rw [Finset.sum_const, Finset.card_range, nsmul_eq_mul]
           simp [L0]
   -- the weight sum with `T = ⌊2Hx⌋` rows per class
@@ -909,7 +905,7 @@ theorem gammaIn_approx (M : ℕ) : ∃ C : ℝ, ∀ (n p : ℕ) (ε : ℕ → �
   have hcpm : ∑ a ∈ Icc 1 (mHalf p), ((ell p (K n) a : ℝ) - qLim x) ≤ mHalf p := by
     calc _ ≤ ∑ a ∈ Icc 1 (mHalf p), (1 : ℝ) :=
           Finset.sum_le_sum fun a ha => by rcases hd01 a ha with h | h <;> linarith
-      _ = mHalf p := by rw [Finset.sum_const, nsmul_eq_mul, hcard, mul_one]
+      _ = (mHalf p : ℝ) := by rw [Finset.sum_const, nsmul_eq_mul, hcard, mul_one]
   -- the extra rows
   have hsumε : ∑ a ∈ Icc 1 (mHalf p), (ε a : ℝ) = allocE n M p := by
     exact_mod_cast sum_eps hε
@@ -991,7 +987,7 @@ theorem gammaIn_approx (M : ℕ) : ∃ C : ℝ, ∀ (n p : ℕ) (ε : ℕ → �
     rw [nPlus]
     have e : (p : ℝ) * ((2 * x - (qLim x : ℝ)) / 2) = p * x - p * (qLim x : ℝ) / 2 := by ring
     rw [e, hpx]
-  have hKR : (K n : ℝ) = 40 * n := by simp [K]
+  have hKR : (K n : ℝ) = 40 * n := by push_cast [K] <;> ring
   -- the allocation identity `mT + E = h - L_0 + 4(N - m_N)`
   have hdm : mHalf p * allocT n M p + allocE n M p = allocTotal n M p :=
     Nat.div_add_mod (allocTotal n M p) (mHalf p)
@@ -1111,7 +1107,7 @@ theorem padicValRat_SK {n p : ℕ} [Fact p.Prime] (h4 : ¬ p ∣ 4) (hsq : 2 * h
     have hi2 : 2 * i < p ^ 2 :=
       lt_of_le_of_lt (by have := (Finset.mem_Icc.mp hi).2; omega) hsq
     rw [padicValRat.pow, hfac _ hi2]
-    push_cast
+    push_cast <;> ring
   rw [hsum, ← Finset.mul_sum]
   push_cast
   ring
@@ -1148,9 +1144,11 @@ theorem innerJ_sum_bounds {p : ℕ} (hp : 2 ≤ p) (h : ℕ) :
     have hmono : 2 * k / p ≤ 2 * (k + 1) / p := Nat.div_le_div_right (by omega)
     have hcase : 2 * (k + 1) / p = 2 * k / p ∨ 2 * (k + 1) / p = 2 * k / p + 1 := by
       have hlt : 2 * (k + 1) / p < 2 * k / p + 2 := by
-        by_contra hc
-        push_neg at hc
-        have h1 := Nat.mul_le_mul_left p hc
+        rw [Nat.div_lt_iff_lt_mul hp0]
+        have hA2 := hA
+        have hB2 := hB
+        generalize 2 * k / p = m at hA2 ⊢
+        generalize 2 * k % p = r at hA2 hB2
         linarith
       omega
     have hA' : (p : ℝ) * ((2 * k / p : ℕ) : ℝ) + ((2 * k % p : ℕ) : ℝ) = 2 * k := by
@@ -1173,7 +1171,7 @@ theorem innerJ_sum_bounds {p : ℕ} (hp : 2 ≤ p) (h : ℕ) :
 theorem padicValRat_SK_approx (M : ℕ) : ∃ C : ℝ, ∀ n p : ℕ, p.Prime → InnerRange n M p →
     |(padicValRat p (SK n) : ℝ) - p * innerN ((K n : ℝ) / p)| ≤ C := by
   refine ⟨4 * M, fun n p hp hR => ?_⟩
-  haveI : Fact p.Prime := ⟨hp⟩
+  have : Fact p.Prime := ⟨hp⟩
   have hpM := hR.p_gt
   have hp0 : 0 < p := hp.pos
   have hpR : (0 : ℝ) < p := by exact_mod_cast hp0
@@ -1212,7 +1210,7 @@ theorem padicValRat_SK_approx (M : ℕ) : ∃ C : ℝ, ∀ n p : ℕ, p.Prime �
     rw [innerN, hfl1, hfl2, hlamx]
     simp only [Int.cast_natCast]
     linear_combination (2 * ((K n / p : ℕ) : ℝ) - 16 * ((N n / p : ℕ) : ℝ)) * hplamx
-  obtain ⟨hJ1, hJ2⟩ := innerJ_sum_bounds (p := p) (by omega) (hDim n)
+  obtain ⟨hJ1, hJ2⟩ := innerJ_sum_bounds hp.two_le (hDim n)
   have hrange : ∑ i ∈ Icc 1 (hDim n - 1), ((2 * i / p : ℕ) : ℝ)
       = ∑ i ∈ range (hDim n), ((2 * i / p : ℕ) : ℝ) := by
     apply Finset.sum_subset
