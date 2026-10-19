@@ -147,7 +147,7 @@ Only items confirmed independently of the paper's own text are listed:
 by exact or high-precision recomputation from the paper's definitions
 and Table 1, or by a Lean proof. Items 1-8 do not break the main
 theorem as far as the formalization has checked; item 8 is resolved
-in favor of the reading under which Proposition 5.4 holds. Item 9
+in favor of the reading that the proof of Proposition 5.4 uses. Item 9
 does: with the recomputed outer integral, (118) fails and the v1
 route to Theorems 1.1-1.2 does not close (open question 5).
 
@@ -229,10 +229,14 @@ route to Theorems 1.1-1.2 does not close (open question 5).
    `-γ^out_p = K(R_0(p/K) - d(p/K)) + O(1)` uniformly in the outer
    range") and the outer-range step of the proof of Proposition 5.4
    (`L_p = v_p(S_K) + γ^out_p = -K(R_0 - d - 2λ⌊1/y⌋ + ∑_j (2λ - jy)_+) + O(1)`),
-   which both use `R_0 - d = lim -γ^out_p/K`. Proposition 5.4 holds
-   only under the second reading: under (71), the outer contribution
-   to the prime sum exceeds the integral (73) by the integral of `d`,
-   which is `3/100`, so (90) would not follow. The
+   which both use `R_0 - d = lim -γ^out_p/K`. So the proof of
+   Proposition 5.4 (its `L_p` identity) and the last sentence of
+   Section 5.3 use the second reading. Under (71) that proof is off
+   by the integral of `d`, which is `3/100`: the outer contribution
+   to the prime sum exceeds the integral (73) by that amount, and
+   (90) would then rest on the slack in `A_0` (the printed
+   `A_0 = 1.3175` is about `1.38` above the true tail, about
+   `-0.064`, which absorbs the `3/100`). The
    [outer limiting functions](../roadmap/normalization-prime-sum/outer-limiting.md)
    node adopts the second reading, `R_0 = g + d` with
    `g = lim -γ^out_p/K` and `γ^out_p = 0` for `p > K`. By exact

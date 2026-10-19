@@ -16,12 +16,11 @@ define
 - `g(y) = 9(1 - y) - 16α - 7t + min(r, y + u)` for `1/3 < y ≤ 1/2`,
 - `g(y) = 0` for `1 < y < 2λ`.
 
-This is the outer exponent of the outer range data scaled by `K`:
-substituting `p = yK`, `N = αK`, `h = λK` in (54), (58), and (59)
-shows that `g(y)` is the limit of `-γ^out_p/K` as `K → ∞` with
-`p/K → y`, and for `y > 1` the limit is `0` because `γ^out_p = 0`
-for `p > K`. The prime-sum bound proves the uniform form of this
-limit that it uses.
+This is the outer exponent of the outer range data scaled by `K`,
+with `p = yK`, `N = αK`, `h = λK` in (54), (58), and (59), and
+`0` for `y > 1`, where `γ^out_p = 0`: the prime-sum bound proves
+that `g(y)` is the limit of `-γ^out_p/K` as `K → ∞` with
+`p/K → y`, in the uniform form it uses.
 
 Define the outer limiting function `R_0(y) = g(y) + d(y)`, where
 `d` is the zero-weight correction (72)
@@ -46,9 +45,11 @@ of `-v_p(S_K)/K`.
   the last sentence of Section 5.3 and the outer-range step of the
   proof of Proposition 5.4, which both use
   `R_0 - d = lim -γ^out_p/K`, and not (71), which sets
-  `R_0 = lim -γ^out_p/K`; only the first reading makes
-  Proposition 5.4 hold. The explicit formula for `g` is derived by
-  this project by scaling (54), (58), and (59).
+  `R_0 = lim -γ^out_p/K`. The proof of Proposition 5.4 (its `L_p`
+  identity) uses the first reading; under (71) that proof is off by
+  the integral of `d`, `3/100`, and (90) would then rest on the
+  slack in `A_0`. The explicit formula for `g` is derived by this
+  project by scaling (54), (58), and (59).
 - [Source-map erratum 8](../../sources/zeta7-preprint.md#errata-found-during-formalization)
   records the conflict, and
   [open question 5](../../sources/zeta7-preprint.md#open-source-questions)
