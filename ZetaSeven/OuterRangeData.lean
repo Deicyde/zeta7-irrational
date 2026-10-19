@@ -112,14 +112,14 @@ def gammaOut (n p : ℕ) : ℤ :=
 /-- Section 5.1: `γ^out_p = 0` for `p > K`. -/
 theorem gammaOut_of_K_lt {n p : ℕ} (h : K n < p) : gammaOut n p = 0 := by
   unfold gammaOut
-  rw [if_pos h]
+  rw [ite_eq_left h]
 
 /-- (59), case `K < 2p` (which gives `K/3 < p`), for `p ≤ K`. -/
 theorem gammaOut_of_lt_two_mul {n p : ℕ} (hp : p ≤ K n) (h : K n < 2 * p) :
     gammaOut n p = -9 * ((K n : ℤ) - p) + 8 * classT n p - 1
       - min (rankCorr n p : ℤ) ((p : ℤ) - 1 - N n + classU n p) := by
   unfold gammaOut
-  rw [if_neg (Nat.not_lt.mpr hp), if_pos h]
+  rw [ite_eq_right (Nat.not_lt.mpr hp), ite_eq_left h]
 
 /-- (59), case `K ≥ 2p`. With `K/3 < p` this is the second clause of (59); for `p ≤ K/3`
 it is the value the definition gives outside the source's range. -/
@@ -127,6 +127,6 @@ theorem gammaOut_of_two_mul_le {n p : ℕ} (h : 2 * p ≤ K n) :
     gammaOut n p = -9 * ((K n : ℤ) - p) + 3 + 16 * N n + 7 * classT n p
       - min (rankCorr n p : ℤ) ((p : ℤ) + classU n p) := by
   unfold gammaOut
-  rw [if_neg (show ¬ K n < p by omega), if_neg (show ¬ K n < 2 * p by omega)]
+  rw [ite_eq_right (show ¬ K n < p by omega), ite_eq_right (show ¬ K n < 2 * p by omega)]
 
 end ZetaSeven
