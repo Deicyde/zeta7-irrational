@@ -1170,7 +1170,8 @@ theorem muRatFunc_Gentry (n i j : ℕ) :
       = algebraMap ℚ[X] (RatFunc ℚ) (Rnum n i j) / algebraMap ℚ[X] (RatFunc ℚ) (Dtail n) := by
     rw [Dpoly_eq_mul_Dtail, Rnum,
       show Dpoly (N n) ^ 8 * X ^ (i + j) = Dpoly (N n) * (Dpoly (N n) ^ 7 * X ^ (i + j)) by ring,
-      map_mul, map_mul]
+      map_mul (algebraMap ℚ[X] (RatFunc ℚ)) (Dpoly (N n)) (Dpoly (N n) ^ 7 * X ^ (i + j)),
+      map_mul (algebraMap ℚ[X] (RatFunc ℚ)) (Dpoly (N n)) (Dtail n)]
     exact mul_div_mul_left _ _ (RatFunc.algebraMap_ne_zero hD)
   have hpp : (Rnum n i j).div (Dtail n) = Rnum n i j /ₘ Dtail n :=
     (divByMonic_eq_div _ hmonic).symm
@@ -1243,7 +1244,7 @@ theorem FK_eq_det_muData (n : ℕ) :
     FK n = C ((Nat.factorial (K n) : ℚ) ^ (2 * hDim n))
       * (Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j)).det := by
   have hmat : (Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j))
-      = (transMat n).map C * Gmat n * ((transMat n).map C)ᵀ := by
+      = (transMat n).map C * Gmat n * ((transMat n).map C).transpose := by
     ext i j
     rw [Matrix.of_apply, muFunctional_muData]
     simp only [Matrix.mul_apply, Matrix.map_apply, Matrix.transpose_apply, Gmat, Matrix.of_apply,
@@ -1274,5 +1275,223 @@ theorem FK_eq_det_fBasis (n : ℕ) (pd : Fin (hDim n) → Fin (hDim n) → ℚ[X
     rw [Matrix.of_apply, Matrix.of_apply, (h i j).1, (h i j).2]
   rw [hM]
   exact FK_eq_det_muData n
+
+/-! ## The crude global bound (41) -/
+
+namespace SmallPrime
+
+/-- Gauss valuation of a product: `v^G(PQ) ≥ v^G(P) + v^G(Q)` (coefficientwise). -/
+theorem coeff_mul_val (P Q : ℚ[X]) {B₁ B₂ : ℤ} (hB : B₁ + B₂ ≤ 0)
+    (hP : ∀ k, B₁ ≤ padicValRat p (P.coeff k)) (hQ : ∀ k, B₂ ≤ padicValRat p (Q.coeff k))
+    (k : ℕ) : B₁ + B₂ ≤ padicValRat p ((P * Q).coeff k) := by
+  rw [coeff_mul]
+  exact padicValRat_le_sum _ _ _ hB fun x _ => padicValRat_mul_ge _ _ _ _ (hP _) (hQ _) hB
+
+theorem coeff_prod_val {ι : Type*} (s : Finset ι) (P : ι → ℚ[X]) {B : ℤ} (hB : B ≤ 0)
+    (hP : ∀ i ∈ s, ∀ k, B ≤ padicValRat p ((P i).coeff k)) :
+    ∀ k, (s.card : ℤ) * B ≤ padicValRat p ((∏ i ∈ s, P i).coeff k) := by
+  classical
+  induction s using Finset.induction with
+  | empty =>
+    intro k
+    simp only [Finset.card_empty, Nat.cast_zero, zero_mul, Finset.prod_empty, coeff_one]
+    split_ifs <;> simp
+  | insert a s has ih =>
+    intro k
+    rw [Finset.prod_insert has, Finset.card_insert_of_notMem has, Nat.cast_succ, add_mul, one_mul,
+      add_comm]
+    have hc : (0 : ℤ) ≤ s.card := Nat.cast_nonneg _
+    exact coeff_mul_val _ _ (by nlinarith) (hP a (Finset.mem_insert_self a s))
+      (ih (fun i hi => hP i (Finset.mem_insert_of_mem hi))) k
+
+/-- Gauss valuation of an `h × h` determinant: `v^G(det M) ≥ h · min v^G(M_{ij})`. -/
+theorem det_coeff_val {h : ℕ} (M : Matrix (Fin h) (Fin h) ℚ[X]) {B : ℤ} (hB : B ≤ 0)
+    (hM : ∀ i j k, B ≤ padicValRat p ((M i j).coeff k)) (k : ℕ) :
+    (h : ℤ) * B ≤ padicValRat p (M.det.coeff k) := by
+  have h0 : (0 : ℤ) ≤ h := Nat.cast_nonneg _
+  rw [Matrix.det_apply, finsetSum_coeff]
+  apply padicValRat_le_sum _ _ _ (by nlinarith)
+  intro σ _
+  rw [Units.smul_def, coeff_smul, zsmul_eq_mul]
+  have hprod := coeff_prod_val (p := p) Finset.univ (fun i => M (σ i) i) hB
+    (fun i _ k' => hM _ _ k') k
+  rw [Finset.card_univ, Fintype.card_fin] at hprod
+  have h1 := padicValRat_mul_ge _ _ 0 _
+    (padicValRat_intCast_nonneg (p := p) ((Equiv.Perm.sign σ : ℤˣ) : ℤ)) hprod (by nlinarith)
+  linarith
+
+theorem compRingHom_neg_sq_injective :
+    Function.Injective (Polynomial.compRingHom (-X ^ 2 : ℚ[X])) := by
+  rw [injective_iff_map_eq_zero]
+  intro q hq
+  rw [Polynomial.coe_compRingHom_apply] at hq
+  rcases Polynomial.comp_eq_zero_iff.mp hq with h | ⟨-, h⟩
+  · exact h
+  · exfalso
+    have h2 := congrArg (fun r : ℚ[X] => r.coeff 2) h
+    simp at h2
+
+/-- The substitution `t ↦ -x²` on `ℚ(t)`. -/
+noncomputable def compNegSq : RatFunc ℚ →+* RatFunc ℚ :=
+  RatFunc.liftRingHom ((algebraMap ℚ[X] (RatFunc ℚ)).comp (Polynomial.compRingHom (-X ^ 2)))
+    (nonZeroDivisors_le_comap_nonZeroDivisors_of_injective _
+      ((RatFunc.algebraMap_injective ℚ).comp compRingHom_neg_sq_injective))
+
+theorem compNegSq_alg (q : ℚ[X]) :
+    compNegSq (algebraMap ℚ[X] (RatFunc ℚ) q) = algebraMap ℚ[X] (RatFunc ℚ) (q.comp (-X ^ 2)) := by
+  simp only [compNegSq, RatFunc.liftRingHom_algebraMap, RingHom.comp_apply,
+    Polynomial.coe_compRingHom_apply]
+
+/-- `x⁷ R(-x²)` is `x⁷` times the substitution `t ↦ -x²` applied to `R`. -/
+theorem pullbackRatFunc_eq (p : ℚ[X]) (c : ℕ →₀ ℚ) :
+    pullbackRatFunc p c = algebraMap ℚ[X] (RatFunc ℚ) X ^ 7 * compNegSq (muRatFunc p c) := by
+  unfold pullbackRatFunc muRatFunc
+  rw [map_add, map_finsuppSum, compNegSq_alg]
+  congr 1
+  congr 1
+  refine Finsupp.sum_congr fun j _ => ?_
+  rw [map_div₀, compNegSq_alg, compNegSq_alg, C_comp, add_comp, X_comp, C_comp]
+
+theorem prod_neg_sq (x : ℚ) (l : ℕ) :
+    ∏ j ∈ Finset.range l, (-x ^ 2 + ((j : ℚ) + 1) ^ 2)
+      = (-1) ^ l * ∏ j ∈ Finset.range l, (x ^ 2 - ((j : ℚ) + 1) ^ 2) := by
+  rw [show (-1 : ℚ) ^ l = ∏ _j ∈ Finset.range l, (-1 : ℚ) by simp, ← Finset.prod_mul_distrib]
+  exact Finset.prod_congr rfl fun j _ => by ring
+
+/-- `x D_K(-x²) = (-1)^K ∏_{|r| ≤ K} (x - r)`. -/
+theorem X_mul_Dpoly_comp (K : ℕ) : X * (Dpoly K).comp (-X ^ 2) = C ((-1 : ℚ) ^ K) * Wpoly K := by
+  apply Polynomial.funext
+  intro x
+  rw [Wpoly_eq_prod_range]
+  simp only [Dpoly, eval_mul, eval_X, eval_comp, eval_neg, eval_pow, eval_prod, eval_add, eval_C,
+    eval_sub]
+  rw [Finset.prod_congr rfl (fun (i : ℕ) _ => show x - ((i : ℚ) - K) = x + K - i by ring),
+    prod_centered, prod_neg_sq]
+  ring
+
+end SmallPrime
+
+/-- The integer-valued numerator in the `τ`-form of `(K!)² μ_X(f_i f_j / D_K)`:
+`x⁷ (K!)² f_i(-x²) f_j(-x²)/D_K(-x²) = (K!)² A_{ij}(x)/∏_{|r| ≤ K} (x - r)`. -/
+noncomputable def Aij (n i j : ℕ) : ℚ[X] :=
+  C ((-1 : ℚ) ^ K n) * X ^ 8 * (fPoly n i * fPoly n j).comp (-X ^ 2)
+
+namespace SmallPrime
+
+theorem natDegree_fPoly_le (n i : ℕ) : (fPoly n i).natDegree ≤ 4 * N n + i := by
+  unfold fPoly
+  refine natDegree_mul_le.trans ?_
+  have h1 : (C ((Nat.factorial (N n) : ℚ) ^ 2)⁻¹ * Dpoly (N n)).natDegree ≤ N n :=
+    (natDegree_C_mul_le _ _).trans (Dpoly_natDegree _).le
+  have h2 : ((C ((Nat.factorial (N n) : ℚ) ^ 2)⁻¹ * Dpoly (N n)) ^ 4).natDegree ≤ 4 * N n :=
+    natDegree_pow_le.trans (by omega)
+  have h3 := qPoly_natDegree_le i
+  omega
+
+theorem natDegree_Aij_le (n i j : ℕ) :
+    (Aij n i j).natDegree ≤ 8 + 2 * (4 * N n + i + (4 * N n + j)) := by
+  unfold Aij
+  have h1 : (C ((-1 : ℚ) ^ K n) * X ^ 8).natDegree ≤ 8 :=
+    (natDegree_C_mul_le _ _).trans (natDegree_X_pow_le 8)
+  have h4 : (fPoly n i * fPoly n j).natDegree ≤ 4 * N n + i + (4 * N n + j) :=
+    natDegree_mul_le.trans (add_le_add (natDegree_fPoly_le n i) (natDegree_fPoly_le n j))
+  have h3 : (-X ^ 2 : ℚ[X]).natDegree = 2 := by
+    rw [natDegree_neg, natDegree_X_pow]
+  have h2 : ((fPoly n i * fPoly n j).comp (-X ^ 2)).natDegree
+      ≤ 2 * (4 * N n + i + (4 * N n + j)) := by
+    refine natDegree_comp_le.trans ?_
+    rw [h3]
+    omega
+  exact natDegree_mul_le.trans (by omega)
+
+theorem Aij_intValued (n i j : ℕ) (m : ℤ) : 0 ≤ padicValRat p ((Aij n i j).eval (m : ℚ)) := by
+  obtain ⟨w1, hw1⟩ := fPoly_comp_neg_sq_intValued n i m
+  obtain ⟨w2, hw2⟩ := fPoly_comp_neg_sq_intValued n j m
+  have h : (Aij n i j).eval (m : ℚ) = (((-1) ^ K n * m ^ 8 * w1 * w2 : ℤ) : ℚ) := by
+    rw [Aij, mul_comp, eval_mul, eval_mul, eval_mul, eval_C, eval_pow, eval_X, hw1, hw2]
+    push_cast
+    try ring
+  rw [h]
+  exact padicValRat_intCast_nonneg _
+
+/-- `(K!)² μ_X(f_i f_j / D_K)` in `τ`-form: its pullback data represents `(K!)² A_{ij}/W`. -/
+theorem pullback_muData (n : ℕ) (i j : Fin (hDim n)) :
+    tauRatFunc (pullbackPoly (C ((Nat.factorial (K n) : ℚ) ^ 2) * muDataP n i j)
+        (((Nat.factorial (K n) : ℚ) ^ 2) • muDataC n i j))
+        (pullbackPoles (((Nat.factorial (K n) : ℚ) ^ 2) • muDataC n i j))
+      = algebraMap ℚ[X] (RatFunc ℚ) (C ((Nat.factorial (K n) : ℚ) ^ 2) * Aij n i j)
+        / algebraMap ℚ[X] (RatFunc ℚ) (Wpoly (K n)) := by
+  have hW0 : Wpoly (K n) ≠ 0 := (Wpoly_monic _).ne_zero
+  have hs : ((-1 : ℚ) ^ K n) ≠ 0 := pow_ne_zero _ (by norm_num)
+  have hD' : (Dpoly (K n)).comp (-X ^ 2) ≠ 0 := by
+    intro h
+    have h1 := X_mul_Dpoly_comp (K n)
+    rw [h, mul_zero] at h1
+    exact mul_ne_zero (C_ne_zero.mpr hs) hW0 h1.symm
+  have hpoly : Wpoly (K n) = C ((-1 : ℚ) ^ K n) * (X * (Dpoly (K n)).comp (-X ^ 2)) := by
+    rw [X_mul_Dpoly_comp, ← mul_assoc, ← C_mul, ← mul_pow,
+      show ((-1 : ℚ) * -1) = 1 by norm_num, one_pow, C_1, one_mul]
+  rw [tauRatFunc_pullbackData, pullbackRatFunc_eq, muRatFunc_smul, muRatFunc_muData, map_mul,
+    map_div₀, compNegSq_alg, compNegSq_alg, compNegSq_alg, C_comp, hpoly, Aij]
+  have hX : algebraMap ℚ[X] (RatFunc ℚ) X ≠ 0 := RatFunc.algebraMap_ne_zero X_ne_zero
+  have hsC : algebraMap ℚ[X] (RatFunc ℚ) (C ((-1 : ℚ) ^ K n)) ≠ 0 :=
+    RatFunc.algebraMap_ne_zero (C_ne_zero.mpr hs)
+  have hDa : algebraMap ℚ[X] (RatFunc ℚ) ((Dpoly (K n)).comp (-X ^ 2)) ≠ 0 :=
+    RatFunc.algebraMap_ne_zero hD'
+  simp only [map_mul, map_pow]
+  field_simp
+  ring
+
+/-- Entry bound: every coefficient of `(K!)² μ_X(f_i f_j / D_K)` has valuation
+`≥ -8⌊log_p(5K)⌋ - v_p(720)`, by Lemma 3.8 with `max(2K, d) ≤ 5K`. -/
+theorem muData_entry_val (n : ℕ) (i j : Fin (hDim n)) (k : ℕ) :
+    -(8 * (Nat.log p (5 * K n) : ℤ)) - (padicValNat p 720 : ℤ)
+      ≤ padicValRat p ((C ((Nat.factorial (K n) : ℚ) ^ 2)
+          * muFunctional (muDataP n i j) (muDataC n i j)).coeff k) := by
+  have hi := i.isLt
+  have hj := j.isLt
+  have hn : 1 ≤ n := by
+    unfold hDim at hi
+    omega
+  have hK : 1 ≤ K n := by
+    unfold K
+    omega
+  have hdeg : (Aij n i j).natDegree ≤ 5 * K n := by
+    refine (natDegree_Aij_le n i j).trans ?_
+    unfold N K
+    unfold hDim at hi hj
+    omega
+  rw [← muFunctional_smul, ← tauFunctional_pullbackData]
+  exact tau_bound_core (by omega) le_rfl (by omega) (Aij n i j) hdeg (Aij_intValued n i j) _ _
+    (pullback_muData n i j) k
+
+end SmallPrime
+
+open SmallPrime in
+/-- **Equation (41)** (crude global bound). For every prime `p`,
+`v^G_p(F_K) ≥ -8h⌊log_p(5K)⌋ - h v_p(720)`; the Gauss valuation is stated coefficientwise
+(zero coefficients impose nothing, since the bound is `≤ 0`). -/
+theorem FK_small_prime_bound (n p : ℕ) [Fact p.Prime] (k : ℕ) :
+    -(8 * (hDim n : ℤ) * (Nat.log p (5 * K n) : ℤ)) - (hDim n : ℤ) * (padicValNat p 720 : ℤ)
+      ≤ padicValRat p ((FK n).coeff k) := by
+  have hFK : FK n = (Matrix.of fun i j => C ((Nat.factorial (K n) : ℚ) ^ 2)
+      * muFunctional (muDataP n i j) (muDataC n i j)).det := by
+    rw [FK_eq_det_muData]
+    have hsm : (Matrix.of fun i j => C ((Nat.factorial (K n) : ℚ) ^ 2)
+          * muFunctional (muDataP n i j) (muDataC n i j))
+        = C ((Nat.factorial (K n) : ℚ) ^ 2)
+          • (Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j)) := by
+      ext i j
+      simp [Matrix.smul_apply]
+    rw [hsm, Matrix.det_smul, Fintype.card_fin, ← C_pow, ← pow_mul]
+  have hL : (0 : ℤ) ≤ Nat.log p (5 * K n) := Nat.cast_nonneg _
+  have h720 : (0 : ℤ) ≤ padicValNat p 720 := Nat.cast_nonneg _
+  have h := det_coeff_val (p := p) _
+    (B := -(8 * (Nat.log p (5 * K n) : ℤ)) - (padicValNat p 720 : ℤ)) (by linarith)
+    (fun i j k' => by simpa only [Matrix.of_apply] using muData_entry_val n i j k') k
+  rw [hFK]
+  calc _ = (hDim n : ℤ) * (-(8 * (Nat.log p (5 * K n) : ℤ)) - (padicValNat p 720 : ℤ)) := by
+        ring
+    _ ≤ _ := h
 
 end ZetaSeven
