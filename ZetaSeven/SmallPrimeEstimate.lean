@@ -171,6 +171,7 @@ theorem binomPoly_eval_int (k : ℕ) (z : ℤ) :
 theorem binomPoly_eval_nat (k m : ℕ) : (binomPoly k).eval (m : ℚ) = (m.choose k : ℚ) := by
   simpa [Ring.choose_natCast] using binomPoly_eval_int k (m : ℤ)
 
+omit [Fact p.Prime] in
 theorem padicValRat_binomPoly_eval_int_nonneg (k : ℕ) (z : ℤ) :
     0 ≤ padicValRat p ((binomPoly k).eval (z : ℚ)) := by
   rw [binomPoly_eval_int]
@@ -179,7 +180,7 @@ theorem padicValRat_binomPoly_eval_int_nonneg (k : ℕ) (z : ℤ) :
 theorem natDegree_binomPoly_le (k : ℕ) : (binomPoly k).natDegree ≤ k := by
   unfold binomPoly
   refine (natDegree_mul_C_le _ _).trans ((natDegree_prod_le _ _).trans ?_)
-  rw [Finset.sum_congr rfl (fun i _ => natDegree_X_sub_C (i : ℚ))]
+  rw [Finset.sum_congr rfl (fun (i : ℕ) _ => natDegree_X_sub_C (i : ℚ))]
   simp
 
 /-- Newton's forward-difference formula for polynomials: `f = ∑_{k ≤ e} Δᵏf(0) C(x, k)`. -/
@@ -808,5 +809,221 @@ theorem small_prime_tau_rep_exists (K : ℕ) (A : ℚ[X]) :
       = algebraMap ℚ[X] (RatFunc ℚ) (C ((Nat.factorial K : ℚ) ^ 2) * A)
         / algebraMap ℚ[X] (RatFunc ℚ) (Wpoly K) :=
   ⟨_, _, SmallPrime.tauRatFunc_pfData K _⟩
+
+/-! ## The basis (38) -/
+
+/-- Equation (38): `q_0 = 1` and `q_i(t) = (-1)^i 2t D_{i-1}(t)/(2i)!` for `i ≥ 1`. -/
+noncomputable def qPoly (i : ℕ) : ℚ[X] :=
+  if i = 0 then 1 else C ((-1) ^ i * 2 / (Nat.factorial (2 * i) : ℚ)) * X * Dpoly (i - 1)
+
+/-- Equation (38): `f_i(t) = (D_N(t)/(N!)²)⁴ q_i(t)`. -/
+noncomputable def fPoly (n i : ℕ) : ℚ[X] :=
+  (C ((Nat.factorial (N n) : ℚ) ^ 2)⁻¹ * Dpoly (N n)) ^ 4 * qPoly i
+
+namespace SmallPrime
+
+theorem qPoly_zero : qPoly 0 = 1 := by
+  simp [qPoly]
+
+theorem qPoly_succ (l : ℕ) :
+    qPoly (l + 1) = C ((-1) ^ (l + 1) * 2 / (Nat.factorial (2 * (l + 1)) : ℚ)) * X * Dpoly l := by
+  rw [qPoly, if_neg (Nat.succ_ne_zero l), Nat.add_sub_cancel]
+
+theorem Dpoly_monic (m : ℕ) : (Dpoly m).Monic :=
+  monic_prod_of_monic _ _ fun _ _ => monic_X_add_C _
+
+theorem Dpoly_natDegree (m : ℕ) : (Dpoly m).natDegree = m := by
+  rw [Dpoly, natDegree_prod_of_monic _ _ fun _ _ => monic_X_add_C _,
+    Finset.sum_congr rfl (fun j _ => natDegree_X_add_C _)]
+  simp
+
+theorem qPoly_natDegree_le (i : ℕ) : (qPoly i).natDegree ≤ i := by
+  rcases i with _ | l
+  · simp [qPoly_zero]
+  · rw [qPoly_succ]
+    refine (natDegree_mul_le).trans ?_
+    rw [Dpoly_natDegree]
+    have h : (C ((-1) ^ (l + 1) * 2 / (Nat.factorial (2 * (l + 1)) : ℚ)) * X).natDegree ≤ 1 :=
+      (natDegree_C_mul_le _ _).trans natDegree_X_le
+    omega
+
+theorem qPoly_coeff_self (l : ℕ) :
+    (qPoly (l + 1)).coeff (l + 1) = (-1) ^ (l + 1) * 2 / (Nat.factorial (2 * (l + 1)) : ℚ) := by
+  have h1 : (Dpoly l).coeff l = 1 := by
+    have h := (Dpoly_monic l).coeff_natDegree
+    rwa [Dpoly_natDegree] at h
+  rw [qPoly_succ, mul_assoc, coeff_C_mul, coeff_X_mul, h1, mul_one]
+
+theorem qPoly_coeff_eq_zero {i j : ℕ} (h : i < j) : (qPoly i).coeff j = 0 :=
+  coeff_eq_zero_of_natDegree_lt (lt_of_le_of_lt (qPoly_natDegree_le i) h)
+
+/-- `(x+l)(x+l-1)⋯(x-l) = x ∏_{j<l} (x² - (j+1)²)`. -/
+theorem prod_centered (x : ℚ) (l : ℕ) :
+    ∏ a ∈ Finset.range (2 * l + 1), (x + (l : ℚ) - (a : ℚ))
+      = x * ∏ j ∈ Finset.range l, (x ^ 2 - ((j : ℚ) + 1) ^ 2) := by
+  induction l with
+  | zero => simp
+  | succ l ih =>
+    rw [show 2 * (l + 1) + 1 = 2 * l + 1 + 1 + 1 by ring, Finset.prod_range_succ' _ (2 * l + 1 + 1),
+      Finset.prod_range_succ _ (2 * l + 1),
+      Finset.prod_congr rfl (fun a _ => show x + ((l + 1 : ℕ) : ℚ) - ((a + 1 : ℕ) : ℚ)
+        = x + (l : ℚ) - (a : ℚ) by push_cast; ring),
+      ih, Finset.prod_range_succ _ l]
+    push_cast
+    ring
+
+end SmallPrime
+
+open SmallPrime in
+/-- Equation (38): `q_i(-x²) = C(x+i, 2i) + C(x+i-1, 2i)` for `i ≥ 1`. -/
+theorem qPoly_comp_neg_sq (i : ℕ) (hi : 1 ≤ i) :
+    (qPoly i).comp (-X ^ 2)
+      = (IntegerValued.binomPoly (2 * i)).comp (X + C (i : ℚ))
+        + (IntegerValued.binomPoly (2 * i)).comp (X + C ((i : ℚ) - 1)) := by
+  obtain ⟨l, rfl⟩ : ∃ l, i = l + 1 := ⟨i - 1, by omega⟩
+  apply Polynomial.funext
+  intro x
+  rw [qPoly_succ]
+  simp only [IntegerValued.binomPoly, Dpoly, eval_comp, eval_add, eval_mul, eval_C, eval_X,
+    eval_neg, eval_pow, eval_prod, eval_sub]
+  have hA : ∏ a ∈ Finset.range (2 * (l + 1)), (x + ((l + 1 : ℕ) : ℚ) - (a : ℚ))
+      = (∏ a ∈ Finset.range (2 * l + 1), (x + (l : ℚ) - (a : ℚ))) * (x + l + 1) := by
+    rw [show 2 * (l + 1) = 2 * l + 1 + 1 by ring, Finset.prod_range_succ' _ (2 * l + 1),
+      Finset.prod_congr rfl (fun a _ => show x + ((l + 1 : ℕ) : ℚ) - ((a + 1 : ℕ) : ℚ)
+        = x + (l : ℚ) - (a : ℚ) by push_cast; ring)]
+    push_cast
+    ring
+  have hB : ∏ a ∈ Finset.range (2 * (l + 1)), (x + (((l + 1 : ℕ) : ℚ) - 1) - (a : ℚ))
+      = (∏ a ∈ Finset.range (2 * l + 1), (x + (l : ℚ) - (a : ℚ))) * (x - l - 1) := by
+    rw [show 2 * (l + 1) = 2 * l + 1 + 1 by ring, Finset.prod_range_succ _ (2 * l + 1),
+      Finset.prod_congr rfl (fun a _ => show x + (((l + 1 : ℕ) : ℚ) - 1) - (a : ℚ)
+        = x + (l : ℚ) - (a : ℚ) by push_cast; ring)]
+    push_cast
+    ring
+  have hD : ∏ j ∈ Finset.range l, (-x ^ 2 + ((j : ℚ) + 1) ^ 2)
+      = (-1) ^ l * ∏ j ∈ Finset.range l, (x ^ 2 - ((j : ℚ) + 1) ^ 2) := by
+    rw [show (-1 : ℚ) ^ l = ∏ _j ∈ Finset.range l, (-1 : ℚ) by simp, ← Finset.prod_mul_distrib]
+    exact Finset.prod_congr rfl fun j _ => by ring
+  rw [hA, hB, prod_centered, hD]
+  have hsq : (-1 : ℚ) ^ l * (-1) ^ l = 1 := by
+    rw [← mul_pow]
+    norm_num
+  linear_combination (2 * x ^ 2 * (∏ j ∈ Finset.range l, (x ^ 2 - ((j : ℚ) + 1) ^ 2))
+    / (Nat.factorial (2 * (l + 1)) : ℚ)) * hsq
+
+/-- Equation (38): `D_N(-x²)/(N!)² = C(N-x, N) C(N+x, N)`. -/
+theorem Dpoly_comp_neg_sq (m : ℕ) :
+    C ((Nat.factorial m : ℚ) ^ 2)⁻¹ * (Dpoly m).comp (-X ^ 2)
+      = (IntegerValued.binomPoly m).comp (C (m : ℚ) - X)
+        * (IntegerValued.binomPoly m).comp (C (m : ℚ) + X) := by
+  apply Polynomial.funext
+  intro x
+  simp only [Dpoly, IntegerValued.binomPoly, eval_mul, eval_C, eval_comp, eval_prod, eval_add,
+    eval_sub, eval_neg, eval_pow, eval_X]
+  have hprod : (∏ i ∈ Finset.range m, ((m : ℚ) - x - i)) * ∏ i ∈ Finset.range m, ((m : ℚ) + x - i)
+      = ∏ j ∈ Finset.range m, (-x ^ 2 + ((j : ℚ) + 1) ^ 2) := by
+    rw [← Finset.prod_mul_distrib,
+      ← Finset.prod_range_reflect (fun j : ℕ => -x ^ 2 + ((j : ℚ) + 1) ^ 2) m]
+    refine Finset.prod_congr rfl fun i hi => ?_
+    have hi' : i < m := Finset.mem_range.mp hi
+    have hc : ((m - 1 - i : ℕ) : ℚ) = (m : ℚ) - 1 - i := by
+      rw [Nat.sub_sub, Nat.cast_sub (by omega)]
+      push_cast
+      ring
+    rw [hc]
+    ring
+  rw [← hprod]
+  ring
+
+open SmallPrime in
+/-- Equation (38): `f_i(-x²)` is integer-valued on `ℤ`. -/
+theorem fPoly_comp_neg_sq_intValued (n i : ℕ) (z : ℤ) :
+    ∃ w : ℤ, ((fPoly n i).comp (-X ^ 2)).eval (z : ℚ) = w := by
+  have hD : ((C ((Nat.factorial (N n) : ℚ) ^ 2)⁻¹ * Dpoly (N n)).comp (-X ^ 2)).eval (z : ℚ)
+      = ((Ring.choose ((N n : ℤ) - z) (N n) : ℤ) : ℚ)
+        * ((Ring.choose ((N n : ℤ) + z) (N n) : ℤ) : ℚ) := by
+    rw [mul_comp, C_comp, Dpoly_comp_neg_sq, eval_mul, eval_comp, eval_comp, eval_sub, eval_add,
+      eval_C, eval_X,
+      show ((N n : ℚ) - z) = (((N n : ℤ) - z : ℤ) : ℚ) by push_cast; try ring,
+      show ((N n : ℚ) + z) = (((N n : ℤ) + z : ℤ) : ℚ) by push_cast; try ring,
+      binomPoly_eval_int, binomPoly_eval_int]
+  have hq : ∃ w : ℤ, ((qPoly i).comp (-X ^ 2)).eval (z : ℚ) = w := by
+    rcases Nat.eq_zero_or_pos i with rfl | hi
+    · exact ⟨1, by simp [qPoly_zero]⟩
+    · refine ⟨Ring.choose (z + i) (2 * i) + Ring.choose (z + i - 1) (2 * i), ?_⟩
+      rw [qPoly_comp_neg_sq i hi, eval_add, eval_comp, eval_comp, eval_add, eval_add, eval_X,
+        eval_C, eval_C,
+        show (z : ℚ) + i = ((z + i : ℤ) : ℚ) by push_cast; try ring,
+        show (z : ℚ) + ((i : ℚ) - 1) = ((z + i - 1 : ℤ) : ℚ) by push_cast; try ring,
+        binomPoly_eval_int, binomPoly_eval_int, Int.cast_add]
+  obtain ⟨w, hw⟩ := hq
+  refine ⟨(Ring.choose ((N n : ℤ) - z) (N n) * Ring.choose ((N n : ℤ) + z) (N n)) ^ 4 * w, ?_⟩
+  rw [fPoly, mul_comp, pow_comp, eval_mul, eval_pow, hD, hw]
+  push_cast
+  try ring
+
+/-! ## The transition determinant (39) -/
+
+/-- Equation (39): the transition matrix from `D_N(t)⁴ t^j` to `f_i`, namely
+`f_i = ∑_j T_{ij} D_N⁴ t^j` with `T_{ij} = [t^j] q_i / (N!)⁸`. -/
+noncomputable def transMat (n : ℕ) : Matrix (Fin (hDim n)) (Fin (hDim n)) ℚ :=
+  Matrix.of fun i j => (qPoly i).coeff j / (Nat.factorial (N n) : ℚ) ^ 8
+
+open SmallPrime in
+theorem fPoly_eq_transMat_sum (n : ℕ) (i : Fin (hDim n)) :
+    fPoly n i = ∑ j : Fin (hDim n), C (transMat n i j) * (Dpoly (N n) ^ 4 * X ^ (j : ℕ)) := by
+  have hq : qPoly i = ∑ j ∈ Finset.range (hDim n), C ((qPoly i).coeff j) * X ^ j := by
+    conv_lhs => rw [as_sum_range' (qPoly i) (hDim n)
+      (lt_of_le_of_lt (qPoly_natDegree_le i) i.isLt)]
+    exact Finset.sum_congr rfl fun j _ => C_mul_X_pow_eq_monomial.symm
+  rw [fPoly, hq, Finset.mul_sum, ← Fin.sum_univ_eq_sum_range]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  have hc : (qPoly i).coeff j / (Nat.factorial (N n) : ℚ) ^ 8
+      = (qPoly i).coeff j * (((Nat.factorial (N n) : ℚ) ^ 2)⁻¹) ^ 4 := by
+    rw [inv_pow, ← pow_mul]
+    ring
+  simp only [transMat, Matrix.of_apply]
+  rw [hc, C_mul, C_pow]
+  ring
+
+theorem transMat_isLowerTriangular (n : ℕ) : (transMat n).IsLowerTriangular := by
+  intro i j hij
+  simp only [transMat, Matrix.of_apply]
+  rw [SmallPrime.qPoly_coeff_eq_zero (OrderDual.toDual_lt_toDual.mp hij : (i : ℕ) < j), zero_div]
+
+namespace SmallPrime
+
+theorem prod_qPoly_lead (h : ℕ) :
+    ∏ i ∈ Finset.range (h + 1), (qPoly i).coeff i
+      = (-1) ^ (∑ i ∈ Finset.range (h + 1), i) * 2 ^ h
+        / ∏ i ∈ Finset.Icc 1 h, (Nat.factorial (2 * i) : ℚ) := by
+  induction h with
+  | zero => simp [qPoly_zero]
+  | succ h ih =>
+    rw [Finset.prod_range_succ, ih, qPoly_coeff_self, Finset.sum_range_succ _ (h + 1),
+      Finset.prod_Icc_succ_top (by omega)]
+    have hP : ∏ i ∈ Finset.Icc 1 h, (Nat.factorial (2 * i) : ℚ) ≠ 0 :=
+      Finset.prod_ne_zero_iff.mpr fun i _ => by positivity
+    have hF : (Nat.factorial (2 * (h + 1)) : ℚ) ≠ 0 := by positivity
+    ring
+
+end SmallPrime
+
+/-- Equation (39): `det T = ± 2^{h-1} / ∏_{i=1}^{h-1} (2i)! · (N!)^{-8h}`, with the sign
+`(-1)^{0+1+⋯+(h-1)}`. -/
+theorem det_transMat (n : ℕ) :
+    (transMat n).det = (-1) ^ (∑ i ∈ Finset.range (hDim n), i) * 2 ^ (hDim n - 1)
+      / ((∏ i ∈ Finset.Icc 1 (hDim n - 1), (Nat.factorial (2 * i) : ℚ))
+        * (Nat.factorial (N n) : ℚ) ^ (8 * hDim n)) := by
+  rw [Matrix.det_of_isLowerTriangular _ (transMat_isLowerTriangular n)]
+  simp only [transMat, Matrix.of_apply]
+  rw [Fin.prod_univ_eq_prod_range (fun i => (qPoly i).coeff i / (Nat.factorial (N n) : ℚ) ^ 8),
+    Finset.prod_div_distrib, Finset.prod_const, Finset.card_range, ← pow_mul]
+  rcases Nat.eq_zero_or_pos (hDim n) with h0 | hpos
+  · rw [h0]
+    simp
+  · obtain ⟨h, hh⟩ : ∃ h, hDim n = h + 1 := ⟨hDim n - 1, by omega⟩
+    rw [hh, SmallPrime.prod_qPoly_lead, Nat.add_sub_cancel]
+    ring
 
 end ZetaSeven
