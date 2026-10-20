@@ -29,6 +29,7 @@ the outer weight family they are the rows above.
 
 ## Depends on
 
+- [Local range data](local-range-data.md)
 - [Outer range data](outer-range-data.md)
 - [Outer weight family](outer-weight-family.md)
 
