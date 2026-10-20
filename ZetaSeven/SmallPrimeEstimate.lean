@@ -1249,12 +1249,13 @@ theorem FK_eq_det_muData (n : ℕ) :
     rw [Matrix.of_apply, muFunctional_muData]
     simp only [Matrix.mul_apply, Matrix.map_apply, Matrix.transpose_apply, Gmat, Matrix.of_apply,
       Finset.sum_mul]
-    conv_rhs => rw [Finset.sum_comm]
-    refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
+    refine Finset.sum_comm.trans ?_
+    refine Finset.sum_congr rfl fun b _ => Finset.sum_congr rfl fun a _ => ?_
     rw [C_mul]
     ring
   rw [hmat, Matrix.det_mul, Matrix.det_mul, Matrix.det_transpose, ← RingHom.mapMatrix_apply,
-    ← RingHom.map_det, FK, DeltaK, SK_eq, C_mul, C_pow]
+    ← RingHom.map_det, FK, DeltaK, SK_eq]
+  simp only [map_mul, map_pow]
   ring
 
 /-- **Equation (40)**: `F_K = S_K Δ_K = (K!)^{2h} det[μ_X(f_i f_j / D_K)]_{0 ≤ i,j < h}`, where
@@ -1276,9 +1277,20 @@ theorem FK_eq_det_fBasis (n : ℕ) (pd : Fin (hDim n) → Fin (hDim n) → ℚ[X
   rw [hM]
   exact FK_eq_det_muData n
 
+/-- The `μ`-data of `f_i f_j / D_K` in (40) exists. -/
+theorem fBasis_muRep_exists (n : ℕ) (i j : Fin (hDim n)) :
+    ∃ (p : ℚ[X]) (c : ℕ →₀ ℚ), muRatFunc p c
+      = algebraMap ℚ[X] (RatFunc ℚ) (fPoly n i * fPoly n j)
+        / algebraMap ℚ[X] (RatFunc ℚ) (Dpoly (K n)) :=
+  ⟨_, _, muRatFunc_muData n i j⟩
+
 /-! ## The crude global bound (41) -/
 
 namespace SmallPrime
+
+open IntegerValued
+
+variable {p : ℕ} [Fact p.Prime]
 
 /-- Gauss valuation of a product: `v^G(PQ) ≥ v^G(P) + v^G(Q)` (coefficientwise). -/
 theorem coeff_mul_val (P Q : ℚ[X]) {B₁ B₂ : ℤ} (hB : B₁ + B₂ ≤ 0)
@@ -1378,6 +1390,8 @@ noncomputable def Aij (n i j : ℕ) : ℚ[X] :=
 
 namespace SmallPrime
 
+variable {p : ℕ} [Fact p.Prime]
+
 theorem natDegree_fPoly_le (n i : ℕ) : (fPoly n i).natDegree ≤ 4 * N n + i := by
   unfold fPoly
   refine natDegree_mul_le.trans ?_
@@ -1440,7 +1454,6 @@ theorem pullback_muData (n : ℕ) (i j : Fin (hDim n)) :
     RatFunc.algebraMap_ne_zero hD'
   simp only [map_mul, map_pow]
   field_simp
-  ring
 
 /-- Entry bound: every coefficient of `(K!)² μ_X(f_i f_j / D_K)` has valuation
 `≥ -8⌊log_p(5K)⌋ - v_p(720)`, by Lemma 3.8 with `max(2K, d) ≤ 5K`. -/
