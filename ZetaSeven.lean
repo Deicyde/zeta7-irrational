@@ -25,6 +25,7 @@ import ZetaSeven.OuterMomentIntegrality
 import ZetaSeven.OuterRangeData
 import ZetaSeven.OuterRankDecomposition
 import ZetaSeven.OuterWeightFamily
+import ZetaSeven.PairedPoleCongruence
 import ZetaSeven.PositiveIntegral
 import ZetaSeven.PotentialInequality
 import ZetaSeven.PrimeNumberTheorem

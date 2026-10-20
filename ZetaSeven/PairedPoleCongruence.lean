@@ -191,7 +191,7 @@ theorem prod_sub_prod_div_mem {ι : Type*} [DecidableEq ι] (s : Finset ι) {f g
 
 /-! ## The harmonic sums `H⁷_j` modulo `p` -/
 
-theorem H7_succ (j : ℕ) : H7 (j + 1) = H7 j + 1 / ((j : ℚ) + 1) ^ 7 := by
+private theorem H7_succ (j : ℕ) : H7 (j + 1) = H7 j + 1 / ((j : ℚ) + 1) ^ 7 := by
   simp only [H7, Finset.sum_range_succ]
 
 /-- `H⁷_j` is `p`-integral for `j < p`: its denominators are the `v⁷` with `1 ≤ v ≤ j`. -/
