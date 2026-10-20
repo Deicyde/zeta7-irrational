@@ -827,7 +827,7 @@ theorem qPoly_zero : qPoly 0 = 1 := by
 
 theorem qPoly_succ (l : ℕ) :
     qPoly (l + 1) = C ((-1) ^ (l + 1) * 2 / (Nat.factorial (2 * (l + 1)) : ℚ)) * X * Dpoly l := by
-  rw [qPoly, if_neg (Nat.succ_ne_zero l), Nat.add_sub_cancel]
+  rw [qPoly, ite_eq_right (Nat.succ_ne_zero l), Nat.add_sub_cancel]
 
 theorem Dpoly_monic (m : ℕ) : (Dpoly m).Monic :=
   monic_prod_of_monic _ _ fun _ _ => monic_X_add_C _
@@ -896,7 +896,7 @@ theorem qPoly_comp_neg_sq (i : ℕ) (hi : 1 ≤ i) :
   have hB : ∏ a ∈ Finset.range (2 * (l + 1)), (x + (((l + 1 : ℕ) : ℚ) - 1) - (a : ℚ))
       = (∏ a ∈ Finset.range (2 * l + 1), (x + (l : ℚ) - (a : ℚ))) * (x - l - 1) := by
     rw [show 2 * (l + 1) = 2 * l + 1 + 1 by ring, Finset.prod_range_succ _ (2 * l + 1),
-      Finset.prod_congr rfl (fun a _ => show x + (((l + 1 : ℕ) : ℚ) - 1) - (a : ℚ)
+      Finset.prod_congr rfl (fun (a : ℕ) _ => show x + (((l + 1 : ℕ) : ℚ) - 1) - (a : ℚ)
         = x + (l : ℚ) - (a : ℚ) by push_cast; ring)]
     push_cast
     ring
@@ -1025,5 +1025,254 @@ theorem det_transMat (n : ℕ) :
   · obtain ⟨h, hh⟩ : ∃ h, hDim n = h + 1 := ⟨hDim n - 1, by omega⟩
     rw [hh, SmallPrime.prod_qPoly_lead, Nat.add_sub_cancel]
     ring
+
+/-! ## The `μ`-data of `f_i f_j / D_K` and (40) -/
+
+/-- The rational function `p(t) + ∑_j c_j/(t + j²)` with `μ`-data `(p, c)`. -/
+noncomputable def muRatFunc (p : ℚ[X]) (c : ℕ →₀ ℚ) : RatFunc ℚ :=
+  algebraMap ℚ[X] (RatFunc ℚ) p
+    + c.sum fun j a => algebraMap ℚ[X] (RatFunc ℚ) (C a)
+        / algebraMap ℚ[X] (RatFunc ℚ) (X + C ((j : ℚ) ^ 2))
+
+/-- `μ`-data representations are unique, so `μ_X` is well defined on rational functions. -/
+theorem muRatFunc_inj {p₁ p₂ : ℚ[X]} {c₁ c₂ : ℕ →₀ ℚ}
+    (h : muRatFunc p₁ c₁ = muRatFunc p₂ c₂) : p₁ = p₂ ∧ c₁ = c₂ := by
+  have hg : ∀ j : ℕ, (X + C ((j : ℚ) ^ 2) : ℚ[X]) = X - C (-(j : ℚ) ^ 2) := fun j => by
+    rw [C_neg, sub_neg_eq_add]
+  have hsum : ∀ c : ℕ →₀ ℚ, c.support ⊆ c₁.support ∪ c₂.support →
+      (c.sum fun j a => algebraMap ℚ[X] (RatFunc ℚ) (C a)
+        / algebraMap ℚ[X] (RatFunc ℚ) (X + C ((j : ℚ) ^ 2)))
+        = ∑ j ∈ c₁.support ∪ c₂.support, algebraMap ℚ[X] (RatFunc ℚ) (C (c j))
+            / algebraMap ℚ[X] (RatFunc ℚ) (X - C (-(j : ℚ) ^ 2)) := fun c hc => by
+    rw [Finsupp.sum_of_support_subset c hc _ (fun j _ => by simp)]
+    exact Finset.sum_congr rfl fun j _ => by rw [hg]
+  unfold muRatFunc at h
+  rw [hsum c₁ Finset.subset_union_left, hsum c₂ Finset.subset_union_right] at h
+  have hinj : Function.Injective (fun j : ℕ => -(j : ℚ) ^ 2) := by
+    intro a b hab
+    have hab' : -((a : ℚ) ^ 2) = -((b : ℚ) ^ 2) := hab
+    have h1 : (a : ℚ) ^ 2 = (b : ℚ) ^ 2 := neg_injective hab'
+    have h2 : a ^ 2 = b ^ 2 := by exact_mod_cast h1
+    exact Nat.pow_left_injective (by norm_num) h2
+  obtain ⟨hP, hd⟩ := Polynomial.quo_add_sum_rem_div_unique (RatFunc ℚ)
+    (g := fun j : ℕ => X - C (-(j : ℚ) ^ 2)) (r₁ := fun j => C (c₁ j)) (r₂ := fun j => C (c₂ j))
+    (fun j _ => monic_X_sub_C _)
+    (by
+      intro j _ j' _ hjj'
+      exact pairwise_coprime_X_sub_C hinj hjj')
+    (fun j _ => show (C (c₁ j)).degree < (X - C (-(j : ℚ) ^ 2)).degree by
+      rw [degree_X_sub_C]
+      exact degree_C_lt)
+    (fun j _ => show (C (c₂ j)).degree < (X - C (-(j : ℚ) ^ 2)).degree by
+      rw [degree_X_sub_C]
+      exact degree_C_lt)
+    h
+  refine ⟨hP, Finsupp.ext fun j => ?_⟩
+  by_cases hj : j ∈ c₁.support ∪ c₂.support
+  · exact C_injective (hd j hj)
+  · simp only [Finset.mem_union, not_or, Finsupp.notMem_support_iff] at hj
+    rw [hj.1, hj.2]
+
+namespace SmallPrime
+
+theorem muRatFunc_add (p q : ℚ[X]) (c d : ℕ →₀ ℚ) :
+    muRatFunc (p + q) (c + d) = muRatFunc p c + muRatFunc q d := by
+  unfold muRatFunc
+  rw [map_add, Finsupp.sum_add_index' (fun _ => by simp) (fun _ _ _ => by simp [add_div])]
+  ring
+
+theorem muRatFunc_zero : muRatFunc 0 0 = 0 := by
+  simp [muRatFunc]
+
+theorem muRatFunc_sum {ι : Type*} (s : Finset ι) (p : ι → ℚ[X]) (c : ι → ℕ →₀ ℚ) :
+    muRatFunc (∑ x ∈ s, p x) (∑ x ∈ s, c x) = ∑ x ∈ s, muRatFunc (p x) (c x) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp [muRatFunc_zero]
+  | insert a s has ih =>
+    rw [Finset.sum_insert has, Finset.sum_insert has, Finset.sum_insert has, muRatFunc_add, ih]
+
+theorem muRatFunc_smul (a : ℚ) (p : ℚ[X]) (c : ℕ →₀ ℚ) :
+    muRatFunc (C a * p) (a • c) = algebraMap ℚ[X] (RatFunc ℚ) (C a) * muRatFunc p c := by
+  unfold muRatFunc
+  rw [Finsupp.sum_smul_index (fun i => by simp), map_mul, mul_add, Finsupp.sum, Finsupp.sum,
+    Finset.mul_sum]
+  congr 1
+  exact Finset.sum_congr rfl fun j _ => by rw [C_mul, map_mul, mul_div_assoc]
+
+theorem muFunctional_add (p q : ℚ[X]) (c d : ℕ →₀ ℚ) :
+    muFunctional (p + q) (c + d) = muFunctional p c + muFunctional q d := by
+  unfold muFunctional
+  rw [Polynomial.sum_add_index p q _ (fun _ => by simp) (fun _ _ _ => by simp [add_mul]),
+    Finsupp.sum_add_index' (fun _ => by simp) (fun _ _ _ => by simp [add_mul])]
+  ring
+
+theorem muFunctional_sum {ι : Type*} (s : Finset ι) (p : ι → ℚ[X]) (c : ι → ℕ →₀ ℚ) :
+    muFunctional (∑ x ∈ s, p x) (∑ x ∈ s, c x) = ∑ x ∈ s, muFunctional (p x) (c x) := by
+  classical
+  induction s using Finset.induction with
+  | empty => simp [muFunctional]
+  | insert a s has ih =>
+    rw [Finset.sum_insert has, Finset.sum_insert has, Finset.sum_insert has, muFunctional_add, ih]
+
+theorem muFunctional_smul (a : ℚ) (p : ℚ[X]) (c : ℕ →₀ ℚ) :
+    muFunctional (C a * p) (a • c) = C a * muFunctional p c := by
+  unfold muFunctional
+  rw [show C a * p = a • p from C_mul' a p,
+    Polynomial.sum_smul_index p a (fun e x => C x * C (muMonomial e)) (fun i => by simp),
+    Finsupp.sum_smul_index (fun i => by simp), mul_add, Polynomial.sum_def, Polynomial.sum_def,
+    Finsupp.sum, Finsupp.sum, Finset.mul_sum, Finset.mul_sum]
+  congr 1
+  · exact Finset.sum_congr rfl fun e _ => by rw [C_mul]; ring
+  · exact Finset.sum_congr rfl fun j _ => by rw [C_mul]; ring
+
+theorem Dpoly_eq_mul_Dtail (n : ℕ) : Dpoly (K n) = Dpoly (N n) * Dtail n := by
+  have hNK : N n ≤ K n := by
+    unfold N K
+    omega
+  rw [Dpoly, Dpoly, Dtail, ← Finset.prod_range_mul_prod_Ico _ hNK]
+  congr 1
+  rw [show Finset.Icc (N n + 1) (K n) = Finset.Ico (N n + 1) (K n + 1) by
+      ext j
+      simp only [Finset.mem_Icc, Finset.mem_Ico]
+      omega,
+    Finset.prod_Ico_eq_prod_range, Finset.prod_Ico_eq_prod_range,
+    show K n + 1 - (N n + 1) = K n - N n by omega]
+  refine Finset.prod_congr rfl fun k _ => ?_
+  congr 2
+  push_cast
+  ring
+
+end SmallPrime
+
+open SmallPrime in
+/-- The partial-fraction data `(polyPart, poleCoeffs)` of `MatrixDet` represents
+`D_N⁸ t^{i+j} / D_K` (proof of Lemma 2.3). -/
+theorem muRatFunc_Gentry (n i j : ℕ) :
+    muRatFunc (polyPart n i j) (poleCoeffs n i j)
+      = algebraMap ℚ[X] (RatFunc ℚ) (Dpoly (N n) ^ 8 * X ^ (i + j))
+        / algebraMap ℚ[X] (RatFunc ℚ) (Dpoly (K n)) := by
+  have hnod : Dtail n = Lagrange.nodal (Finset.Icc (N n + 1) (K n)) (fun a : ℕ => -(a : ℚ) ^ 2) := by
+    rw [Dtail, Lagrange.nodal_eq]
+    exact Finset.prod_congr rfl fun a _ => by rw [C_neg, sub_neg_eq_add]
+  have hinj : Set.InjOn (fun a : ℕ => -(a : ℚ) ^ 2) (Finset.Icc (N n + 1) (K n)) := by
+    intro a _ b _ hab
+    have hab' : -((a : ℚ) ^ 2) = -((b : ℚ) ^ 2) := hab
+    have h1 : (a : ℚ) ^ 2 = (b : ℚ) ^ 2 := neg_injective hab'
+    have h2 : a ^ 2 = b ^ 2 := by exact_mod_cast h1
+    exact Nat.pow_left_injective (by norm_num) h2
+  have hmonic : (Dtail n).Monic := by
+    rw [hnod]
+    exact Lagrange.nodal_monic
+  have hD : Dpoly (N n) ≠ 0 := (Dpoly_monic _).ne_zero
+  have hR : algebraMap ℚ[X] (RatFunc ℚ) (Dpoly (N n) ^ 8 * X ^ (i + j))
+        / algebraMap ℚ[X] (RatFunc ℚ) (Dpoly (K n))
+      = algebraMap ℚ[X] (RatFunc ℚ) (Rnum n i j) / algebraMap ℚ[X] (RatFunc ℚ) (Dtail n) := by
+    rw [Dpoly_eq_mul_Dtail, Rnum,
+      show Dpoly (N n) ^ 8 * X ^ (i + j) = Dpoly (N n) * (Dpoly (N n) ^ 7 * X ^ (i + j)) by ring,
+      map_mul, map_mul]
+    exact mul_div_mul_left _ _ (RatFunc.algebraMap_ne_zero hD)
+  have hpp : (Rnum n i j).div (Dtail n) = Rnum n i j /ₘ Dtail n :=
+    (divByMonic_eq_div _ hmonic).symm
+  rw [hR, hnod, pf_ratFunc _ _ hinj]
+  unfold muRatFunc
+  congr 1
+  · rw [polyPart, hpp, hnod]
+  · rw [poleCoeffs, ← Finsupp.sum_finsetSum_index (by simp) (by simp [add_div])]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [Finsupp.sum_single_index (by simp), resCoeff, hnod, C_neg, sub_neg_eq_add]
+
+/-- The `μ`-data of `f_i f_j / D_K`: the combination
+`∑_{a,b} T_{ia} T_{jb} (polyPart, poleCoeffs)_{ab}` (with `T` from (39)). -/
+noncomputable def muDataP (n : ℕ) (i j : Fin (hDim n)) : ℚ[X] :=
+  ∑ a : Fin (hDim n), ∑ b : Fin (hDim n), C (transMat n i a * transMat n j b) * polyPart n a b
+
+/-- The pole part of the `μ`-data of `f_i f_j / D_K`. -/
+noncomputable def muDataC (n : ℕ) (i j : Fin (hDim n)) : ℕ →₀ ℚ :=
+  ∑ a : Fin (hDim n), ∑ b : Fin (hDim n), (transMat n i a * transMat n j b) • poleCoeffs n a b
+
+open SmallPrime in
+theorem muRatFunc_muData (n : ℕ) (i j : Fin (hDim n)) :
+    muRatFunc (muDataP n i j) (muDataC n i j)
+      = algebraMap ℚ[X] (RatFunc ℚ) (fPoly n i * fPoly n j)
+        / algebraMap ℚ[X] (RatFunc ℚ) (Dpoly (K n)) := by
+  rw [muDataP, muDataC]
+  simp_rw [muRatFunc_sum, muRatFunc_smul, muRatFunc_Gentry]
+  rw [fPoly_eq_transMat_sum n i, fPoly_eq_transMat_sum n j, Finset.sum_mul_sum, map_sum,
+    Finset.sum_div]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [map_sum, Finset.sum_div]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  have hpoly : C (transMat n i a * transMat n j b) * (Dpoly (N n) ^ 8 * X ^ ((a : ℕ) + b))
+      = C (transMat n i a) * (Dpoly (N n) ^ 4 * X ^ (a : ℕ))
+        * (C (transMat n j b) * (Dpoly (N n) ^ 4 * X ^ (b : ℕ))) := by
+    rw [C_mul, pow_add]
+    ring
+  rw [← mul_div_assoc, ← map_mul, hpoly]
+
+open SmallPrime in
+theorem muFunctional_muData (n : ℕ) (i j : Fin (hDim n)) :
+    muFunctional (muDataP n i j) (muDataC n i j)
+      = ∑ a : Fin (hDim n), ∑ b : Fin (hDim n),
+          C (transMat n i a * transMat n j b) * Gentry n a b := by
+  rw [muDataP, muDataC]
+  simp_rw [muFunctional_sum, muFunctional_smul]
+  rfl
+
+namespace SmallPrime
+
+theorem neg_one_pow_sq (S : ℕ) : ((-1 : ℚ) ^ S) ^ 2 = 1 := by
+  rw [← pow_mul, pow_mul']
+  norm_num
+
+/-- `S_K = (K!)^{2h} (det T)²`. -/
+theorem SK_eq (n : ℕ) :
+    SK n = (Nat.factorial (K n) : ℚ) ^ (2 * hDim n) * (transMat n).det ^ 2 := by
+  have h4 : (4 : ℚ) ^ (hDim n - 1) = (2 ^ (hDim n - 1)) ^ 2 := by
+    rw [← pow_mul, mul_comm, pow_mul]
+    norm_num
+  rw [SK, det_transMat, h4, Finset.prod_pow, div_pow, mul_pow, mul_pow, neg_one_pow_sq, one_mul,
+    ← pow_mul (Nat.factorial (N n) : ℚ) (8 * hDim n) 2, show 8 * hDim n * 2 = 16 * hDim n by ring]
+  ring
+
+end SmallPrime
+
+open SmallPrime in
+/-- `F_K = (K!)^{2h} det[μ_X(f_i f_j / D_K)]` for the explicit `μ`-data. -/
+theorem FK_eq_det_muData (n : ℕ) :
+    FK n = C ((Nat.factorial (K n) : ℚ) ^ (2 * hDim n))
+      * (Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j)).det := by
+  have hmat : (Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j))
+      = (transMat n).map C * Gmat n * ((transMat n).map C)ᵀ := by
+    ext i j
+    rw [Matrix.of_apply, muFunctional_muData]
+    simp only [Matrix.mul_apply, Matrix.map_apply, Matrix.transpose_apply, Gmat, Matrix.of_apply,
+      Finset.sum_mul]
+    conv_rhs => rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
+    rw [C_mul]
+    ring
+  rw [hmat, Matrix.det_mul, Matrix.det_mul, Matrix.det_transpose, ← RingHom.mapMatrix_apply,
+    ← RingHom.map_det, FK, DeltaK, SK_eq, C_mul, C_pow]
+  ring
+
+/-- **Equation (40)**: `F_K = S_K Δ_K = (K!)^{2h} det[μ_X(f_i f_j / D_K)]_{0 ≤ i,j < h}`, where
+`μ_X(f_i f_j / D_K)` is `μ_X` applied to the (unique, `muRatFunc_inj`) `μ`-data of
+`f_i f_j / D_K`. Such data exists (`muRatFunc_muData`). -/
+theorem FK_eq_det_fBasis (n : ℕ) (pd : Fin (hDim n) → Fin (hDim n) → ℚ[X])
+    (cd : Fin (hDim n) → Fin (hDim n) → ℕ →₀ ℚ)
+    (hrep : ∀ i j, muRatFunc (pd i j) (cd i j)
+      = algebraMap ℚ[X] (RatFunc ℚ) (fPoly n i * fPoly n j)
+        / algebraMap ℚ[X] (RatFunc ℚ) (Dpoly (K n))) :
+    FK n = C ((Nat.factorial (K n) : ℚ) ^ (2 * hDim n))
+      * (Matrix.of fun i j => muFunctional (pd i j) (cd i j)).det := by
+  have h : ∀ i j, pd i j = muDataP n i j ∧ cd i j = muDataC n i j := fun i j =>
+    muRatFunc_inj ((hrep i j).trans (muRatFunc_muData n i j).symm)
+  have hM : (Matrix.of fun i j => muFunctional (pd i j) (cd i j))
+      = Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j) := by
+    ext i j
+    rw [Matrix.of_apply, Matrix.of_apply, (h i j).1, (h i j).2]
+  rw [hM]
+  exact FK_eq_det_muData n
 
 end ZetaSeven
