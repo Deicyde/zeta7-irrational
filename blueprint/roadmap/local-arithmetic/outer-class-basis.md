@@ -2,6 +2,7 @@
 article_id: af_8d3f5d5d03fde3635f1c4e3f
 declaration: theorem
 origin: bridged
+lean: ZetaSeven.outer_class_basis ZetaSeven.OuterRange.card_outerIdx_eq_hDim ZetaSeven.OuterRange.natDegree_outerRow_lt ZetaSeven.OuterRange.outerRow_unimodular ZetaSeven.OuterRange.card_outerClassSet_of_ne_zero ZetaSeven.OuterRange.card_outerClassSet_zero ZetaSeven.OuterRange.card_outerClassSet ZetaSeven.OuterRange.sum_card_outerClassSet ZetaSeven.OuterRange.card_filter_outerClassSet_add_two ZetaSeven.OuterRange.natDegree_outerQ ZetaSeven.OuterRange.natDegree_outerRowPoly ZetaSeven.map_outerClassPoly ZetaSeven.map_outerHighPoly ZetaSeven.map_outerCofactor ZetaSeven.OuterRange.map_outerQ ZetaSeven.OuterRange.map_outerRowPoly ZetaSeven.OuterRange.linearIndependent_map_outerRow ZetaSeven.OuterRange.det_map_outerRow_ne_zero
 ---
 
 # Outer class basis
