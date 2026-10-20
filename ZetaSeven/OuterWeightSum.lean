@@ -229,7 +229,7 @@ theorem sum_zero_outerWeightDbl_four_add {x y d : ℕ} (hx : x ≤ 1) (hy : y �
 theorem outerFamWeightDbl_eq_outerWeightDbl (n p : ℕ) {c : ℕ} (hc : c ≠ 0) (i : ℕ) :
     outerFamWeightDbl n p c i = outerWeightDbl (ell p (K n) c) (classDelta n c) i := by
   unfold outerFamWeightDbl
-  rw [if_neg hc]
+  rw [ite_eq_right hc]
 
 /-- Under (52) with `K < 2p`, the class `1 ≤ c ≤ m` contributes
 `-9([c ≤ v] + [c ≥ p - v]) + 8(δ_c [c ≤ v] + δ_c [c ≥ p - v])` to `2∑w`. -/
@@ -419,7 +419,7 @@ theorem OuterRange.sum_outerFamWeightDbl_of_lt_two_mul [Fact p.Prime] (hR : Oute
       = -9 * ∑ c ∈ Icc 1 (mHalf p), ((classLow n p c : ℤ) + classHigh n p c)
         + 8 * (∑ c ∈ Icc 1 (mHalf p), (classDelta n c : ℤ) * classLow n p c
           + ∑ c ∈ Icc 1 (mHalf p), (classDelta n c : ℤ) * classHigh n p c) := by
-    simp only [Finset.sum_add_distrib, Finset.mul_sum, mul_add] <;> ring
+    simp only [Finset.sum_add_distrib, Finset.mul_sum, mul_add]
   have e1 : ∑ c ∈ Icc 1 (mHalf p), ((classLow n p c : ℤ) + classHigh n p c)
       = ((classV n p : ℕ) : ℤ) := by
     exact_mod_cast hR.sum_classLow_add_classHigh
@@ -492,7 +492,8 @@ theorem OuterRange.sum_outerFamWeightDbl_of_two_mul_le [Fact p.Prime] (hR : Oute
           + ∑ c ∈ Icc 1 (mHalf p), (classDelta n c : ℤ) * classHigh n p c)
         + 16 * ∑ c ∈ Icc 1 (mHalf p), (classDelta n c : ℤ) := by
     simp only [Finset.sum_add_distrib, Finset.mul_sum, mul_add, Finset.sum_const,
-      Nat.card_Icc, Nat.add_sub_cancel, nsmul_eq_mul] <;> ring
+      Nat.card_Icc, Nat.add_sub_cancel, nsmul_eq_mul]
+    ring
   have e0 : ∑ c ∈ Icc 1 (mHalf p), (classDelta n c : ℤ) = ((N n : ℕ) : ℤ) := by
     exact_mod_cast hR.sum_classDelta
   have e1 : ∑ c ∈ Icc 1 (mHalf p), ((classLow n p c : ℤ) + classHigh n p c)
