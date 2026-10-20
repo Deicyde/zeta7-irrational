@@ -19,12 +19,14 @@ import ZetaSeven.InnerEstimate
 import ZetaSeven.InnerLimiting
 import ZetaSeven.IntegerValued
 import ZetaSeven.MatrixDet
+import ZetaSeven.OuterClassRows
 import ZetaSeven.OuterLimiting
 import ZetaSeven.OuterModifiedFunctional
 import ZetaSeven.OuterMomentIntegrality
 import ZetaSeven.OuterRangeData
 import ZetaSeven.OuterRankDecomposition
 import ZetaSeven.OuterWeightFamily
+import ZetaSeven.OuterWeightSum
 import ZetaSeven.PairedPoleCongruence
 import ZetaSeven.PositiveIntegral
 import ZetaSeven.PotentialInequality
