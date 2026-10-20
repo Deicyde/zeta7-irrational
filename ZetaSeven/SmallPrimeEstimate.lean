@@ -35,6 +35,8 @@ the derivative loss of the integer-valued estimates; this is the per-term consta
 which the constant `8` absorbs, as the article prescribes.
 -/
 
+set_option autoImplicit false
+
 namespace ZetaSeven
 
 open Polynomial
@@ -1245,12 +1247,12 @@ theorem FK_eq_det_muData (n : ℕ) :
       * (Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j)).det := by
   have hmat : (Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j))
       = (transMat n).map C * Gmat n * ((transMat n).map C).transpose := by
+    rw [Matrix.mul_assoc]
     ext i j
     rw [Matrix.of_apply, muFunctional_muData]
     simp only [Matrix.mul_apply, Matrix.map_apply, Matrix.transpose_apply, Gmat, Matrix.of_apply,
-      Finset.sum_mul]
-    refine Finset.sum_comm.trans ?_
-    refine Finset.sum_congr rfl fun b _ => Finset.sum_congr rfl fun a _ => ?_
+      Finset.mul_sum]
+    refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
     rw [C_mul]
     ring
   rw [hmat, Matrix.det_mul, Matrix.det_mul, Matrix.det_transpose, ← RingHom.mapMatrix_apply,
