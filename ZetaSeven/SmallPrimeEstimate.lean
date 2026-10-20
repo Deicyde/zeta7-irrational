@@ -58,6 +58,7 @@ theorem le_padicValRat_add' {a b : ℚ} {B : ℤ} (hB : B ≤ 0) (ha : B ≤ pad
     exact hB
   · exact le_trans (le_min ha hb) (padicValRat.min_le_padicValRat_add hab)
 
+omit [Fact p.Prime] in
 theorem padicValRat_intCast_nonneg (z : ℤ) : 0 ≤ padicValRat p (z : ℚ) := by
   rw [padicValRat.of_int]
   exact Nat.cast_nonneg _
@@ -147,7 +148,6 @@ theorem padicValRat_quotCoeff_ge (K k : ℕ) (hk : 2 * K + 1 ≤ k) :
     padicValRat.div hj hk', padicValRat.of_nat, padicValRat.of_nat, padicValRat.of_nat]
   have h1 := padicValNat_factorial_add_succ_le (p := p) (2 * K) j
   have h2 := padicValNat_two_mul_factorial_le (p := p) K
-  push_cast
   omega
 
 /-! ## Integer values of binomial polynomials and Newton's formula -/
@@ -179,6 +179,7 @@ theorem padicValRat_binomPoly_eval_int_nonneg (k : ℕ) (z : ℤ) :
 theorem natDegree_binomPoly_le (k : ℕ) : (binomPoly k).natDegree ≤ k := by
   unfold binomPoly
   refine (natDegree_mul_C_le _ _).trans ((natDegree_prod_le _ _).trans ?_)
+  rw [Finset.sum_congr rfl (fun i _ => natDegree_X_sub_C (i : ℚ))]
   simp
 
 /-- Newton's forward-difference formula for polynomials: `f = ∑_{k ≤ e} Δᵏf(0) C(x, k)`. -/
@@ -230,7 +231,6 @@ theorem bernoulliL_C_mul (a : ℚ) (P : ℚ[X]) : bernoulliL (C a * P) = a * ber
   rw [C_mul', Polynomial.sum_smul_index P a (fun k x => x * _root_.bernoulli k)
       (fun i => zero_mul _), Polynomial.sum_def, Polynomial.sum_def, Finset.mul_sum]
   refine Finset.sum_congr rfl fun i _ => ?_
-  beta_reduce
   ring
 
 /-- `L` as an additive map. -/
@@ -335,11 +335,10 @@ theorem tauPoly_val_ge (P : ℚ[X]) (e B : ℕ) (hdeg : P.natDegree ≤ e)
     fwdDiff_iter_val _ (by linarith) hval k
   have h2 := deriv_loss (p := p) (e + 1) 6 (k + 1) hk'
   have h3 := padicValRat_div_natCast_ge (p := p) (derivCoeff 6 (k + 1)) 720
-    (B := -(((6 * Nat.log p (e + 1 + 1) : ℕ)) : ℤ)) (by push_cast; linarith) h2
+    (B := -(((6 * Nat.log p (e + 1 + 1) : ℕ)) : ℤ)) (by omega) h2
   rw [show e + 1 + 1 = e + 2 by ring] at h3
-  have h4 := padicValRat_mul_ge _ _ _ _ h1 h3 (by push_cast; linarith)
-  push_cast at h4
-  linarith
+  have h4 := padicValRat_mul_ge _ _ _ _ h1 h3 (by omega)
+  omega
 
 /-! ## Partial fractions over distinct nodes -/
 
@@ -507,8 +506,7 @@ theorem residue_val (K : ℕ) (A : ℚ[X]) (hA : ∀ m : ℤ, 0 ≤ padicValRat 
   have h4' : (padicValNat p (Nat.factorial (2 * K)) : ℤ)
       ≤ 2 * padicValNat p (Nat.factorial K) + Nat.log p (2 * K) := by exact_mod_cast h4
   have h5 := hA r
-  push_cast
-  linarith
+  omega
 
 /-- The partial-fraction data of `U/W` represents `U/W`. -/
 theorem tauRatFunc_pfData (K : ℕ) (U : ℚ[X]) :
@@ -546,8 +544,7 @@ theorem H7_val (m : ℕ) : -(7 * (Nat.log p m : ℤ)) ≤ padicValRat p (H7 m) :
   rw [one_div, padicValRat.inv, padicValRat.pow,
     show ((v : ℚ) + 1) = ((v + 1 : ℕ) : ℚ) from (Nat.cast_succ v).symm, padicValRat.of_nat]
   have h := padicValNat_le_log_of_le (p := p) (v + 1) m (by omega) hvm
-  push_cast
-  linarith
+  omega
 
 theorem tauPole_coeff_val (K : ℕ) {r : ℤ} (hr : r ∈ Finset.Icc (-(K : ℤ)) K) (k : ℕ) :
     -(7 * (Nat.log p K : ℤ)) ≤ padicValRat p ((tauPole r).coeff k) := by
@@ -581,7 +578,6 @@ theorem aK_val (A : ℚ[X]) (K k : ℕ) (hA : ∀ m : ℤ, 0 ≤ padicValRat p (
     0 ≤ padicValRat p (aK A K k) := by
   unfold aK
   refine fwdDiff_iter_val _ le_rfl (fun m => ?_) k
-  beta_reduce
   rw [eval_comp, eval_sub, eval_X, eval_C,
     show (m : ℚ) - K = (((m : ℤ) - K : ℤ) : ℚ) by push_cast; try ring]
   exact hA _
@@ -618,7 +614,6 @@ theorem binomPoly_comp_shift (K j : ℕ) :
   have hf1 : (Nat.factorial (2 * K + 1 + j) : ℚ) ≠ 0 := by positivity
   have hf2 : (Nat.factorial j : ℚ) ≠ 0 := by positivity
   field_simp
-  ring
 
 /-- The part of the binomial expansion of `A` at `-K` of degree `≤ 2K`. -/
 noncomputable def lowPart (A : ℚ[X]) (K d : ℕ) : ℚ[X] :=
@@ -750,8 +745,7 @@ theorem tauPoly_polyPart_val (A : ℚ[X]) {K d M : ℕ} (hdeg : A.natDegree ≤ 
   have h2 : (Nat.log p d : ℤ) ≤ Nat.log p M := by exact_mod_cast Nat.log_mono_right hdM
   have h3 : (Nat.log p (d - (2 * K + 1) + 2) : ℤ) ≤ Nat.log p M := by
     exact_mod_cast Nat.log_mono_right (by omega)
-  push_cast at h
-  linarith
+  omega
 
 /-! ## Lemma 3.8, core form -/
 
