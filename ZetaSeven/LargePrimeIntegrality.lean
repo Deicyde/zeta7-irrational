@@ -140,7 +140,7 @@ theorem muFunctional_polyPart_mem_pIntPoly {n p : ℕ} [Fact p.Prime] (hpK : K n
 private theorem lp_eq_of_natCast_eq {p : ℕ} [hp : Fact p.Prime] {a b : ℕ} (ha1 : 1 ≤ a)
     (hap : a < p) (hbp : b < p) :
     ((b : ZMod p) = a → b = a) ∧ ((b : ZMod p) = -(a : ZMod p) → b = p - a) := by
-  haveI : NeZero p := ⟨hp.out.ne_zero⟩
+  have : NeZero p := ⟨hp.out.ne_zero⟩
   have ha0 : (a : ZMod p) ≠ 0 := by
     intro h
     have h' := congrArg ZMod.val h
@@ -150,7 +150,8 @@ private theorem lp_eq_of_natCast_eq {p : ℕ} [hp : Fact p.Prime] {a b : ℕ} (h
   · have h' := congrArg ZMod.val h
     rwa [ZMod.val_natCast_of_lt hbp, ZMod.val_natCast_of_lt hap] at h'
   · have h' := congrArg ZMod.val h
-    rwa [ZMod.val_natCast_of_lt hbp, ZMod.neg_val, if_neg ha0, ZMod.val_natCast_of_lt hap] at h'
+    rwa [ZMod.val_natCast_of_lt hbp, ZMod.neg_val, ite_eq_right ha0,
+      ZMod.val_natCast_of_lt hap] at h'
 
 /-- For a prime `p > K` and `N < a ≤ K` with `p - a ∉ (N, K]`, the residue
 `ρ_a = R(-a²)/D_tail'(-a²)` is `p`-integral: no factor `b² - a²`, `b ∈ (N, K]`, `b ≠ a`, of

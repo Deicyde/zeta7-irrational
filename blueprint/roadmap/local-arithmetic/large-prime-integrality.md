@@ -2,6 +2,9 @@
 article_id: af_7ddab937d5a5d3746ee93f05
 declaration: theorem
 origin: bridged
+statement: formalized
+proof: formalized
+lean: ZetaSeven.large_prime_integrality ZetaSeven.Gentry_mem_pIntPoly ZetaSeven.muFunctional_polyPart_mem_pIntPoly ZetaSeven.resCoeff_mem_pInt_of_unpaired ZetaSeven.resCoeff_pair_mem_pIntPoly ZetaSeven.exists_intCast_eq_coeff_polyPart ZetaSeven.natDegree_polyPart_le
 ---
 
 # Large-prime integrality
