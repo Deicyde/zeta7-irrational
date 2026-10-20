@@ -236,14 +236,18 @@ private theorem sq_eq_of_mem_outerClassSet {c j : ℕ} (hj : j ∈ outerClassSet
     push_cast at h'
     rw [eq_neg_of_add_eq_zero_left h', neg_sq]
 
+/-- The factor `t + x²` modulo `p`. -/
+private theorem map_X_add_C_natCast_sq (p x : ℕ) :
+    (X + C ((x : ℤ) ^ 2)).map (Int.castRingHom (ZMod p)) = X + C ((x : ZMod p) ^ 2) := by
+  rw [Polynomial.map_add, Polynomial.map_X, Polynomial.map_C, map_pow, map_natCast]
+
 /-- Modulo `p`, `F_c ≡ (t + c²)^{|S_c|}`. -/
 theorem map_outerClassPoly (n p c : ℕ) :
     (outerClassPoly n p c).map (Int.castRingHom (ZMod p))
       = (X + C ((c : ZMod p) ^ 2)) ^ (outerClassSet n p c).card := by
   rw [outerClassPoly, Polynomial.map_prod, ← Finset.prod_const]
   refine prod_congr rfl fun j hj => ?_
-  simp only [Polynomial.map_add, Polynomial.map_X, Polynomial.map_C, map_pow, map_natCast]
-  rw [sq_eq_of_mem_outerClassSet hj]
+  rw [map_X_add_C_natCast_sq, sq_eq_of_mem_outerClassSet hj]
 
 /-- Modulo `p`, `E_c ≡ (t + c²)^{|{j ∈ S_c : j > p}|}`. -/
 theorem map_outerHighPoly (n p c : ℕ) :
@@ -251,8 +255,7 @@ theorem map_outerHighPoly (n p c : ℕ) :
       = (X + C ((c : ZMod p) ^ 2)) ^ ((outerClassSet n p c).filter (fun j => p < j)).card := by
   rw [outerHighPoly, Polynomial.map_prod, ← Finset.prod_const]
   refine prod_congr rfl fun j hj => ?_
-  simp only [Polynomial.map_add, Polynomial.map_X, Polynomial.map_C, map_pow, map_natCast]
-  rw [sq_eq_of_mem_outerClassSet (mem_filter.mp hj).1]
+  rw [map_X_add_C_natCast_sq, sq_eq_of_mem_outerClassSet (mem_filter.mp hj).1]
 
 /-- Modulo `p`, `P_c ≡ ∏_{0 ≤ d ≤ m, d ≠ c} (t + d²)^{|S_d|}`. -/
 theorem map_outerCofactor (n p c : ℕ) :
@@ -268,13 +271,9 @@ theorem OuterRange.map_outerQ [Fact p.Prime] (hR : OuterRange n p) {c : ℕ} (hc
     (outerQ n p c i).map (Int.castRingHom (ZMod p)) = (X + C ((c : ZMod p) ^ 2)) ^ i := by
   have he := hR.card_filter_outerClassSet_add_two hc1 hcm
   by_cases h : i < ell p (K n) c - 2
-  · rw [outerQ_of_lt h]
-    simp only [Polynomial.map_pow, Polynomial.map_add, Polynomial.map_X, Polynomial.map_C,
-      map_pow, map_natCast]
-  · rw [outerQ_of_le (not_lt.mp h), Polynomial.map_mul, map_outerHighPoly]
-    simp only [Polynomial.map_pow, Polynomial.map_add, Polynomial.map_X, Polynomial.map_C,
-      map_pow, map_natCast]
-    rw [← pow_add]
+  · rw [outerQ_of_lt h, Polynomial.map_pow, map_X_add_C_natCast_sq]
+  · rw [outerQ_of_le (not_lt.mp h), Polynomial.map_mul, map_outerHighPoly, Polynomial.map_pow,
+      map_X_add_C_natCast_sq, ← pow_add]
     congr 1
     omega
 
