@@ -1116,7 +1116,7 @@ theorem eAlpha_mul_log_le_Jfield {t : ℝ} (ht : 0 < t) :
   simpa [Jfield] using h
 
 /-- Each term of (109) at `t = 100` is at least `log 98`. -/
-theorem log_98_le_arcsinePotential {L : ℝ} (hL : 0 < L) (hL2 : L < 2) :
+theorem log_98_le_arcsinePotential {L : ℝ} (hL2 : L < 2) :
     Real.log 98 ≤ arcsinePotential L 100 := by
   rw [arcsinePotential, ite_eq_right (not_le.2 (by linarith : L < 100))]
   refine Real.log_le_log (by norm_num) ?_
@@ -1134,7 +1134,7 @@ theorem not_two_mul_Ulog_sub_Vfield_le_printed :
   have hU : 37 / 40 * Real.log 98 ≤ Ulog compMeasure 100 := by
     rw [Ulog_compMeasure (by norm_num), compPotential, ← sum_compWeight, Finset.sum_mul]
     exact Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left
-      (log_98_le_arcsinePotential (compEndpoint_pos j) (compEndpoint_lt_two j))
+      (log_98_le_arcsinePotential (compEndpoint_lt_two j))
       (compWeight_pos j).le
   have hJ1 := Jfield_one_le_log_add_one (by norm_num : (0 : ℝ) < 100)
   have hJα := eAlpha_mul_log_le_Jfield (by norm_num : (0 : ℝ) < 100)
