@@ -13,15 +13,14 @@ outer limiting integrals plus a tail integral with an explicit periodic
 expansion.
 
 The resulting prime-sum bound gives the arithmetic half of the final
-exponent: `lim sup K^-2 log m_K,M <= A_M`. The exact rational margins
-at the two cutoffs `M = 200` and `M = 100000`, evaluated through the
-192-piece inner integral and the outer integrand tables, are what the
-assembly chapter combines with the analytic bound. The paper's outer
-integral (122) does not survive recomputation: with the recomputed
-value `A_M + U` is positive at both cutoffs, so the final margins
-cannot be proved as stated and the v1 route to the main theorem does
-not close. The source notes record this (open question 5, errata 8-9),
-and what to do about the margins is the user's decision.
+exponent: `lim sup K^-2 log m_K,M <= A_M`. The assembly chapter
+combines it with the real bound, whose quadratic constant is
+`U = 44/25`, and needs `A_M + U < 0`. The
+paper's outer integral (122) does not survive recomputation: with the
+recomputed value and the exact inner integral (131 affine pieces), the
+final rational margins give `A_M + U > 0` at every cutoff, so the v1
+route to the main theorem does not close. The source notes record this
+(open question 5, errata 8-9).
 
 ## Normalization
 
@@ -41,7 +40,7 @@ and what to do about the margins is the user's decision.
 ## Main estimate
 
 - [Prime-sum bound](prime-sum-bound.md) — the arithmetic growth bound, with the constants `A_0`, `B_0`, `A_M`.
-- [Final rational margins](final-margins.md) — the cutoff constants and the -19000 margin, which fails with the recomputed outer integral.
+- [Final rational margins](final-margins.md) — the exact constants, and `A_M + U > 0` at every cutoff, so the paper's final margin fails.
 
 ## Background
 

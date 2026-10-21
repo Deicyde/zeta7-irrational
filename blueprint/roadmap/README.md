@@ -7,7 +7,9 @@ article_id: af_a8c752231b85495314d778c6
 Integer Hankel-determinant polynomials that stay positive but decay
 super-exponentially at zeta(7) force zeta(7) to be irrational. The book
 builds those polynomials, controls their denominators prime by prime,
-bounds their analytic size, and assembles the contradiction.
+bounds their analytic size, and assembles the contradiction up to the
+paper's final margin, which fails
+([source map, open question 5](../sources/zeta7-preprint.md#open-source-questions)).
 
 ## Chapters
 

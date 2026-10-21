@@ -18,11 +18,11 @@ establishes `A200 + U < -11`, i.e. decay faster than `exp(-17600n^2)`
 for `M = 200`, while the abstract claims `exp(-19000n^2)`. The author
 states the `-19000` bound follows with `-11.99` in place of `-11`
 (giving `-19184` after the `1600x` scaling) and will be fixed in v2.
-The roadmap tracks the v1 statements as written and records the
-discrepancy as an open source question below; do not silently upgrade
-the `M = 200` constant. Open question 5 records that the printed
-`A200` itself does not survive recomputation, so neither `-11` nor
-`-11.99` is reached.
+The main polynomial estimates node keeps the abstract's `-19000` for
+`M = 200` in its prose (open question 1, now superseded) but has no
+Lean statement (`not_ready: true`). The final-margins node states, with
+exact arithmetic, that `A_M + U > 0` at every cutoff, so neither `-11`
+nor `-11.99` is reached (open question 5).
 
 ## Locator map
 
@@ -87,18 +87,22 @@ in article citations disambiguate them.
 
 ## Open source questions
 
-1. DECIDED: formalize `-19000` for `M = 200`. The v1 proof text
+1. SUPERSEDED (2026-10-21; see the end of this item and open
+   question 5): the earlier decision was to formalize `-19000` for
+   `M = 200`. The v1 proof text
    derives only `1600(A200 + U) < -17600` (and states `-17000`),
-   so `-19000` needs `A200 + U < -95/8`, to be proved by exact
-   rational arithmetic from the integral tables; see the
-   `final-margins` node. The paper's printed values
+   so `-19000` needs `A200 + U < -95/8`, which the exact values
+   refute; see the `final-margins` node. The paper's printed values
    (`A200 ~ -13.7528`, `U = 44/25`) would leave a margin of about
    `0.118`, but they rest on the printed (122).
    NOTE (2026-10-18): the dispute of open question 5 is now
    verified. With the recomputed outer integral `A200 + U` is
    positive, so the `-19000` target cannot be met, nor can the
-   paper's own (118), while open question 5 stands. What to do
-   about the target is the user's decision.
+   paper's own (118), while open question 5 stands. DECIDED
+   (2026-10-21): the `final-margins` node now states the failure;
+   `main-estimates` keeps the `-19000` of Theorem 1.2 (1) in its prose
+   statement but has no Lean statement (`not_ready: true`); see open
+   question 5.
 2. The Fauzan zeta(5) predecessor [5] is cited for the architecture but
    has not been inspected; confirm no hidden lemma is imported from it.
    PARTLY ANSWERED (2026-10-18): the proof of Proposition 4.6 defers
@@ -143,9 +147,13 @@ in article citations disambiguate them.
      fails, and the v1 route to Theorems 1.1-1.2 does not close.
      (119) fails in the same way: `A100000 + U ≈ +4.82`.
 
-   This makes the `final-margins` node unprovable as stated and leaves
-   `main-estimates` and `main-theorem` without a proof route; their
-   statements are unchanged pending the user's decision.
+   DECIDED (2026-10-21): the `final-margins` node now states the
+   failure with exact arithmetic: `B0` and `A200 + U` as exact
+   rationals, and `A_M + U > 0` for every `M > 0`, so no choice of
+   cutoff makes the right side of (117) negative. `main-estimates`
+   and `main-theorem` get no Lean statement: they record
+   `not_ready: true`, with notes that they have no known proof
+   route.
 
 ## Errata found during formalization
 

@@ -2,6 +2,7 @@
 article_id: af_b1c6c61b863767b94db5e919
 declaration: theorem
 origin: cited
+not_ready: true
 ---
 
 # Main polynomial estimates
@@ -12,13 +13,14 @@ satisfies `0 < Q_{40n,200}(ζ(7)) < exp(-19000n^2)` and the
 same bound at cutoff `100000`. Here admissible means
 `M, K ∈ 40ℤ_{>0}` with `K ≥ 200M^2`, as in Proposition 5.1.
 
-The proof combines integrality, degree, and positivity with
-the decay inequality from the prime-sum and real bounds,
+The planned proof combines integrality, degree, and positivity
+with the decay inequality from the prime-sum and real bounds,
 substitutes `K = 40n`, and evaluates both cutoffs through the
-certified rational margins. The `-19000` constant at `M = 200`
-is the approved target; source-map open question 5 records that
-the final rational margins it rests on fail with the recomputed
-outer integral, so this proof route does not close as stated.
+final rational margins, which for the constant `-19000` at
+`M = 200` would need `A_200 + U < -95/8`. That route does not
+close: the final rational margins give `A_M + U > 0` at every
+cutoff, so the prime-sum and real bounds yield no decay, and no
+other proof route is known.
 
 ## Depends on
 
@@ -36,5 +38,5 @@ outer integral, so this proof route does not close as stated.
   equations (1)-(2), (20)-(21), (117)-(119).
 - [Open question 5](../../sources/zeta7-preprint.md#open-source-questions):
   with the recomputed outer integral (erratum 9) the final rational
-  margins fail, so this node has no proof route as stated; what to
-  do about its statement is the user's decision.
+  margins fail at every cutoff, so this node has no known proof
+  route.
