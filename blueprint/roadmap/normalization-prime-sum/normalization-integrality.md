@@ -2,6 +2,7 @@
 article_id: af_a256539d38585e17f839fc5d
 declaration: theorem
 origin: cited
+lean: ZetaSeven.normalization_integrality ZetaSeven.padicValRat_QKM_nonneg ZetaSeven.padicValRat_SK_legendre ZetaSeven.mKM_pos ZetaSeven.outerRange_of_K_lt_three_mul ZetaSeven.padicValRat_mKM ZetaSeven.padicValRat_SK_of_lt ZetaSeven.innerExtraRows_spec ZetaSeven.QKM_eq ZetaSeven.LpKM_of_le ZetaSeven.LpKM_of_inner ZetaSeven.LpKM_of_outer ZetaSeven.LpKM ZetaSeven.mKM ZetaSeven.QKM ZetaSeven.innerExtraRows
 ---
 
 # Normalization and integrality
