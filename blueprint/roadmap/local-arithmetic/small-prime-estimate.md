@@ -2,6 +2,8 @@
 article_id: af_d1535c272118e0129003b67c
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
 lean: ZetaSeven.small_prime_tau_bound ZetaSeven.FK_small_prime_bound ZetaSeven.FK_eq_det_fBasis ZetaSeven.det_transMat ZetaSeven.qPoly_comp_neg_sq ZetaSeven.Dpoly_comp_neg_sq ZetaSeven.fPoly_comp_neg_sq_intValued ZetaSeven.transMat_isLowerTriangular ZetaSeven.fPoly_eq_transMat_sum ZetaSeven.small_prime_tau_rep_exists ZetaSeven.fBasis_muRep_exists ZetaSeven.muRatFunc_inj ZetaSeven.Wpoly ZetaSeven.qPoly ZetaSeven.fPoly ZetaSeven.transMat ZetaSeven.muRatFunc
 ---
 

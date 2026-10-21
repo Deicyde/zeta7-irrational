@@ -794,7 +794,8 @@ integer `m` (equivalently `A(ℤ_p) ⊂ ℤ_p`) and `deg A ≤ d`, and let
 `g` (`tauRatFunc P c = g`), every coefficient of `τ_X(g) = tauFunctional P c` has valuation
 `≥ -8⌊log_p max(2K, d+1)⌋ - v_p(720)`, i.e. `v^G_p(τ_X(g)) ≥ -8⌊log_p max(2K, d+1)⌋ - v_p(720)`
 (the Gauss valuation stated coefficientwise; zero coefficients impose nothing since
-`padicValRat p 0 = 0` and the bound is `≤ 0`). -/
+`padicValRat p 0 = 0` and the bound is `≤ 0`). The paper allows `A ∈ ℚ_p[x]`; `τ_X` is defined
+over `ℚ` in this project, and (41) applies the lemma to rational `A`. -/
 theorem small_prime_tau_bound (p : ℕ) [Fact p.Prime] (K d : ℕ) (A : ℚ[X])
     (hdeg : A.natDegree ≤ d) (hA : ∀ m : ℤ, 0 ≤ padicValRat p (A.eval (m : ℚ)))
     (P : ℚ[X]) (c : ℤ →₀ ℚ)
