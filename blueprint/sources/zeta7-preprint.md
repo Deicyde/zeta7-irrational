@@ -109,7 +109,9 @@ in article citations disambiguate them.
    in Lean (`ZetaSeven.inner_estimate` on main at `9487e76`, whose CI
    kernel-trust audit, run 39160466154, passed allowing only `propext`,
    `Classical.choice`, and `Quot.sound`), so no hidden lemma from [5]
-   is needed for it.
+   is needed for it. Proposition 4.6 is likewise proved in Lean
+   (`ZetaSeven.outer_estimate`) through the reconstructed nodes, so no
+   hidden lemma from [5] is needed for it either.
 3. RESOLVED except Hermite/Hurwitz: von Staudt-Clausen is upstream
    (`Bernoulli.vonStaudt_clausen`), Bernoulli multiplication and Andreief
    were proved directly in Lean. Hermite/Hurwitz verdict (2026-10-17):
@@ -163,12 +165,14 @@ route to Theorems 1.1-1.2 does not close (open question 5).
    4.6 itself is not contradicted: at `n = 1` the exact `Δ_K` meets
    `γ^out_p` at every prime satisfying (52). The
    [outer range estimate](../roadmap/local-arithmetic/outer-estimate.md)
-   plans to prove it through a class basis with weights instead of
-   (53). That route is a reconstruction checked numerically, not yet
-   a proof: the exact `Δ_K` valuations at `n = 1`, the rank
-   decomposition at `n = 1`, the class basis and the entry
-   valuations at every `n ≤ 5`, and the weight sum for every
-   `n ≤ 60`.
+   proves it in Lean (`ZetaSeven.outer_estimate`) through a class
+   basis with weights instead of (53): the reconstructed class rows,
+   their unimodularity, the weighted entry valuations, the
+   Gauss-valuation rank lemma, and the weight sum, each its own
+   proved node. Before the proof, the route was checked numerically:
+   the exact `Δ_K` valuations at `n = 1`, the rank decomposition at
+   `n = 1`, the class basis and the entry valuations at every
+   `n ≤ 5`, and the weight sum for every `n ≤ 60`.
 2. Section 6.4, (99): the coefficient `13/10` is false. Recomputing
    `2U_ρ(t) - V(t)` at 40 significant digits from Table 1, (109), and
    (113), the bound first fails near `t ≈ 3.535` and fails at every
@@ -221,7 +225,7 @@ route to Theorems 1.1-1.2 does not close (open question 5).
    pair contribution to the entry has `v_41 = 0`. The conclusion
    `v^G_p(Δ_K) ≥ 0` is not contradicted; the
    [large-prime integrality](../roadmap/local-arithmetic/large-prime-integrality.md)
-   node plans to prove the entrywise integrality behind it with this
+   node proves the entrywise integrality behind it with this
    pairing, which the
    [paired-pole congruence](../roadmap/local-arithmetic/paired-pole-congruence.md)
    node states, and the
