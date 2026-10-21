@@ -25,6 +25,7 @@ import ZetaSeven.MatrixDet
 import ZetaSeven.OuterClassBasis
 import ZetaSeven.OuterClassRows
 import ZetaSeven.OuterEntryValuations
+import ZetaSeven.OuterEstimate
 import ZetaSeven.OuterLimiting
 import ZetaSeven.OuterModifiedFunctional
 import ZetaSeven.OuterMomentIntegrality

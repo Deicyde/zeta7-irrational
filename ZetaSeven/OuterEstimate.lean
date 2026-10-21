@@ -23,7 +23,7 @@ The proof of the first clause follows the article's assembly. For an enumeration
 outer class rows, let `U` be the matrix of their coefficients in the monomial basis
 (`outerUmat`; `det U` is an integer prime to `p` by `ZetaSeven.outer_class_basis`). Then
 
-* `U G_K Uᵀ = A' + p⁻¹ (U L Uᵀ)` (`OuterRange.gram_eq`), with `A'_{rs} = μ_0(r s D_N⁷/D_tail)`
+* `U G_K Uᵀ = A' + p⁻¹ (U L Uᵀ)` (`OuterRange.outerUmat_gram_eq`), with `A'_{rs} = μ_0(r s D_N⁷/D_tail)`
   the modified Gram matrix `ZetaSeven.outerAprime` in the class basis
   (`OuterRange.outerAprime_reindex_eq`), by the rank decomposition `G_K = A + p⁻¹ L`
   (`ZetaSeven.Gmat_eq_outerAmat_add`) and the linearity of `μ_0(·/D_tail)`
