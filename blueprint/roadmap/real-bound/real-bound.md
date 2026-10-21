@@ -22,9 +22,6 @@ constant bound for the remaining quadratic coefficient.
 - [Configuration energy bound](configuration-bound.md)
 - [Andreief scaling](andreief-scaling.md)
 - [Energy and norm constant](energy-computation.md)
-
-## Proof depends on
-
 - [Stirling factorial estimate](stirling-estimate.md)
 
 ## Sources
