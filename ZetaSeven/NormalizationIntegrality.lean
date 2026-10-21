@@ -70,18 +70,19 @@ noncomputable def LpKM (n M p : ℕ) : ℤ :=
 theorem LpKM_of_le {n M p : ℕ} (h : M * p ≤ K n) :
     LpKM n M p = -(8 * (hDim n : ℤ) * (Nat.log p (5 * K n) : ℤ))
       - (hDim n : ℤ) * (padicValNat p 720 : ℤ) := by
-  rw [LpKM, if_pos h]
+  rw [LpKM, ite_eq_left h]
 
 /-- (60), inner branch `pM > K`, `3p ≤ K`. -/
 theorem LpKM_of_inner {n M p : ℕ} (h1 : K n < M * p) (h3 : 3 * p ≤ K n) :
     LpKM n M p = padicValRat p (SK n) + gammaIn n M p (innerExtraRows n M p) := by
-  rw [LpKM, if_neg (not_le.mpr h1), if_pos h3]
+  rw [LpKM, ite_eq_right (not_le.mpr h1), ite_eq_left h3]
 
 /-- (60), outer branch `3p > K` (for `M ≥ 3`, which makes `pM > K` automatic). -/
 theorem LpKM_of_outer {n M p : ℕ} (hM : 3 ≤ M) (h3 : K n < 3 * p) :
     LpKM n M p = padicValRat p (SK n) + gammaOut n p := by
   have hMp : 3 * p ≤ M * p := Nat.mul_le_mul_right p hM
-  rw [LpKM, if_neg (show ¬ M * p ≤ K n by omega), if_neg (show ¬ 3 * p ≤ K n by omega)]
+  rw [LpKM, ite_eq_right (show ¬ M * p ≤ K n by omega),
+    ite_eq_right (show ¬ 3 * p ≤ K n by omega)]
 
 /-- (61): the normalization factor `m_{K,M} = ∏_{p ≤ 2h} p^{-L_p(K,M)}`, the product over the
 primes `p ≤ 2h`. It is a positive rational (`mKM_pos`). -/
@@ -219,16 +220,17 @@ theorem padicValRat_mKM (n M p : ℕ) [hp : Fact p.Prime] :
     simp [hp.out]
   rw [mKM, ni_padicValRat_prod _ _ hne, Finset.sum_congr rfl hterm, Finset.sum_ite_eq']
   by_cases h : p ≤ 2 * hDim n
-  · rw [if_pos (hmem.mpr h), if_pos h]
-  · rw [if_neg (mt hmem.mp h), if_neg h]
+  · rw [ite_eq_left (hmem.mpr h), ite_eq_left h]
+  · rw [ite_eq_right (mt hmem.mp h), ite_eq_right h]
 
 /-! ## The outer-range hypothesis in the outer branch -/
 
 /-- A prime `p ≤ K` with `3p > K` satisfies the outer-range hypothesis (52). The article
-derives this from `K ≥ 200 M² ≥ 320000`; `K = 40n` with `n ≥ 1` already suffices:
-`3p > 40n` gives `p ≥ 13n + 1` and `p ≥ 14`, hence `p ≥ 11`, `p² > 2K` and `7N ≤ 2p - 2`. -/
-theorem outerRange_of_K_lt_three_mul {n p : ℕ} (hn : 0 < n) (h3 : K n < 3 * p)
-    (hpK : p ≤ K n) : OuterRange n p := by
+derives this from `K ≥ 200 M² ≥ 320000`; no bound on `K` is needed: `3p > K = 40n` gives
+`p ≥ 13n + 1`, and `p ≤ K` forces `n ≥ 1`, so `p ≥ 14`; hence `p ≥ 11`, `p² > 2K` and
+`7N ≤ 2p - 2`. -/
+theorem outerRange_of_K_lt_three_mul {n p : ℕ} (h3 : K n < 3 * p) (hpK : p ≤ K n) :
+    OuterRange n p := by
   have hKdef : K n = 40 * n := rfl
   have hNdef : N n = 3 * n := rfl
   have h1 : 13 * n + 1 ≤ p := by omega
@@ -258,8 +260,6 @@ theorem padicValRat_QKM_nonneg {n M : ℕ} (hM : 40 ≤ M) (hK : 200 * M ^ 2 ≤
     [Fact p.Prime] (k : ℕ) : 0 ≤ padicValRat p ((QKM n M).coeff k) := by
   have hKdef : K n = 40 * n := rfl
   have hhdef : hDim n = 37 * n := rfl
-  have hM2 : 0 < M ^ 2 := pow_pos (by omega) 2
-  have hn : 0 < n := by omega
   rw [QKM, coeff_C_mul]
   rcases eq_or_ne ((FK n).coeff k) 0 with h0 | h0
   · simp [h0]
@@ -284,7 +284,7 @@ theorem padicValRat_QKM_nonneg {n M : ℕ} (hM : 40 ≤ M) (hK : 200 * M ^ 2 ≤
       rw [hvF]
       by_cases hpK : p ≤ K n
       · -- `K/3 < p ≤ K`: (52) holds, Proposition 4.6
-        have := outer_estimate (outerRange_of_K_lt_three_mul hn (not_le.mp hi) hpK) k hD
+        have := outer_estimate (outerRange_of_K_lt_three_mul (not_le.mp hi) hpK) k hD
         linarith
       · -- `K < p ≤ 2h`: `γ^out_p = 0`, large-prime clause of Proposition 4.6
         rw [gammaOut_of_K_lt (not_le.mp hpK)]
