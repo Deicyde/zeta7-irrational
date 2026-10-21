@@ -28,17 +28,21 @@ The proof follows Section 6.4.
   quantity, and `ρ ⊗ ρ` is handled by `integrable_log_abs_sub_prod_compMeasure`. Lemma 6.2
   (`ZetaSeven.ZeroMassEnergy.zero_mass_energy_nonpos`) gives `I(σ - ρ) ≤ 0`.
 * **Regularization error.** `∫ log max(|t - u|, ε) dρ(u) - U_ρ(t) ≤ 60 √ε`. The arcsine density
-  satisfies `1/√(u(L - u)) ≤ √(2/L) (u^{-1/2} + (L - u)^{-1/2})`, so `ω_{[0,L]}` gives mass at
-  most `(4√2 / (π√L)) √ℓ` to an interval of length `ℓ`; the layer-cake formula then bounds
-  `∫ log⁺(ε/|t - u|) dω_{[0,L]}(u)` by `16 √ε / (π √L)`, and every `L_j ≥ 1/50`. (With only
-  the paper's `L_j > 1/225` this route would give `70.7 √ε`, above the paper's `60 √ε`.)
+  satisfies `1/√(u(L - u)) ≤ (u^{-1/2} + (L - u)^{-1/2}) / √L` (as `√L ≤ √u + √(L - u)`), so
+  `ω_{[0,L]}` gives mass at most `4 √(2r) / (π √L)` to an interval of radius `r`, the paper's
+  arcsine mass estimate (`arcsineMeasure_Ioo_le`). The layer-cake formula then bounds
+  `∫ log⁺(ε/|t - u|) dω_{[0,L]}(u)` by `8 √(2ε) / (π √L)`, which is at most `60 √ε` because
+  every `L_j > 1/225`; the weights sum to `37/40`.
 * **Expansion (97).** Expanding `I(σ - ρ) ≤ 0` gives, for distinct real `t_i` and `ε > 0`,
   `2 Σ_{i<j} log |t_i - t_j| + h log ε ≤ 2K Σ_i U_ρ(t_i) + 120 h K √ε - K² I(ρ)`
   (`configuration_bound_core`).
 * **Retained factor (98).** `2U_ρ(t) - V(t) + √t/K ≤ M_0 + √2/K` for `t ≥ 0` and `K ≥ 1`
   (`two_mul_Ulog_sub_Vfield_add_sqrt_div_le`): on `[0, 2]` from (94), and past `2` from the
   corrected tail bound `(29/20) log t + 8α³/t - 2π√t` (source-map erratum 2; the printed `13/10`
-  is false) with `log t ≤ 2(√t - 1)`, `√t ≥ 7/5` and `π > 3`.
+  is false) with `log t ≤ 2(√t - 1)`, `√t ≥ 7/5` and `π > 3`. The paper's route is also
+  recorded: after adding `√t/K` the tail bound is antitone on `[2, ∞)`
+  (`antitoneOn_tail_add_sqrt_div`) and its value at `2` is below `M_0 + √2/K`
+  (`tail_add_sqrt_div_two_lt`).
 * **Assembly (100).** `ε = K⁻²` turns `120 h K √ε` into `120 h` and `-h log ε` into `2h log K`.
 -/
 
@@ -195,12 +199,14 @@ theorem compMeasureC_norm_sub_gt {a : ℂ} {B : ℝ} (hB : 2 + ‖a‖ ≤ B) :
   have hmeas : MeasurableSet {z : ℂ | B < ‖z - a‖} :=
     (isOpen_lt continuous_const (continuous_id.sub continuous_const).norm).measurableSet
   rw [compMeasureC, Measure.map_apply Complex.measurable_ofReal hmeas]
-  refine measure_mono_null (fun x hx hx2 => ?_) compMeasure_compl_Ioo
-  have hx' : B < ‖(x : ℂ) - a‖ := hx
-  have h1 : ‖(x : ℂ) - a‖ ≤ ‖(x : ℂ)‖ + ‖a‖ := norm_sub_le _ _
-  have h2 : ‖(x : ℂ)‖ = |x| := by rw [Complex.norm_real, Real.norm_eq_abs]
-  have h3 : |x| < 2 := abs_lt.2 ⟨by linarith [hx2.1], hx2.2⟩
-  linarith
+  have hsub : Complex.ofReal ⁻¹' {z : ℂ | B < ‖z - a‖} ⊆ (Set.Ioo 0 2)ᶜ := by
+    intro x hx hx2
+    have hx' : B < ‖(x : ℂ) - a‖ := hx
+    have h1 : ‖(x : ℂ) - a‖ ≤ ‖(x : ℂ)‖ + ‖a‖ := norm_sub_le _ _
+    have h2 : ‖(x : ℂ)‖ = |x| := by rw [Complex.norm_real, Real.norm_eq_abs]
+    have h3 : |x| < 2 := abs_lt.2 ⟨by linarith [hx2.1], hx2.2⟩
+    linarith
+  exact measure_mono_null hsub compMeasure_compl_Ioo
 
 /-! ### The logarithmic kernel -/
 
@@ -477,7 +483,7 @@ theorem arcsineDensity_le {L u : ℝ} (hu : u ∈ Set.Ioo 0 L) :
 /-- The arcsine mass estimate: `ω_{[0,L]}` gives mass at most `4 √(b - a) / (π √L)` to an
 interval `(a, b)`. The density bound `arcsineDensity_le` integrates to
 `2(√b - √a) + 2(√(L - a) - √(L - b)) ≤ 4 √(b - a)` over `(a, b) ∩ (0, L)`. -/
-theorem arcsineMeasure_Ioo_le {L : ℝ} (hL : 0 < L) {a b : ℝ} (hab : a ≤ b) :
+theorem arcsineMeasure_Ioo_le {L : ℝ} (hL : 0 < L) (a b : ℝ) :
     arcsineMeasure L (Set.Ioo a b) ≤
       ENNReal.ofReal (4 / (Real.pi * Real.sqrt L) * Real.sqrt (b - a)) := by
   have hC0 : 0 ≤ 1 / (Real.pi * Real.sqrt L) := by positivity
@@ -504,7 +510,8 @@ theorem arcsineMeasure_Ioo_le {L : ℝ} (hL : 0 < L) {a b : ℝ} (hab : a ≤ b)
     have h1 := ((hasDerivAt_id' u).sqrt hu'.1.ne').const_mul 2
     have h2 := (((hasDerivAt_id' u).const_sub L).sqrt (sub_pos.2 hu'.2).ne').const_mul 2
     refine (h1.sub h2).congr_deriv ?_
-    field_simp <;> ring
+    field_simp
+    ring
   have hcont : ContinuousOn (fun u => 2 * Real.sqrt u - 2 * Real.sqrt (L - u))
       (Set.Icc (max a 0) (min b L)) := by fun_prop
   have hnn : ∀ u ∈ Set.Ioo (max a 0) (min b L), 0 ≤ 1 / Real.sqrt u + 1 / Real.sqrt (L - u) :=
@@ -606,7 +613,7 @@ theorem lintegral_posLog_arcsineMeasure_le {L : ℝ} (hL : 0 < L) (t : ℝ) {ε 
           measure_mono hsub
       _ ≤ ENNReal.ofReal (4 / (Real.pi * Real.sqrt L) *
             Real.sqrt (t + ε * Real.exp (-s) - (t - ε * Real.exp (-s)))) :=
-          arcsineMeasure_Ioo_le hL (by nlinarith [Real.exp_pos (-s)])
+          arcsineMeasure_Ioo_le hL _ _
       _ = ENNReal.ofReal (4 * Real.sqrt 2 / (Real.pi * Real.sqrt L) * Real.sqrt ε) *
             ENNReal.ofReal (Real.exp (-s * (1 / 2))) := by
           rw [← ENNReal.ofReal_mul (by positivity)]
@@ -1026,6 +1033,69 @@ theorem two_mul_Ulog_sub_Vfield_add_sqrt_div_le {K t : ℝ} (hK : 1 ≤ K) (ht :
     have hdiv : Real.sqrt t / K ≤ Real.sqrt t := div_le_self (Real.sqrt_nonneg t) hK
     have hpos : 0 ≤ Real.sqrt 2 / K := div_nonneg (Real.sqrt_nonneg 2) hK0.le
     nlinarith [mul_le_mul_of_nonneg_right Real.pi_gt_three.le (Real.sqrt_nonneg t)]
+
+/-- The route of the paper to (98) past `2`: after adding `√t/K`, the tail bound
+`(29/20) log t + 8α³/t - 2π√t` is antitone on `[2, ∞)` for `K ≥ 1`. With `s = √t ≥ 7/5` its
+derivative is at most `(1/s) ((29/20)/s + 1/(2K) - π) < 0`. -/
+theorem antitoneOn_tail_add_sqrt_div {K : ℝ} (hK : 1 ≤ K) :
+    AntitoneOn (fun t => 29 / 20 * Real.log t + 8 * eAlpha ^ 3 / t -
+      2 * Real.pi * Real.sqrt t + Real.sqrt t / K) (Set.Ici 2) := by
+  have hderiv : ∀ x : ℝ, 0 < x → HasDerivAt (fun t => 29 / 20 * Real.log t +
+      8 * eAlpha ^ 3 / t - 2 * Real.pi * Real.sqrt t + Real.sqrt t / K)
+      (29 / 20 * x⁻¹ + 8 * eAlpha ^ 3 * (-(x ^ 2)⁻¹) - 2 * Real.pi * (1 / (2 * Real.sqrt x)) +
+        1 / (2 * Real.sqrt x) / K) x := by
+    intro x hx
+    have h1 := (Real.hasDerivAt_log hx.ne').const_mul (29 / 20)
+    have h2 := (hasDerivAt_inv hx.ne').const_mul (8 * eAlpha ^ 3)
+    have h3 := (Real.hasDerivAt_sqrt hx.ne').const_mul (2 * Real.pi)
+    have h4 := (Real.hasDerivAt_sqrt hx.ne').div_const K
+    convert ((h1.add h2).sub h3).add h4 using 1
+    funext t
+    simp only [div_eq_mul_inv]
+  refine antitoneOn_of_deriv_nonpos (convex_Ici 2) ?_ ?_ ?_
+  · intro x hx
+    exact (hderiv x (lt_of_lt_of_le two_pos hx)).continuousAt.continuousWithinAt
+  · rw [interior_Ici]
+    intro x hx
+    exact (hderiv x (lt_trans two_pos hx)).differentiableAt.differentiableWithinAt
+  · rw [interior_Ici]
+    intro x hx
+    have hx0 : 0 < x := lt_trans two_pos hx
+    rw [(hderiv x hx0).deriv]
+    have hs : 7 / 5 ≤ Real.sqrt x :=
+      Real.le_sqrt_of_sq_le (by norm_num; linarith [Set.mem_Ioi.1 hx])
+    have hu0 : 0 < 1 / Real.sqrt x := by
+      have := Real.sqrt_pos.2 hx0
+      positivity
+    have hu57 : 1 / Real.sqrt x ≤ 5 / 7 := by
+      have h := one_div_le_one_div_of_le (by norm_num : (0 : ℝ) < 7 / 5) hs
+      norm_num at h ⊢
+      linarith
+    have hinv : x⁻¹ = (1 / Real.sqrt x) ^ 2 := by
+      rw [div_pow, one_pow, Real.sq_sqrt hx0.le, one_div]
+    have hhalf : 1 / (2 * Real.sqrt x) = 1 / Real.sqrt x / 2 := by ring
+    have hK' : 1 / Real.sqrt x / 2 / K ≤ 1 / Real.sqrt x / 2 :=
+      div_le_self (by positivity) hK
+    have hα : 0 ≤ 8 * eAlpha ^ 3 * (x ^ 2)⁻¹ := by
+      rw [eAlpha_eq]
+      positivity
+    rw [hinv, hhalf]
+    nlinarith [mul_le_mul_of_nonneg_left hu57 hu0.le,
+      mul_le_mul_of_nonneg_right Real.pi_gt_three.le hu0.le]
+
+/-- At `t = 2` the tail bound with the retained factor is below `M_0 + √2/K`, from
+`log 2 < 7/10`, `π > 3` and `√2 > 7/5` (the `√2/K` terms cancel). -/
+theorem tail_add_sqrt_div_two_lt (K : ℝ) :
+    29 / 20 * Real.log 2 + 8 * eAlpha ^ 3 / 2 - 2 * Real.pi * Real.sqrt 2 + Real.sqrt 2 / K <
+      -109 / 20 + Real.sqrt 2 / K := by
+  have hlog : Real.log 2 < 7 / 10 := by
+    have h := Real.log_two_lt_d9
+    norm_num at h
+    linarith
+  have hs : 7 / 5 < Real.sqrt 2 := (Real.lt_sqrt (by norm_num)).2 (by norm_num)
+  have hpi := Real.pi_gt_three
+  rw [eAlpha_eq]
+  nlinarith [mul_pos (sub_pos.2 hpi) (sub_pos.2 hs)]
 
 /-- Equation (100) for distinct points: for `K ≥ 1`, `h = λK` (`λ = 37/40`) and distinct
 `t_1, …, t_h ≥ 0`,
