@@ -18,7 +18,9 @@ import ZetaSeven.HermiteHurwitz
 import ZetaSeven.InnerEstimate
 import ZetaSeven.InnerLimiting
 import ZetaSeven.IntegerValued
+import ZetaSeven.LargePrimeIntegrality
 import ZetaSeven.MatrixDet
+import ZetaSeven.OuterClassBasis
 import ZetaSeven.OuterClassRows
 import ZetaSeven.OuterLimiting
 import ZetaSeven.OuterModifiedFunctional
