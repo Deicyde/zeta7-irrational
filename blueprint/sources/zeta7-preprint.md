@@ -149,7 +149,7 @@ in article citations disambiguate them.
 
 Only items confirmed independently of the paper's own text are listed:
 by exact or high-precision recomputation from the paper's definitions
-and Table 1, or by a Lean proof. Items 1-8 and 10-12 do not break the
+and Tables 1-4, or by a Lean proof. Items 1-8 and 10-12 do not break the
 main theorem as far as the formalization has checked; item 8 is resolved
 in favor of the reading that the proof of Proposition 5.4 uses. Item 9
 does: with the recomputed outer integral, (118) fails and the v1
@@ -288,14 +288,18 @@ route to Theorems 1.1-1.2 does not close (open question 5).
 11. Section 5.4, (82)-(83) and (86): in (82) the coefficient of
     `∫_0^{1/2} B(z)^2 dz` is `16`, not `25`, because `b = 4ℓ(αx, z)`
     contributes `-16B^2` to the integrand of (66); with `25` the
-    decomposition (80) is false (it fails at 302 of 304 exact test
-    points), and with `16` it holds exactly, consistently with
-    Tables 2-4 and (121). The bounds (83), `-1/2 ≤ Q ≤ 27/8`, hold
-    (the true range of `Q` is `[0, 9269/3698]`), but the printed
-    termwise argument reaches only `-5/8`; a correct argument uses
-    `|∫AB| ≤ ∫B^2` from (78)-(79). (86) holds for `M ∈ 40ℤ_{>0}`, as
-    the paper assumes, and fails without that hypothesis, for
-    example at `M = 20`, `60`, and `100`. The
+    decomposition (80) is off by `9∫B^2 = 9d({αx})(1 - 2d({αx}))`,
+    which is nonzero whenever `2αx` is not an integer, and with `16`
+    it holds exactly, consistently with Tables 2-4 and (121). The
+    bounds (83), `-1/2 ≤ Q ≤ 27/8`, hold (the true range of `Q` is
+    `[0, 9269/3698]`), but the printed termwise argument reaches
+    only `-5/8` for the lower bound, and its upper-bound arithmetic
+    `25/8 + 1/4` is not a valid termwise bound either; with `16` the
+    termwise upper bound is `1/8 + 2 + 1/2 = 21/8`, and the lower
+    bound needs `|∫AB| ≤ ∫B^2` from (78)-(79). (86) holds for
+    `M ∈ 40ℤ_{>0}`, as the paper assumes; the hypothesis cannot be
+    dropped: (86) fails at every `M ≡ 20 (mod 40)`, for example at
+    `M = 20`, `60`, and `100`. The
     [tail integral bound](../roadmap/normalization-prime-sum/tail-integral.md)
     node states the corrected forms.
 12. Appendix A.1, Tables 2-4: `R(x) = a_i x + b_i` holds on the open

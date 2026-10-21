@@ -13,11 +13,14 @@ the interior of each piece.
 
 The proof strategy is certificate-checking, not recomputation:
 write the `z`-integral of (66) in closed form, so that `R` is
-affine wherever the floors `⌊x⌋`, `⌊2x⌋`, `⌊αx⌋`, `⌊2αx⌋`, `⌊2Hx⌋`,
-`⌊2λx⌋` and the branch of `(s - n_+)_+` are constant; check for
-each piece that they are constant on its interior and that `R`
-equals the listed affine function there; and sum the exact
-contributions. Only 131 of the 192 pieces are distinct, and `R`
+affine between consecutive points where `cx` is an integer for
+some `c ∈ {1, 2, α, 2α, 2H, 2λ, 1 - α, 1 + α, 9/20}`: there the floors
+`⌊x⌋`, `⌊2x⌋`, `⌊αx⌋`, `⌊2αx⌋`, `⌊2Hx⌋`, `⌊2λx⌋`, the order of
+`d({x})` and `d({αx})` (which flips where `(1 ± α)x` is an integer),
+and the branch of `(s - n_+)_+` (which flips where `(9/20)x` is an
+integer) are all constant. Then check for each piece that `R`
+equals the listed affine function on its interior, and sum the
+exact contributions. Only 131 of the 192 pieces are distinct, and `R`
 jumps at `x = 4, …, 19`, `40/3`, and `20` (source-map erratum 12),
 so the per-piece identities hold on open intervals.
 
