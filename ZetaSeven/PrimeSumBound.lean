@@ -1167,6 +1167,14 @@ theorem integral_Ioi_twenty_le :
     ring
   linarith [key, hC, hQ]
 
+/-- `R(x)/x³` is interval integrable on `[a, b]` for `0 < a ≤ b`, so the integrals
+`∫_3^20 R(x)/x³ dx` in `B_0` (88) and `∫_3^M R(x)/x³ dx` in the proof of (90) are genuine
+integrals, not the junk value `0`. -/
+theorem intervalIntegrable_innerR_div_cube_of_pos {a b : ℝ} (ha : 0 < a) (hab : a ≤ b) :
+    IntervalIntegrable (fun x => innerR x / x ^ 3) volume a b :=
+  (intervalIntegrable_iff_integrableOn_Ioc_of_le hab).mpr
+    ((integrableOn_innerR_div_cube ha).mono_set Set.Ioc_subset_Ioi_self)
+
 /-- `∫_20^∞ R(x)/x³ dx ≤ A_0`: the step of the proof of (90) that substitutes `A_0`
 (source-map erratum 14: `A_0` bounds this integral; it is not equal to it). -/
 theorem integral_Ioi_twenty_le_A0 :
@@ -1183,13 +1191,10 @@ theorem integral_three_le {M : ℕ} (hM : 0 < M) (h40 : 40 ∣ M) :
       (∫ x in (3 : ℝ)..20, innerR x / x ^ 3) + (primeSumA0 : ℝ) + (lam : ℝ) / M
         - 11549 / (720 * (M : ℝ) ^ 2) + 44 / (M : ℝ) ^ 3 := by
   have hM40 : (40 : ℝ) ≤ M := by exact_mod_cast Nat.le_of_dvd hM h40
-  have hint := integrableOn_innerR_div_cube (T := 3) (by norm_num)
-  have h1 : IntervalIntegrable (fun x => innerR x / x ^ 3) volume 3 20 :=
-    (intervalIntegrable_iff_integrableOn_Ioc_of_le (by norm_num)).mpr
-      (hint.mono_set Set.Ioc_subset_Ioi_self)
-  have h2 : IntervalIntegrable (fun x => innerR x / x ^ 3) volume 20 M :=
-    (intervalIntegrable_iff_integrableOn_Ioc_of_le (by linarith)).mpr
-      (hint.mono_set (Set.Ioc_subset_Ioi_self.trans (Set.Ioi_subset_Ioi (by norm_num))))
+  have h1 := intervalIntegrable_innerR_div_cube_of_pos (a := 3) (b := 20) (by norm_num)
+    (by norm_num)
+  have h2 := intervalIntegrable_innerR_div_cube_of_pos (a := 20) (b := M) (by norm_num)
+    (by linarith)
   have h20 := integrableOn_innerR_div_cube (T := 20) (by norm_num)
   rw [← intervalIntegral.integral_add_adjacent_intervals h1 h2,
     ← intervalIntegral.integral_Ioi_sub_Ioi h20 (show (20 : ℝ) ≤ M by linarith)]
