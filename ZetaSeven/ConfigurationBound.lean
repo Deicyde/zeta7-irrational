@@ -39,7 +39,8 @@ The proof follows Section 6.4.
 * **Retained factor (98).** `2U_ρ(t) - V(t) + √t/K ≤ M_0 + √2/K` for `t ≥ 0` and `K ≥ 1`
   (`two_mul_Ulog_sub_Vfield_add_sqrt_div_le`): on `[0, 2]` from (94), and past `2` from the
   corrected tail bound `(29/20) log t + 8α³/t - 2π√t` (source-map erratum 2; the printed `13/10`
-  is false) with `log t ≤ 2(√t - 1)`, `√t ≥ 7/5` and `π > 3`. The paper's route is also
+  bound fails, for example at `t = 100`: `not_two_mul_Ulog_sub_Vfield_le_printed`) with
+  `log t ≤ 2(√t - 1)`, `√t ≥ 7/5` and `π > 3`. The paper's route is also
   recorded: after adding `√t/K` the tail bound is antitone on `[2, ∞)`
   (`antitoneOn_tail_add_sqrt_div`) and its value at `2` is below `M_0 + √2/K`
   (`tail_add_sqrt_div_two_lt`).
@@ -1094,6 +1095,63 @@ theorem tail_add_sqrt_div_two_lt (K : ℝ) :
   have hpi := Real.pi_gt_three
   rw [eAlpha_eq]
   nlinarith [mul_pos (sub_pos.2 hpi) (sub_pos.2 hs)]
+
+/-- `J_1(t) ≤ log (t + 1)` for `t > 0`, since `log (t + u²) ≤ log (t + 1)` on `[0, 1]`. -/
+theorem Jfield_one_le_log_add_one {t : ℝ} (ht : 0 < t) : Jfield 1 t ≤ Real.log (t + 1) := by
+  have hcont : Continuous fun u : ℝ => Real.log (t + u ^ 2) :=
+    Continuous.log (by fun_prop) fun u => (by positivity : (0 : ℝ) < t + u ^ 2).ne'
+  have h := intervalIntegral.integral_mono_on (μ := volume) zero_le_one
+    (hcont.intervalIntegrable 0 1) (intervalIntegrable_const (c := Real.log (t + 1)))
+    (fun u hu => Real.log_le_log (by positivity) (by nlinarith [hu.1, hu.2]))
+  simpa [Jfield] using h
+
+/-- `α log t ≤ J_α(t)` for `t > 0`, since `log t ≤ log (t + u²)`. -/
+theorem eAlpha_mul_log_le_Jfield {t : ℝ} (ht : 0 < t) :
+    eAlpha * Real.log t ≤ Jfield eAlpha t := by
+  have hcont : Continuous fun u : ℝ => Real.log (t + u ^ 2) :=
+    Continuous.log (by fun_prop) fun u => (by positivity : (0 : ℝ) < t + u ^ 2).ne'
+  have h := intervalIntegral.integral_mono_on (μ := volume) eAlpha_pos.le
+    (intervalIntegrable_const (c := Real.log t)) (hcont.intervalIntegrable 0 eAlpha)
+    (fun u _ => Real.log_le_log ht (le_add_of_nonneg_right (sq_nonneg u)))
+  simpa [Jfield] using h
+
+/-- Each term of (109) at `t = 100` is at least `log 98`. -/
+theorem log_98_le_arcsinePotential {L : ℝ} (hL : 0 < L) (hL2 : L < 2) :
+    Real.log 98 ≤ arcsinePotential L 100 := by
+  rw [arcsinePotential, ite_eq_right (not_le.2 (by linarith : L < 100))]
+  refine Real.log_le_log (by norm_num) ?_
+  have h : 98 ≤ Real.sqrt (100 * (100 - L)) :=
+    Real.le_sqrt_of_sq_le (by nlinarith)
+  linarith
+
+/-- Source-map erratum 2: the bound (99) as printed, with the coefficient `13/10`, is false. At
+`t = 100`, `2U_ρ(t) - V(t) ≥ (37/20) log 98 - 2π√t - log 101 + (3/5) log 100`, which exceeds
+`(13/10) log 100 + 8α³/100 - 2π√t` because `98³⁷ > 2 · 101²⁰ · 100¹⁴`. -/
+theorem not_two_mul_Ulog_sub_Vfield_le_printed :
+    ¬ (2 * Ulog compMeasure 100 - Vfield 100 ≤
+      13 / 10 * Real.log 100 + 8 * eAlpha ^ 3 / 100 - 2 * Real.pi * Real.sqrt 100) := by
+  intro h
+  have hU : 37 / 40 * Real.log 98 ≤ Ulog compMeasure 100 := by
+    rw [Ulog_compMeasure (by norm_num), compPotential, ← sum_compWeight, Finset.sum_mul]
+    exact Finset.sum_le_sum fun j _ => mul_le_mul_of_nonneg_left
+      (log_98_le_arcsinePotential (compEndpoint_pos j) (compEndpoint_lt_two j))
+      (compWeight_pos j).le
+  have hJ1 := Jfield_one_le_log_add_one (by norm_num : (0 : ℝ) < 100)
+  have hJα := eAlpha_mul_log_le_Jfield (by norm_num : (0 : ℝ) < 100)
+  have hV : Vfield 100 ≤ 2 * Real.pi * Real.sqrt 100 + Real.log 101 -
+      8 * (eAlpha * Real.log 100) := by
+    rw [Vfield]
+    norm_num at hJ1
+    linarith
+  have hbig : (2 : ℝ) * (101 ^ 20 * 100 ^ 14) ≤ 98 ^ 37 := by norm_num
+  have hlog := Real.log_le_log (by norm_num) hbig
+  rw [Real.log_mul (by norm_num) (by norm_num), Real.log_mul (by norm_num) (by norm_num),
+    Real.log_pow, Real.log_pow, Real.log_pow] at hlog
+  push_cast at hlog
+  have h2 := Real.log_two_gt_d9
+  norm_num at h2
+  rw [eAlpha_eq] at h hV
+  linarith
 
 /-- Equation (100) for distinct points: for `K ≥ 1`, `h = λK` (`λ = 37/40`) and distinct
 `t_1, …, t_h ≥ 0`,

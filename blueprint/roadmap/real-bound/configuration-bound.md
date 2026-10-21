@@ -4,7 +4,7 @@ declaration: theorem
 origin: cited
 statement: formalized
 proof: formalized
-lean: ZetaSeven.configuration_bound ZetaSeven.configuration_bound_log ZetaSeven.configuration_bound_core ZetaSeven.two_mul_Ulog_sub_Vfield_add_sqrt_div_le ZetaSeven.antitoneOn_tail_add_sqrt_div ZetaSeven.tail_add_sqrt_div_two_lt
+lean: ZetaSeven.configuration_bound ZetaSeven.configuration_bound_log ZetaSeven.configuration_bound_core ZetaSeven.two_mul_Ulog_sub_Vfield_add_sqrt_div_le ZetaSeven.antitoneOn_tail_add_sqrt_div ZetaSeven.tail_add_sqrt_div_two_lt ZetaSeven.not_two_mul_Ulog_sub_Vfield_le_printed
 ---
 
 # Configuration energy bound
