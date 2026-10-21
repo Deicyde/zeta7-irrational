@@ -13,6 +13,9 @@ weighted product `g`, plus the integer-valued basis change to
 the `f_i` basis with its triangular transition determinant,
 yielding the crude global bound
 `v^G_p(F_K) ≥ -8h⌊log_p(5K)⌋ - h v_p(720)` at every prime.
+The global bound is stated for every `n ≥ 0`; at the degenerate
+`n = 0` (`h = K = 0`, `F_K = 1`) it holds trivially, and for
+`n ≥ 1` it is exactly (41).
 
 The proof bounds residues by Legendre's formula, controls the
 polynomial part on and off the root balls, applies `τ` to the

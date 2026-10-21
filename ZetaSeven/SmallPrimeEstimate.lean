@@ -1248,7 +1248,7 @@ theorem FK_eq_det_muData (n : ℕ) :
   have hmat : (Matrix.of fun i j => muFunctional (muDataP n i j) (muDataC n i j))
       = (transMat n).map C * Gmat n * ((transMat n).map C).transpose := by
     rw [Matrix.mul_assoc]
-    ext i j
+    ext i j : 1
     rw [Matrix.of_apply, muFunctional_muData, Matrix.mul_apply]
     refine Finset.sum_congr rfl fun a _ => ?_
     rw [Matrix.mul_apply, Finset.mul_sum]
