@@ -7,12 +7,13 @@ origin: cited
 # Prime-sum bound
 
 Put `A_0 = 9928298118277006344769/7535670527041937280000` (87),
-`B_0 = A_0 + I_out + ∫_3^20 R(x)/x^3 dx` (88), where `I_out` is the
-outer integral (73) of the outer limiting functions (its value is
+`B_0 = A_0 + I_out + ∫_3^20 R(x)/x^3 dx` (88), where `R = -Γ - N` is
+the inner limiting function and `I_out` is the outer integral (73)
+of the outer limiting functions (its value is
 `453803/288000`, not the printed (122); source-map errata 8-9), and
-`A_M = B_0 + 9λ/M - 11549/(720M^2) + 44/M^3` (89); these
-definitions belong to this node. Then for each fixed
-`M ∈ 40ℤ_{>0}`, with `K = 40n`,
+`A_M = B_0 + 9λ/M - 11549/(720M^2) + 44/M^3` (89) with `λ = 37/40`;
+these definitions belong to this node. Then for each fixed
+`M ∈ 40ℤ_{>0}`, with `K = 40n` and `m_{K,M}` the normalization factor,
 `lim sup_{n→∞} K^{-2} log m_{K,M} ≤ A_M`: for every `ε > 0`,
 `K^{-2} log m_{K,M} ≤ A_M + ε` for all large `n`.
 
@@ -33,20 +34,23 @@ and `γ^out_p = 0` for `p > K`), and `-v_p(S_K) = K s(p/K) + O(1)`,
 with `s` the scalar term of (73), from (62) since `p^2 > 2h` and
 `N < p`; so `L_p = v_p(S_K) + γ^out_p` is `-K` times the integrand
 of (73) at `y = p/K`, up to `O(1)`. The Riemann-sum form of the
-prime number theorem needs the inner weight to have finitely many
-discontinuities on each bounded interval: `R` jumps only where
-`cx` is an integer for some `c ∈ {2, 2α, 2H, 2λ}`.
+prime number theorem needs each weight to be bounded with finitely
+many discontinuities on its interval: `R` jumps only where `cx` is
+an integer for some `c ∈ {2, 2α, 2H, 2λ}` (with `α = 3/40` and
+`H = 49/40`), and on `[1/3, 2λ]` the outer integrand jumps only
+where `⌊1/y⌋` changes, at `y = 1/2` and `y = 1`.
 
 ## Depends on
 
 - [Normalization and integrality](normalization-integrality.md)
 - [Inner limiting functions](inner-limiting.md)
 - [Outer limiting functions](outer-limiting.md)
-- [Tail integral bound](tail-integral.md)
 
 ## Proof depends on
 
 - [Prime number theorem](prime-number-theorem.md)
+- [Tail integral bound](tail-integral.md)
+- [Exact outer integral](exact-outer-integral.md)
 
 ## Sources
 

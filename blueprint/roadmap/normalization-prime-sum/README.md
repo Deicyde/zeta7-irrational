@@ -35,13 +35,13 @@ and what to do about the margins is the user's decision.
 
 ## Exact certificates
 
-- [Exact inner integral](exact-inner-integral.md) — the 192-piece rational value.
+- [Exact inner integral](exact-inner-integral.md) — the rational value of (121), through 131 affine pieces (erratum 12).
 - [Exact outer integral](exact-outer-integral.md) — the 11-piece rational value, recomputed (erratum 9).
-- [Final rational margins](final-margins.md) — the cutoff constants and the -19000 margin, which fails with the recomputed outer integral.
 
 ## Main estimate
 
-- [Prime-sum bound](prime-sum-bound.md) — the arithmetic growth bound.
+- [Prime-sum bound](prime-sum-bound.md) — the arithmetic growth bound, with the constants `A_0`, `B_0`, `A_M`.
+- [Final rational margins](final-margins.md) — the cutoff constants and the -19000 margin, which fails with the recomputed outer integral.
 
 ## Background
 

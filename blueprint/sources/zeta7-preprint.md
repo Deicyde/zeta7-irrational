@@ -333,4 +333,4 @@ route to Theorems 1.1-1.2 does not close (open question 5).
     `P(20) = 74/3`, `C(20) = 0`, `|C| < 22`, and `Q ≤ 27/8`, gives
     `∫_20^∞ R(x)/x^3 dx ≤ -2069/36000`. The
     [prime-sum bound](../roadmap/normalization-prime-sum/prime-sum-bound.md)
-    node proves this inequality.
+    node is to prove this inequality as a step of (90).

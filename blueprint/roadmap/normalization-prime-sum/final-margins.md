@@ -29,6 +29,8 @@ With the recomputed outer integral the inequality fails:
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
   exact-integral appendix A.3 and Section B.1, equations (118)-(119).
+  It depends on the prime-sum bound only for the definitions of
+  `A_0`, `B_0`, and `A_M` (87)-(89), which live there.
 - [Open question 5](../../sources/zeta7-preprint.md#open-source-questions):
   with the recomputed outer integral (erratum 9) the inequality
   fails, so this node cannot be proved as stated; what to do about
