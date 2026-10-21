@@ -2,6 +2,9 @@
 article_id: af_d1535c272118e0129003b67c
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.small_prime_tau_bound ZetaSeven.FK_small_prime_bound ZetaSeven.FK_eq_det_fBasis ZetaSeven.det_transMat ZetaSeven.qPoly_comp_neg_sq ZetaSeven.Dpoly_comp_neg_sq ZetaSeven.fPoly_comp_neg_sq_intValued ZetaSeven.transMat_isLowerTriangular ZetaSeven.fPoly_eq_transMat_sum ZetaSeven.small_prime_tau_rep_exists ZetaSeven.fBasis_muRep_exists ZetaSeven.muRatFunc_inj ZetaSeven.Wpoly ZetaSeven.qPoly ZetaSeven.fPoly ZetaSeven.transMat ZetaSeven.muRatFunc
 ---
 
 # Small-prime estimate
@@ -12,6 +15,9 @@ weighted product `g`, plus the integer-valued basis change to
 the `f_i` basis with its triangular transition determinant,
 yielding the crude global bound
 `v^G_p(F_K) ≥ -8h⌊log_p(5K)⌋ - h v_p(720)` at every prime.
+The global bound is stated for every `n ≥ 0`; at the degenerate
+`n = 0` (`h = K = 0`, `F_K = 1`) it holds trivially, and for
+`n ≥ 1` it is exactly (41).
 
 The proof bounds residues by Legendre's formula, controls the
 polynomial part on and off the root balls, applies `τ` to the
