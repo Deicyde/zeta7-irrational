@@ -2,6 +2,9 @@
 article_id: af_114fe5c7d5b4070a0cc154ea
 declaration: theorem
 origin: bridged
+statement: formalized
+proof: formalized
+lean: ZetaSeven.outer_weight_sum ZetaSeven.outer_weight_sum_rat ZetaSeven.OuterRange.outer_weight_sum_eq_of_lt_two_mul ZetaSeven.OuterRange.outer_weight_sum_eq_of_two_mul_le ZetaSeven.OuterRange.sum_outerFamWeightDbl_of_lt_two_mul ZetaSeven.OuterRange.card_zero_outerFamWeightDbl_of_lt_two_mul ZetaSeven.OuterRange.sum_outerFamWeightDbl_of_two_mul_le ZetaSeven.OuterRange.card_zero_outerFamWeightDbl_of_two_mul_le ZetaSeven.OuterRange.three_mul_N_lt ZetaSeven.OuterRange.ell_N_eq_classDelta ZetaSeven.OuterRange.ell_K_eq ZetaSeven.OuterRange.ell_K_le_six ZetaSeven.OuterRange.sum_ell_K_sub_two ZetaSeven.sum_outerWeightDbl_delta_zero ZetaSeven.card_zero_outerWeightDbl_delta_zero ZetaSeven.sum_outerWeightDbl_delta_one ZetaSeven.card_zero_outerWeightDbl_delta_one
 ---
 
 # Outer weight sum
@@ -26,7 +29,8 @@ count `ℓ_K(a)` is the base value (2 when `K < 2p`, 4 when
 gets `2∑w = -9(K - p) + 8t_p - 1` and `z = p - 1 - N + u` when
 `K < 2p`, and `2∑w = -9(K - p) + 6 + 16N + 7t_p` and `z = p + u`
 when `K ≥ 2p`. So the bound holds with equality when `K < 2p`
-and with a margin of 3 when `K ≥ 2p`.
+and with a margin of 3 when `K ≥ 2p`. The formalization proves the
+closed form of `ℓ_K(a)` for every class `1 ≤ a ≤ m`.
 
 ## Depends on
 

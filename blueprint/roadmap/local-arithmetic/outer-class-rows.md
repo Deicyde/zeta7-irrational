@@ -2,6 +2,8 @@
 article_id: af_fb6217ebdc3cf0e17db2a538
 declaration: def
 origin: bridged
+statement: formalized
+lean: ZetaSeven.outerRow ZetaSeven.outerRowPoly ZetaSeven.outerClassSet ZetaSeven.outerClassPoly ZetaSeven.outerCofactor ZetaSeven.outerHighPoly ZetaSeven.outerQ ZetaSeven.outerRow_of_val_eq_zero ZetaSeven.outerRow_of_val_ne_zero ZetaSeven.outerRowPoly_zero ZetaSeven.outerRowPoly_of_ne_zero ZetaSeven.outerQ_of_lt ZetaSeven.outerQ_of_le ZetaSeven.outerQ_exp_cast ZetaSeven.outerClassSet_zero ZetaSeven.mem_outerClassSet
 ---
 
 # Outer class rows
@@ -21,9 +23,13 @@ The outer class rows are the integer polynomials indexed by the
 outer weight family: the class row `P_c q_{c,i}` at the class pair
 `(c, i)`, and the zero-class row `P_0 t^i` at the zero-class pair
 `(0, i)`.
+The formalization defines these polynomials for every natural
+number `p` and all `c` and `i`; for a prime `p` and the pairs of
+the outer weight family they are the rows above.
 
 ## Depends on
 
+- [Local range data](local-range-data.md)
 - [Outer range data](outer-range-data.md)
 - [Outer weight family](outer-weight-family.md)
 
