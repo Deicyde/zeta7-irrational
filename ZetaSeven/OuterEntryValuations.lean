@@ -90,8 +90,8 @@ theorem natDegree_muZeroFunctional_le (p : ℕ) (P : ℚ[X]) (c : ℕ →₀ ℚ
     (muZeroFunctional p P c).natDegree ≤ 1 := by
   unfold muZeroFunctional
   rw [Polynomial.sum_def, Finsupp.sum]
-  refine natDegree_add_le_of_degree_le (natDegree_sum_le_of_forall_le _ fun e _ => ?_)
-    (natDegree_sum_le_of_forall_le _ fun j _ => ?_)
+  refine natDegree_add_le_of_degree_le (natDegree_sum_le_of_forall_le _ _ fun e _ => ?_)
+    (natDegree_sum_le_of_forall_le _ _ fun j _ => ?_)
   · exact (natDegree_C_mul_le _ _).trans (by rw [natDegree_C]; exact zero_le_one)
   · refine (natDegree_C_mul_le _ _).trans ?_
     rw [muPole_eq]
