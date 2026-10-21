@@ -40,6 +40,7 @@ The entry valuations (`ZetaSeven.outer_entry_valuations_dbl`), the Gauss-valuati
 namespace ZetaSeven
 
 open Polynomial Finset
+open scoped Matrix
 
 /-! ## Large primes -/
 
@@ -134,8 +135,6 @@ theorem outerUmat_det {n p : ℕ} (e : outerIdx n p ≃ Fin (hDim n)) :
       ((Matrix.of fun k l : Fin (hDim n) => (outerRow n p (e.symm k)).coeff l).det : ℚ) := by
   rw [← eq_intCast (Int.castRingHom ℚ), RingHom.map_det]
   congr 1
-  ext k l
-  simp [outerUmat]
 
 /-- Under (52), every outer class row, read in `ℚ[X]`, is `∑_{i<h} U_{r,i} t^i`. -/
 theorem OuterRange.map_outerRow_eq_sum {n p : ℕ} [Fact p.Prime] (hR : OuterRange n p)
@@ -171,7 +170,8 @@ theorem OuterRange.outerAprime_eq_sum {n p : ℕ} [Fact p.Prime] (hR : OuterRang
     * Dpoly (N n) ^ 7) = _
   rw [h]
   change outerMuZeroTailLin p n _ = _
-  simp only [map_sum, map_smul, smul_eq_C_mul]
+  simp only [map_sum, map_smul]
+  simp only [smul_eq_C_mul]
   rfl
 
 /-- Under (52), the modified Gram matrix `A'` in the class basis, reindexed by `e`, is
@@ -203,10 +203,9 @@ theorem OuterRange.outerUmat_gram_eq {n p : ℕ} [Fact p.Prime] (hR : OuterRange
     (outerUmat n p e).map C * Gmat n * ((outerUmat n p e).map C)ᵀ
       = (Matrix.of fun k l : Fin (hDim n) => outerAprime p n (e.symm k) (e.symm l))
         + ((p : ℚ)⁻¹ • (outerUmat n p e * outerLmat p n * (outerUmat n p e)ᵀ)).map C := by
-  rw [Gmat_eq_outerAmat_add p n, Matrix.mul_add, Matrix.add_mul, hR.outerAprime_reindex_eq e]
-  congr 1
-  rw [Matrix.mul_smul, Matrix.smul_mul, outer_map_C_smul, Matrix.map_mul, Matrix.map_mul,
-    Matrix.transpose_map]
+  rw [Gmat_eq_outerAmat_add p n, Matrix.mul_add, Matrix.add_mul, hR.outerAprime_reindex_eq e,
+    add_right_inj, Matrix.mul_smul, Matrix.smul_mul, outer_map_C_smul, Matrix.map_mul,
+    Matrix.map_mul, Matrix.transpose_map]
 
 /-- `det(U G_K Uᵀ) = (det U)² Δ_K`. -/
 theorem det_outerUmat_gram {n p : ℕ} (e : outerIdx n p ≃ Fin (hDim n)) :
