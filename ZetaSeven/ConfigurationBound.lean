@@ -192,8 +192,9 @@ theorem compMeasureC_compl_im : compMeasureC {z | z.im = 0}ᶜ = 0 := by
 /-- `ρ` on `ℂ` lives in the disc `|z| ≤ 2`. -/
 theorem compMeasureC_norm_sub_gt {a : ℂ} {B : ℝ} (hB : 2 + ‖a‖ ≤ B) :
     compMeasureC {z | B < ‖z - a‖} = 0 := by
-  rw [compMeasureC, Measure.map_apply Complex.measurable_ofReal
-    (isOpen_lt continuous_const (continuous_id.sub continuous_const).norm).measurableSet]
+  have hmeas : MeasurableSet {z : ℂ | B < ‖z - a‖} :=
+    (isOpen_lt continuous_const (continuous_id.sub continuous_const).norm).measurableSet
+  rw [compMeasureC, Measure.map_apply Complex.measurable_ofReal hmeas]
   refine measure_mono_null (fun x hx hx2 => ?_) compMeasure_compl_Ioo
   have hx' : B < ‖(x : ℂ) - a‖ := hx
   have h1 : ‖(x : ℂ) - a‖ ≤ ‖(x : ℂ)‖ + ‖a‖ := norm_sub_le _ _
@@ -205,7 +206,7 @@ theorem compMeasureC_norm_sub_gt {a : ℂ} {B : ℝ} (hB : 2 + ‖a‖ ≤ B) :
 
 theorem logKernelAbs_of_ne {z w : ℂ} (h : z ≠ w) :
     logKernelAbs (z, w) = ENNReal.ofReal |Real.log ‖z - w‖| :=
-  if_neg h
+  ite_eq_right h
 
 theorem logKernelAbs_swap (p : ℂ × ℂ) : logKernelAbs p.swap = logKernelAbs p := by
   rcases p with ⟨z, w⟩
@@ -217,7 +218,7 @@ theorem logKernelAbs_swap (p : ℂ × ℂ) : logKernelAbs p.swap = logKernelAbs 
 theorem enorm_logKernel_le (p : ℂ × ℂ) : ‖logKernel p‖ₑ ≤ logKernelAbs p := by
   rcases p with ⟨z, w⟩
   by_cases h : z = w
-  · have hk : logKernelAbs (z, w) = ⊤ := if_pos h
+  · have hk : logKernelAbs (z, w) = ⊤ := ite_eq_left h
     rw [hk]
     exact le_top
   · rw [logKernelAbs_of_ne h, Real.enorm_eq_ofReal_abs]
@@ -317,7 +318,7 @@ theorem compMeasure_prod_diag :
   have h : ∀ x : ℝ, compMeasure (Prod.mk x ⁻¹' {p : ℝ × ℝ | p.1 = p.2}) = 0 := fun x => by
     have hx : Prod.mk x ⁻¹' {p : ℝ × ℝ | p.1 = p.2} = {x} := by
       ext y
-      simp only [Set.mem_preimage, Set.mem_setOf_eq, Set.mem_singleton_iff]
+      simp only [Set.mem_preimage, Set.mem_ofPred_eq, Set.mem_singleton_iff]
       exact eq_comm
     rw [hx, measure_singleton]
   simp only [h, lintegral_zero]
@@ -490,7 +491,7 @@ theorem arcsineMeasure_Ioo_le {L : ℝ} (hL : 0 < L) {a b : ℝ} (hab : a ≤ b)
   · have hempty : Set.Ioo a b ∩ Set.Ioo 0 L = ∅ :=
       Set.eq_empty_of_subset_empty (hS.trans (Set.Ioo_eq_empty (not_lt.2 hba)).subset)
     rw [hempty, Measure.restrict_empty, lintegral_zero_measure]
-    exact zero_le _
+    exact zero_le
   have ha0 : 0 ≤ max a 0 := le_max_right a 0
   have hbL : min b L ≤ L := min_le_right b L
   have hderiv : ∀ u ∈ Set.Ioo (max a 0) (min b L), HasDerivAt
@@ -686,5 +687,435 @@ theorem integral_log_max_le (t : ℝ) {ε : ℝ} (hε : 0 < ε) :
     rw [integral_eq_lintegral_of_nonneg_ae hnn hmeas.aestronglyMeasurable]
     exact ENNReal.toReal_le_of_le_ofReal (by positivity) hfin
   linarith
+
+/-! ### The circle-regularized configuration -/
+
+theorem measure_prod_finsetSum_left {ι : Type*} [Fintype ι] (m : ι → Measure ℂ)
+    (ν : Measure ℂ) [SFinite ν] : (∑ i, m i).prod ν = ∑ i, (m i).prod ν := by
+  rw [← Measure.sum_fintype, Measure.prod_sum_left, Measure.sum_fintype]
+
+theorem measure_prod_finsetSum_right {ι : Type*} [Fintype ι] (μ : Measure ℂ)
+    (m : ι → Measure ℂ) [∀ i, SFinite (m i)] : μ.prod (∑ i, m i) = ∑ i, μ.prod (m i) := by
+  rw [← Measure.sum_fintype, Measure.prod_sum_right, Measure.sum_fintype]
+
+/-- The circle-regularized empirical measure `σ = K⁻¹ Σ_i ω_i` of a configuration `t`, with
+`ω_i` normalized arclength on the circle of radius `ε` about `t_i`. -/
+noncomputable def circleConfig (K ε : ℝ) {h : ℕ} (t : Fin h → ℝ) : Measure ℂ :=
+  ∑ i, ENNReal.ofReal K⁻¹ • circleMeasure (t i) ε
+
+theorem circleConfig_apply (K ε : ℝ) {h : ℕ} (t : Fin h → ℝ) (s : Set ℂ) :
+    circleConfig K ε t s = ∑ i, ENNReal.ofReal K⁻¹ * circleMeasure (t i) ε s := by
+  rw [circleConfig, Measure.finsetSum_apply]
+  simp only [Measure.smul_apply, smul_eq_mul]
+
+theorem circleConfig_univ (K ε : ℝ) {h : ℕ} (t : Fin h → ℝ) :
+    circleConfig K ε t Set.univ = h * ENNReal.ofReal K⁻¹ := by
+  rw [circleConfig_apply]
+  simp only [measure_univ, mul_one, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
+    nsmul_eq_mul]
+
+instance isFiniteMeasure_circleConfig (K ε : ℝ) {h : ℕ} (t : Fin h → ℝ) :
+    IsFiniteMeasure (circleConfig K ε t) :=
+  ⟨by
+    rw [circleConfig_univ]
+    exact ENNReal.mul_lt_top (ENNReal.natCast_lt_top h) ENNReal.ofReal_lt_top⟩
+
+/-- `σ` gives no mass outside a disc about `a` containing every circle. -/
+theorem circleConfig_norm_sub_gt {K ε : ℝ} {h : ℕ} (t : Fin h → ℝ) {a : ℂ} {B : ℝ}
+    (hB : |ε| + ∑ i, ‖(t i : ℂ) - a‖ ≤ B) : circleConfig K ε t {z | B < ‖z - a‖} = 0 := by
+  rw [circleConfig_apply]
+  refine Finset.sum_eq_zero fun i _ => ?_
+  have hi : ‖(t i : ℂ) - a‖ ≤ ∑ j, ‖(t j : ℂ) - a‖ :=
+    Finset.single_le_sum (f := fun j => ‖(t j : ℂ) - a‖) (fun j _ => norm_nonneg _)
+      (Finset.mem_univ i)
+  rw [circleMeasure_norm_sub_gt (by linarith), mul_zero]
+
+/-- The circles meet the real line in a null set, so `σ` and `ρ` are mutually singular. -/
+theorem circleConfig_mutuallySingular {K ε : ℝ} (hε : 0 < ε) {h : ℕ} (t : Fin h → ℝ) :
+    circleConfig K ε t ⟂ₘ compMeasureC := by
+  refine ⟨{z | z.im = 0}, (isClosed_eq Complex.continuous_im continuous_const).measurableSet,
+    ?_, compMeasureC_compl_im⟩
+  rw [circleConfig_apply]
+  exact Finset.sum_eq_zero fun i _ => by rw [circleMeasure_im_eq_zero (t i) hε.ne', mul_zero]
+
+theorem circleConfig_prod {K ε : ℝ} {h : ℕ} (t : Fin h → ℝ) (ν : Measure ℂ) [SFinite ν] :
+    (circleConfig K ε t).prod ν = ∑ i, ENNReal.ofReal K⁻¹ • (circleMeasure (t i) ε).prod ν := by
+  rw [circleConfig, measure_prod_finsetSum_left]
+  simp only [Measure.prod_smul_left]
+
+theorem prod_circleConfig {K ε : ℝ} {h : ℕ} (t : Fin h → ℝ) (μ : Measure ℂ) :
+    μ.prod (circleConfig K ε t) = ∑ i, ENNReal.ofReal K⁻¹ • μ.prod (circleMeasure (t i) ε) := by
+  rw [circleConfig, measure_prod_finsetSum_right]
+  simp only [Measure.prod_smul_right]
+
+/-- The logarithmic kernel is integrable against `(σ + ρ) ⊗ (σ + ρ)`: the hypothesis of Lemma 6.2
+for `σ - ρ`. -/
+theorem lintegral_logKernelAbs_config_lt_top {K ε : ℝ} (hε : 0 < ε) {h : ℕ} (t : Fin h → ℝ) :
+    ∫⁻ p, logKernelAbs p ∂((circleConfig K ε t + compMeasureC).prod
+      (circleConfig K ε t + compMeasureC)) < ∞ := by
+  have hσρ : ∫⁻ p, logKernelAbs p ∂((circleConfig K ε t).prod compMeasureC) < ∞ := by
+    rw [circleConfig_prod, lintegral_finsetSum_measure]
+    refine ENNReal.sum_lt_top.2 fun i _ => ?_
+    rw [lintegral_smul_measure, smul_eq_mul]
+    exact ENNReal.mul_lt_top ENNReal.ofReal_lt_top
+      (lintegral_logKernelAbs_circleMeasure_prod_lt_top hε (compMeasureC_norm_sub_gt le_rfl))
+  have hμσ : ∀ (μ : Measure ℂ) [IsFiniteMeasure μ],
+      (∀ j, ∃ B, μ {z | B < ‖z - (t j : ℂ)‖} = 0) →
+      ∫⁻ p, logKernelAbs p ∂(μ.prod (circleConfig K ε t)) < ∞ := by
+    intro μ _ hμ
+    rw [prod_circleConfig, lintegral_finsetSum_measure]
+    refine ENNReal.sum_lt_top.2 fun j _ => ?_
+    rw [lintegral_smul_measure, smul_eq_mul]
+    obtain ⟨B, hB⟩ := hμ j
+    exact ENNReal.mul_lt_top ENNReal.ofReal_lt_top
+      (lintegral_logKernelAbs_prod_circleMeasure_lt_top hε hB)
+  have hσσ := hμσ (circleConfig K ε t) fun j => ⟨_, circleConfig_norm_sub_gt t le_rfl⟩
+  have hρσ := hμσ compMeasureC fun j => ⟨_, compMeasureC_norm_sub_gt le_rfl⟩
+  rw [Measure.add_prod, Measure.prod_add, Measure.prod_add, lintegral_add_measure,
+    lintegral_add_measure, lintegral_add_measure]
+  exact ENNReal.add_lt_top.2 ⟨ENNReal.add_lt_top.2 ⟨hσσ, hσρ⟩,
+    ENNReal.add_lt_top.2 ⟨hρσ, lintegral_logKernelAbs_compMeasureC_lt_top⟩⟩
+
+/-- `I(σ) = K⁻² Σ_i Σ_j I(ω_i, ω_j)`. -/
+theorem pairEnergy_circleConfig {K ε : ℝ} (hK : 0 < K) (hε : 0 < ε) {h : ℕ} (t : Fin h → ℝ) :
+    pairEnergy (circleConfig K ε t) (circleConfig K ε t) =
+      ∑ i, ∑ j, K⁻¹ * (K⁻¹ * pairEnergy (circleMeasure (t i) ε) (circleMeasure (t j) ε)) := by
+  have hI : ∀ i j, Integrable logKernel ((circleMeasure (t i) ε).prod (circleMeasure (t j) ε)) :=
+    fun i j => integrable_logKernel_circleMeasure_prod_circleMeasure _ _ hε
+  have hIσ : ∀ i, Integrable logKernel ((circleMeasure (t i) ε).prod (circleConfig K ε t)) := by
+    intro i
+    rw [prod_circleConfig]
+    exact integrable_finsetSum_measure.2 fun j _ => (hI i j).smul_measure ENNReal.ofReal_ne_top
+  have ha : (ENNReal.ofReal K⁻¹).toReal = K⁻¹ := ENNReal.toReal_ofReal (inv_nonneg.2 hK.le)
+  rw [pairEnergy, circleConfig_prod,
+    integral_finsetSum_measure fun i _ => (hIσ i).smul_measure ENNReal.ofReal_ne_top]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [integral_smul_measure, ha, smul_eq_mul, prod_circleConfig,
+    integral_finsetSum_measure fun j _ => (hI i j).smul_measure ENNReal.ofReal_ne_top,
+    Finset.mul_sum]
+  refine Finset.sum_congr rfl fun j _ => ?_
+  rw [integral_smul_measure, ha, smul_eq_mul, pairEnergy]
+
+/-- `I(σ, ρ) = K⁻¹ Σ_i I(ω_i, ρ)`. -/
+theorem pairEnergy_circleConfig_compMeasureC {K ε : ℝ} (hK : 0 < K) (hε : 0 < ε) {h : ℕ}
+    (t : Fin h → ℝ) :
+    pairEnergy (circleConfig K ε t) compMeasureC =
+      ∑ i, K⁻¹ * pairEnergy (circleMeasure (t i) ε) compMeasureC := by
+  have ha : (ENNReal.ofReal K⁻¹).toReal = K⁻¹ := ENNReal.toReal_ofReal (inv_nonneg.2 hK.le)
+  rw [pairEnergy, circleConfig_prod, integral_finsetSum_measure fun i _ =>
+    (integrable_logKernel_circleMeasure_prod_compMeasureC _ hε).smul_measure
+      ENNReal.ofReal_ne_top]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [integral_smul_measure, ha, smul_eq_mul, pairEnergy]
+
+/-- `I(ρ, σ) = K⁻¹ Σ_i I(ρ, ω_i)`. -/
+theorem pairEnergy_compMeasureC_circleConfig {K ε : ℝ} (hK : 0 < K) (hε : 0 < ε) {h : ℕ}
+    (t : Fin h → ℝ) :
+    pairEnergy compMeasureC (circleConfig K ε t) =
+      ∑ i, K⁻¹ * pairEnergy compMeasureC (circleMeasure (t i) ε) := by
+  have ha : (ENNReal.ofReal K⁻¹).toReal = K⁻¹ := ENNReal.toReal_ofReal (inv_nonneg.2 hK.le)
+  rw [pairEnergy, prod_circleConfig, integral_finsetSum_measure fun i _ =>
+    (integrable_logKernel_compMeasureC_prod_circleMeasure _ hε).smul_measure
+      ENNReal.ofReal_ne_top]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [integral_smul_measure, ha, smul_eq_mul, pairEnergy]
+
+/-- Lemma 6.2 applied to `σ - ρ`: for `h = λK`,
+`I(σ) - I(σ, ρ) - I(ρ, σ) + I(ρ) ≤ 0`. The Jordan decomposition of `σ - ρ` is `(σ, ρ)` by
+mutual singularity, its mass is `h/K - λ = 0`, and its support is compact. -/
+theorem circleConfig_energy_le {K ε : ℝ} (hK : 0 < K) (hε : 0 < ε) {h : ℕ}
+    (hh : (h : ℝ) = 37 / 40 * K) (t : Fin h → ℝ) :
+    pairEnergy (circleConfig K ε t) (circleConfig K ε t) -
+        pairEnergy (circleConfig K ε t) compMeasureC -
+        pairEnergy compMeasureC (circleConfig K ε t) +
+        pairEnergy compMeasureC compMeasureC ≤ 0 := by
+  obtain ⟨ν, hν⟩ : ∃ ν : SignedMeasure ℂ,
+      ν = (circleConfig K ε t).toSignedMeasure - compMeasureC.toSignedMeasure := ⟨_, rfl⟩
+  have hj : ν.toJordanDecomposition =
+      ⟨circleConfig K ε t, compMeasureC, circleConfig_mutuallySingular hε t⟩ :=
+    SignedMeasure.toJordanDecomposition_eq hν
+  have hTV : ν.totalVariation = circleConfig K ε t + compMeasureC := by
+    simp only [SignedMeasure.totalVariation, hj]
+  have hmass : ν Set.univ = 0 := by
+    rw [hν, Measure.toSignedMeasure_sub_apply MeasurableSet.univ, measureReal_def,
+      measureReal_def, circleConfig_univ, compMeasureC_univ, ENNReal.toReal_mul,
+      ENNReal.toReal_natCast, ENNReal.toReal_ofReal (inv_nonneg.2 hK.le),
+      ENNReal.toReal_ofReal (by norm_num), hh, mul_assoc, mul_inv_cancel₀ hK.ne', mul_one,
+      sub_self]
+  set B : ℝ := |ε| + ∑ i, ‖(t i : ℂ) - 0‖ + 2 with hB
+  have hsum : 0 ≤ ∑ i, ‖(t i : ℂ) - 0‖ := Finset.sum_nonneg fun i _ => norm_nonneg _
+  have hsupp : ∃ S : Set ℂ, IsCompact S ∧ ν.totalVariation Sᶜ = 0 := by
+    refine ⟨Metric.closedBall 0 B, isCompact_closedBall 0 B, ?_⟩
+    have hcompl : (Metric.closedBall (0 : ℂ) B)ᶜ = {z | B < ‖z - 0‖} := by
+      ext z
+      simp only [Set.mem_compl_iff, Metric.mem_closedBall, dist_eq_norm, Set.mem_ofPred_eq,
+        not_le]
+    rw [hTV, hcompl, Measure.add_apply,
+      circleConfig_norm_sub_gt t (by linarith [abs_nonneg ε]),
+      compMeasureC_norm_sub_gt (by rw [norm_zero]; linarith [abs_nonneg ε]), add_zero]
+  have hInt : ∫⁻ p, logKernelAbs p ∂(ν.totalVariation.prod ν.totalVariation) < ∞ := by
+    rw [hTV]
+    exact lintegral_logKernelAbs_config_lt_top hε t
+  have key := zero_mass_energy_nonpos ν hmass hsupp hInt
+  have e : signedEnergy ν =
+      pairEnergy (circleConfig K ε t) (circleConfig K ε t) -
+        pairEnergy (circleConfig K ε t) compMeasureC -
+        pairEnergy compMeasureC (circleConfig K ε t) +
+        pairEnergy compMeasureC compMeasureC := by
+    simp only [signedEnergy, hj]
+  rw [e] at key
+  exact key
+
+/-! ### Equation (97) -/
+
+/-- Splitting a symmetric double sum over `Fin n` into its diagonal and twice its upper half. -/
+theorem sum_sum_eq_diag_add_two_mul {n : ℕ} (g : Fin n → Fin n → ℝ)
+    (hg : ∀ i j, g i j = g j i) :
+    ∑ i, ∑ j, g i j = ∑ i, g i i + 2 * ∑ i, ∑ j ∈ Finset.Ioi i, g i j := by
+  have hsplit : ∀ i j, g i j = (if i < j then g i j else 0) + (if j < i then g i j else 0) +
+      (if i = j then g i j else 0) := by
+    intro i j
+    rcases lt_trichotomy i j with hij | hij | hij
+    · simp [hij, hij.ne, not_lt_of_gt hij]
+    · subst hij
+      simp
+    · simp [hij, hij.ne', not_lt_of_gt hij]
+  have hlt : ∀ i, ∑ j, (if i < j then g i j else 0) = ∑ j ∈ Finset.Ioi i, g i j := by
+    intro i
+    rw [← Finset.sum_filter]
+    congr 1
+    ext j
+    simp
+  have hgt : ∑ i, ∑ j, (if j < i then g i j else 0) =
+      ∑ i, ∑ j, (if i < j then g i j else 0) := by
+    rw [Finset.sum_comm]
+    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    rw [hg]
+  have hdiag : ∀ i, ∑ j, (if i = j then g i j else 0) = g i i := by
+    intro i
+    rw [Finset.sum_ite_eq]
+    simp
+  calc ∑ i, ∑ j, g i j
+      = ∑ i, ∑ j, ((if i < j then g i j else 0) + (if j < i then g i j else 0) +
+          (if i = j then g i j else 0)) :=
+        Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => hsplit i j
+    _ = ∑ i, ∑ j, (if i < j then g i j else 0) + ∑ i, ∑ j, (if j < i then g i j else 0) +
+          ∑ i, ∑ j, (if i = j then g i j else 0) := by
+        simp only [Finset.sum_add_distrib]
+    _ = ∑ i, g i i + 2 * ∑ i, ∑ j ∈ Finset.Ioi i, g i j := by
+        rw [hgt]
+        simp only [hlt, hdiag]
+        ring
+
+/-- Equation (97) without the external field: for `K > 0`, `h = λK`, distinct real points
+`t_1, …, t_h` and `ε > 0`,
+`2 Σ_{i<j} log |t_i - t_j| + h log ε ≤ 2K Σ_i U_ρ(t_i) + 120 h K √ε - K² I(ρ)`. -/
+theorem configuration_bound_core {K : ℝ} (hK : 0 < K) {h : ℕ} (hh : (h : ℝ) = 37 / 40 * K)
+    (t : Fin h → ℝ) (ht : Function.Injective t) {ε : ℝ} (hε : 0 < ε) :
+    2 * ∑ i, ∑ j ∈ Finset.Ioi i, Real.log |t i - t j| + h * Real.log ε ≤
+      2 * K * ∑ i, Ulog compMeasure (t i) + 120 * h * K * Real.sqrt ε -
+        K ^ 2 * Ilog compMeasure := by
+  have hK0 : K ≠ 0 := hK.ne'
+  have hKi : 0 ≤ K⁻¹ := inv_nonneg.2 hK.le
+  set g : Fin h → Fin h → ℝ := fun i j => if i = j then Real.log ε else Real.log |t i - t j|
+    with hg
+  have hgsymm : ∀ i j, g i j = g j i := by
+    intro i j
+    by_cases hij : i = j
+    · subst hij
+      rfl
+    · show (if i = j then Real.log ε else Real.log |t i - t j|) =
+          (if j = i then Real.log ε else Real.log |t j - t i|)
+      rw [ite_eq_right hij, ite_eq_right (Ne.symm hij), abs_sub_comm]
+  have hgle : ∀ i j, g i j ≤ pairEnergy (circleMeasure (t i) ε) (circleMeasure (t j) ε) := by
+    intro i j
+    refine le_trans ?_ (log_max_le_pairEnergy_circleMeasure (t i) (t j) hε)
+    by_cases hij : i = j
+    · subst hij
+      have e1 : max ‖(t i : ℂ) - t i‖ ε = ε := by rw [sub_self, norm_zero, max_eq_right hε.le]
+      rw [e1]
+      exact le_of_eq (ite_eq_left rfl)
+    · have hne : t i ≠ t j := fun h' => hij (ht h')
+      have hpos : 0 < |t i - t j| := abs_pos.2 (sub_ne_zero.2 hne)
+      have hnorm : ‖(t i : ℂ) - t j‖ = |t i - t j| := by
+        rw [← Complex.ofReal_sub, Complex.norm_real, Real.norm_eq_abs]
+      show (if i = j then Real.log ε else Real.log |t i - t j|) ≤ _
+      rw [ite_eq_right hij, hnorm]
+      exact Real.log_le_log hpos (le_max_left _ _)
+  have hgii : ∀ i, g i i = Real.log ε := fun i => ite_eq_left rfl
+  have hdiag : ∑ i, g i i = h * Real.log ε := by
+    simp only [hgii, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
+  have hupper : ∑ i, ∑ j ∈ Finset.Ioi i, g i j = ∑ i, ∑ j ∈ Finset.Ioi i, Real.log |t i - t j| :=
+    Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j hj =>
+      ite_eq_right (Finset.mem_Ioi.1 hj).ne
+  have hσσ : K⁻¹ * K⁻¹ * (h * Real.log ε + 2 * ∑ i, ∑ j ∈ Finset.Ioi i, Real.log |t i - t j|) ≤
+      pairEnergy (circleConfig K ε t) (circleConfig K ε t) := by
+    rw [pairEnergy_circleConfig hK hε, ← hdiag, ← hupper, ← sum_sum_eq_diag_add_two_mul g hgsymm,
+      Finset.mul_sum]
+    refine Finset.sum_le_sum fun i _ => ?_
+    rw [Finset.mul_sum]
+    refine Finset.sum_le_sum fun j _ => ?_
+    rw [mul_assoc]
+    exact mul_le_mul_of_nonneg_left (mul_le_mul_of_nonneg_left (hgle i j) hKi) hKi
+  have hA : ∀ i, pairEnergy (circleMeasure (t i) ε) compMeasureC ≤
+      Ulog compMeasure (t i) + 60 * Real.sqrt ε := fun i => by
+    rw [pairEnergy_circleMeasure_compMeasureC (t i) hε]
+    exact integral_log_max_le (t i) hε
+  have hA' : ∀ i, pairEnergy compMeasureC (circleMeasure (t i) ε) ≤
+      Ulog compMeasure (t i) + 60 * Real.sqrt ε := fun i => by
+    rw [pairEnergy_compMeasureC_circleMeasure (t i) hε]
+    exact integral_log_max_le (t i) hε
+  have hsum : ∑ i, (Ulog compMeasure (t i) + 60 * Real.sqrt ε) =
+      ∑ i, Ulog compMeasure (t i) + h * (60 * Real.sqrt ε) := by
+    rw [Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
+      nsmul_eq_mul]
+  have hσρ : pairEnergy (circleConfig K ε t) compMeasureC ≤
+      K⁻¹ * (∑ i, Ulog compMeasure (t i) + h * (60 * Real.sqrt ε)) := by
+    rw [pairEnergy_circleConfig_compMeasureC hK hε, ← hsum, Finset.mul_sum]
+    exact Finset.sum_le_sum fun i _ => mul_le_mul_of_nonneg_left (hA i) hKi
+  have hρσ : pairEnergy compMeasureC (circleConfig K ε t) ≤
+      K⁻¹ * (∑ i, Ulog compMeasure (t i) + h * (60 * Real.sqrt ε)) := by
+    rw [pairEnergy_compMeasureC_circleConfig hK hε, ← hsum, Finset.mul_sum]
+    exact Finset.sum_le_sum fun i _ => mul_le_mul_of_nonneg_left (hA' i) hKi
+  have key := circleConfig_energy_le hK hε hh t
+  rw [pairEnergy_compMeasureC] at key
+  set X := h * Real.log ε + 2 * ∑ i, ∑ j ∈ Finset.Ioi i, Real.log |t i - t j| with hX
+  set Y := ∑ i, Ulog compMeasure (t i) + h * (60 * Real.sqrt ε) with hY
+  have hXY : K⁻¹ * K⁻¹ * X ≤ 2 * (K⁻¹ * Y) - Ilog compMeasure := by linarith
+  have h2 : X = K ^ 2 * (K⁻¹ * K⁻¹ * X) := by
+    rw [sq, show K * K * (K⁻¹ * K⁻¹ * X) = K * K⁻¹ * (K * K⁻¹) * X by ring,
+      mul_inv_cancel₀ hK0, one_mul, one_mul]
+  have h3 : K ^ 2 * (2 * (K⁻¹ * Y) - Ilog compMeasure) = 2 * K * Y - K ^ 2 * Ilog compMeasure := by
+    rw [mul_sub, show K ^ 2 * (2 * (K⁻¹ * Y)) = 2 * (K * K⁻¹) * K * Y by ring,
+      mul_inv_cancel₀ hK0]
+    ring
+  have h4 : X ≤ 2 * K * Y - K ^ 2 * Ilog compMeasure := by
+    calc X = K ^ 2 * (K⁻¹ * K⁻¹ * X) := h2
+      _ ≤ K ^ 2 * (2 * (K⁻¹ * Y) - Ilog compMeasure) :=
+        mul_le_mul_of_nonneg_left hXY (sq_nonneg K)
+      _ = 2 * K * Y - K ^ 2 * Ilog compMeasure := h3
+  rw [hX, hY] at h4
+  linarith
+
+/-! ### Equation (98) and the assembly of (100) -/
+
+/-- Equation (98), the retained factor: for `K ≥ 1` and `t ≥ 0`,
+`2U_ρ(t) - V(t) + √t/K ≤ M_0 + √2/K` with `M_0 = -109/20`. On `[0, 2]` this is (94) plus
+`√t ≤ √2`; past `2` it follows from the corrected tail bound
+`2U_ρ(t) - V(t) ≤ (29/20) log t + 8α³/t - 2π√t` (source-map erratum 2), `√t/K ≤ √t`,
+`log t ≤ 2(√t - 1)`, `√t ≥ 7/5` and `π > 3`. -/
+theorem two_mul_Ulog_sub_Vfield_add_sqrt_div_le {K t : ℝ} (hK : 1 ≤ K) (ht : 0 ≤ t) :
+    2 * Ulog compMeasure t - Vfield t + Real.sqrt t / K ≤ -109 / 20 + Real.sqrt 2 / K := by
+  have hK0 : 0 < K := lt_of_lt_of_le one_pos hK
+  rcases le_or_gt t 2 with h2 | h2
+  · have h1 := two_mul_Ulog_compMeasure_sub_Vfield_le ht
+    have h3 : Real.sqrt t / K ≤ Real.sqrt 2 / K :=
+      div_le_div_of_nonneg_right (Real.sqrt_le_sqrt h2) hK0.le
+    linarith
+  · have h1 := two_mul_Ulog_sub_Vfield_le_of_two_le h2.le
+    have ht0 : 0 < t := by linarith
+    have hs : 7 / 5 ≤ Real.sqrt t := Real.le_sqrt_of_sq_le (by norm_num; linarith)
+    have hlog : Real.log t ≤ 2 * (Real.sqrt t - 1) := by
+      have h := Real.log_le_sub_one_of_pos (Real.sqrt_pos.2 ht0)
+      rw [Real.log_sqrt ht0.le] at h
+      linarith
+    have hfrac : 8 * eAlpha ^ 3 / t ≤ 27 / 16000 := by
+      rw [div_le_iff₀ ht0, eAlpha_eq]
+      norm_num
+      linarith
+    have hdiv : Real.sqrt t / K ≤ Real.sqrt t := div_le_self (Real.sqrt_nonneg t) hK
+    have hpos : 0 ≤ Real.sqrt 2 / K := div_nonneg (Real.sqrt_nonneg 2) hK0.le
+    nlinarith [mul_le_mul_of_nonneg_right Real.pi_gt_three.le (Real.sqrt_nonneg t)]
+
+/-- Equation (100) for distinct points: for `K ≥ 1`, `h = λK` (`λ = 37/40`) and distinct
+`t_1, …, t_h ≥ 0`,
+`2 Σ_{i<j} log |t_i - t_j| - K Σ_i V(t_i) + Σ_i √t_i ≤ (λM_0 - I(ρ))K² + (120 + √2)h + 2h log K`
+with `M_0 = -109/20`. It is (97) with `ε = K⁻²` plus `K` times (98) summed over the points. -/
+theorem configuration_bound_log {K : ℝ} (hK : 1 ≤ K) {h : ℕ} (hh : (h : ℝ) = 37 / 40 * K)
+    (t : Fin h → ℝ) (ht : ∀ i, 0 ≤ t i) (hinj : Function.Injective t) :
+    2 * ∑ i, ∑ j ∈ Finset.Ioi i, Real.log |t i - t j| - K * ∑ i, Vfield (t i) +
+        ∑ i, Real.sqrt (t i) ≤
+      (37 / 40 * (-109 / 20) - Ilog compMeasure) * K ^ 2 + (120 + Real.sqrt 2) * h +
+        2 * h * Real.log K := by
+  have hK0 : 0 < K := lt_of_lt_of_le one_pos hK
+  have hcore := configuration_bound_core hK0 hh t hinj (inv_pos.2 (pow_pos hK0 2))
+  have e : (120 : ℝ) * h * K * K⁻¹ = 120 * h := by
+    rw [mul_assoc, mul_inv_cancel₀ hK0.ne', mul_one]
+  rw [Real.sqrt_inv, Real.sqrt_sq hK0.le, Real.log_inv, Real.log_pow, e] at hcore
+  push_cast at hcore
+  have h98 : ∀ i, K * (2 * Ulog compMeasure (t i)) ≤
+      K * Vfield (t i) - Real.sqrt (t i) + (-109 / 20 * K + Real.sqrt 2) := by
+    intro i
+    have h := mul_le_mul_of_nonneg_left
+      (two_mul_Ulog_sub_Vfield_add_sqrt_div_le hK (ht i)) hK0.le
+    have e1 : K * (Real.sqrt (t i) / K) = Real.sqrt (t i) := by
+      rw [mul_comm, div_mul_cancel₀ _ hK0.ne']
+    have e2 : K * (Real.sqrt 2 / K) = Real.sqrt 2 := by
+      rw [mul_comm, div_mul_cancel₀ _ hK0.ne']
+    have e3 : K * (2 * Ulog compMeasure (t i) - Vfield (t i) + Real.sqrt (t i) / K) =
+        K * (2 * Ulog compMeasure (t i)) - K * Vfield (t i) + K * (Real.sqrt (t i) / K) := by
+      ring
+    have e4 : K * (-109 / 20 + Real.sqrt 2 / K) = -109 / 20 * K + K * (Real.sqrt 2 / K) := by
+      ring
+    rw [e3, e4, e1, e2] at h
+    linarith
+  have hsum := Finset.sum_le_sum fun i (_ : i ∈ Finset.univ) => h98 i
+  rw [← Finset.mul_sum, ← Finset.mul_sum, Finset.sum_add_distrib, Finset.sum_sub_distrib,
+    ← Finset.mul_sum, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
+    nsmul_eq_mul] at hsum
+  have hKh : (h : ℝ) * K = 37 / 40 * K ^ 2 := by
+    rw [hh]
+    ring
+  linarith
+
+/-- Equation (100) in product form, the statement of this node: for `K ≥ 1`, `h = λK`
+(`λ = 37/40`) and any `t_1, …, t_h ≥ 0`,
+`∏_{i<j} (t_i - t_j)² · ∏_i e^{-K V(t_i)} ≤
+e^{(λM_0 - I(ρ))K² + (120 + √2)h + 2h log K} · ∏_i e^{-√t_i}` with `M_0 = -109/20`.
+Coincident points make the left side vanish; for distinct points this is
+`configuration_bound_log` exponentiated. -/
+theorem configuration_bound {K : ℝ} (hK : 1 ≤ K) {h : ℕ} (hh : (h : ℝ) = 37 / 40 * K)
+    (t : Fin h → ℝ) (ht : ∀ i, 0 ≤ t i) :
+    (∏ i, ∏ j ∈ Finset.Ioi i, (t i - t j) ^ 2) * ∏ i, Real.exp (-K * Vfield (t i)) ≤
+      Real.exp ((37 / 40 * (-109 / 20) - Ilog compMeasure) * K ^ 2 +
+          (120 + Real.sqrt 2) * h + 2 * h * Real.log K) *
+        ∏ i, Real.exp (-Real.sqrt (t i)) := by
+  by_cases hinj : Function.Injective t
+  · have hlog := configuration_bound_log hK hh t ht hinj
+    have hprod : ∏ i, ∏ j ∈ Finset.Ioi i, (t i - t j) ^ 2 =
+        Real.exp (2 * ∑ i, ∑ j ∈ Finset.Ioi i, Real.log |t i - t j|) := by
+      rw [Finset.mul_sum, Real.exp_sum]
+      refine Finset.prod_congr rfl fun i _ => ?_
+      rw [Finset.mul_sum, Real.exp_sum]
+      refine Finset.prod_congr rfl fun j hj => ?_
+      have hne : t i - t j ≠ 0 :=
+        sub_ne_zero.2 fun h' => (Finset.mem_Ioi.1 hj).ne (hinj h')
+      have hsq : 0 < (t i - t j) ^ 2 :=
+        lt_of_le_of_ne (sq_nonneg _) (Ne.symm (pow_ne_zero 2 hne))
+      rw [show 2 * Real.log |t i - t j| = Real.log ((t i - t j) ^ 2) by
+          rw [← sq_abs, Real.log_pow, Nat.cast_ofNat],
+        Real.exp_log hsq]
+    have hV : ∏ i, Real.exp (-K * Vfield (t i)) = Real.exp (-(K * ∑ i, Vfield (t i))) := by
+      rw [← Real.exp_sum]
+      congr 1
+      rw [Finset.mul_sum, ← Finset.sum_neg_distrib]
+      exact Finset.sum_congr rfl fun i _ => by ring
+    have hS : ∏ i, Real.exp (-Real.sqrt (t i)) = Real.exp (-∑ i, Real.sqrt (t i)) := by
+      rw [← Real.exp_sum, Finset.sum_neg_distrib]
+    rw [hprod, hV, hS, ← Real.exp_add, ← Real.exp_add]
+    exact Real.exp_le_exp.2 (by linarith)
+  · obtain ⟨a, b, hab, hne⟩ := Function.not_injective_iff.1 hinj
+    have hzero : ∏ i, ∏ j ∈ Finset.Ioi i, (t i - t j) ^ 2 = 0 := by
+      rcases lt_or_gt_of_ne hne with hlt | hlt
+      · refine Finset.prod_eq_zero (Finset.mem_univ a)
+          (Finset.prod_eq_zero (Finset.mem_Ioi.2 hlt) ?_)
+        rw [hab, sub_self]
+        norm_num
+      · refine Finset.prod_eq_zero (Finset.mem_univ b)
+          (Finset.prod_eq_zero (Finset.mem_Ioi.2 hlt) ?_)
+        rw [hab, sub_self]
+        norm_num
+    rw [hzero, zero_mul]
+    exact (mul_pos (Real.exp_pos _) (Finset.prod_pos fun i _ => Real.exp_pos _)).le
 
 end ZetaSeven
