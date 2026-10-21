@@ -149,7 +149,7 @@ in article citations disambiguate them.
 
 Only items confirmed independently of the paper's own text are listed:
 by exact or high-precision recomputation from the paper's definitions
-and Table 1, or by a Lean proof. Items 1-8 and 10 do not break the
+and Table 1, or by a Lean proof. Items 1-8 and 10-12 do not break the
 main theorem as far as the formalization has checked; item 8 is resolved
 in favor of the reading that the proof of Proposition 5.4 uses. Item 9
 does: with the recomputed outer integral, (118) fails and the v1
@@ -285,3 +285,25 @@ route to Theorems 1.1-1.2 does not close (open question 5).
     `K^{2h(h+8N-K)+16h} (4096 e^{12})^h` needs the sharper bound
     `log N + 2` for the difference in (103) at `m = N`, which follows
     from Stirling's formula. (105) is unaffected.
+11. Section 5.4, (82)-(83) and (86): in (82) the coefficient of
+    `∫_0^{1/2} B(z)^2 dz` is `16`, not `25`, because `b = 4ℓ(αx, z)`
+    contributes `-16B^2` to the integrand of (66); with `25` the
+    decomposition (80) is false (it fails at 302 of 304 exact test
+    points), and with `16` it holds exactly, consistently with
+    Tables 2-4 and (121). The bounds (83), `-1/2 ≤ Q ≤ 27/8`, hold
+    (the true range of `Q` is `[0, 9269/3698]`), but the printed
+    termwise argument reaches only `-5/8`; a correct argument uses
+    `|∫AB| ≤ ∫B^2` from (78)-(79). (86) holds for `M ∈ 40ℤ_{>0}`, as
+    the paper assumes, and fails without that hypothesis, for
+    example at `M = 20`, `60`, and `100`. The
+    [tail integral bound](../roadmap/normalization-prime-sum/tail-integral.md)
+    node states the corrected forms.
+12. Appendix A.1, Tables 2-4: `R(x) = a_i x + b_i` holds on the open
+    intervals `(t_i, t_{i+1})` but not on the closed ones: `R` jumps
+    at `x = 4, …, 19`, `40/3`, and `20`, so the closed-interval claim
+    fails at 18 endpoints. The cut-point set also yields 61 redundant
+    cuts: `R` has 131 distinct affine pieces on `[3, 20]`. Every row
+    agrees with Definition 5.2 on its interior, and (121) recomputes
+    exactly. The
+    [exact inner integral](../roadmap/normalization-prime-sum/exact-inner-integral.md)
+    node states the identities on open intervals.

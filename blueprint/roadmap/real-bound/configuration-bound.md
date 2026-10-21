@@ -7,9 +7,15 @@ origin: cited
 # Configuration energy bound
 
 For every configuration of `h` points, the discrete logarithmic
-energy with the external field satisfies the general bound with
-main term `(λM_0 - I(ρ))K^2`, after circle regularization and
+energy with the external field satisfies the general bound (100)
+with main term `(λM_0 - I(ρ))K^2`, after circle regularization and
 retaining the integrable `√t/K` factor for the unbounded domain.
+Precisely, with `K = 40n`, `h = λK`, `M_0 = -109/20`, the external
+field `V`, and the energy `I(ρ)` of the comparison measure, every
+`t_1, …, t_h ≥ 0` satisfies
+`∏_{i<j} (t_i - t_j)^2 · ∏_i e^{-K V(t_i)} ≤ e^{(λM_0 - I(ρ))K^2 + (120 + √2)h + 2h log K} · ∏_i e^{-√t_i}`.
+This is (100) in product form: taking logarithms gives (100) as
+printed, whose left side is `-∞` when two points coincide.
 
 The proof applies the zero-mass lemma to the circle-regularized
 empirical measure minus the comparison measure, bounds the
@@ -33,6 +39,7 @@ value at `t = 2` is below `M_0 + √2/K` for `K ≥ 2`.
 ## Proof depends on
 
 - [Potential inequality](potential-inequality.md)
+- [Energy computation](energy-computation.md)
 
 ## Sources
 
