@@ -1249,10 +1249,11 @@ theorem FK_eq_det_muData (n : ℕ) :
       = (transMat n).map C * Gmat n * ((transMat n).map C).transpose := by
     rw [Matrix.mul_assoc]
     ext i j
-    rw [Matrix.of_apply, muFunctional_muData]
-    simp only [Matrix.mul_apply, Matrix.map_apply, Matrix.transpose_apply, Gmat, Matrix.of_apply,
-      Finset.mul_sum]
-    refine Finset.sum_congr rfl fun a _ => Finset.sum_congr rfl fun b _ => ?_
+    rw [Matrix.of_apply, muFunctional_muData, Matrix.mul_apply]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [Matrix.mul_apply, Finset.mul_sum]
+    refine Finset.sum_congr rfl fun b _ => ?_
+    simp only [Matrix.map_apply, Matrix.transpose_apply, Gmat, Matrix.of_apply]
     rw [C_mul]
     ring
   rw [hmat, Matrix.det_mul, Matrix.det_mul, Matrix.det_transpose, ← RingHom.mapMatrix_apply,
@@ -1420,6 +1421,7 @@ theorem natDegree_Aij_le (n i j : ℕ) :
     omega
   exact natDegree_mul_le.trans (by omega)
 
+omit [Fact p.Prime] in
 theorem Aij_intValued (n i j : ℕ) (m : ℤ) : 0 ≤ padicValRat p ((Aij n i j).eval (m : ℚ)) := by
   obtain ⟨w1, hw1⟩ := fPoly_comp_neg_sq_intValued n i m
   obtain ⟨w2, hw2⟩ := fPoly_comp_neg_sq_intValued n j m
