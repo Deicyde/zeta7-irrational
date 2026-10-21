@@ -2,6 +2,9 @@
 article_id: af_3bb165f2f6c999e3be14ab74
 declaration: theorem
 origin: bridged
+statement: formalized
+proof: formalized
+lean: ZetaSeven.outer_entry_valuations ZetaSeven.outer_entry_valuations_dbl ZetaSeven.outerAprime ZetaSeven.muZeroTail ZetaSeven.outerTailPoles ZetaSeven.outerTailRes ZetaSeven.outerAprime_natDegree_le ZetaSeven.OuterEntry.muZeroTail_mem_cross ZetaSeven.OuterEntry.muZeroTail_mem_high ZetaSeven.OuterEntry.muZeroTail_coeff_ge_low ZetaSeven.OuterEntry.muZeroTail_coeff_ge_zero ZetaSeven.OuterEntry.card_outerClassSet_add ZetaSeven.OuterEntry.muZeroMonomial_mem_pInt ZetaSeven.OuterEntry.muZeroFunctional_mem_pIntPoly
 ---
 
 # Outer entry valuations

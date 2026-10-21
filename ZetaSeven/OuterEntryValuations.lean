@@ -17,7 +17,8 @@ Let `p` be a prime satisfying the outer-range hypothesis (52) (`ZetaSeven.OuterR
 outer class rows `r`, `s` (`ZetaSeven.outerRow`, indexed by the outer weight family
 `ZetaSeven.outerIdx`) put `A'_{rs} = μ_0(r(t) s(t) D_N(t)⁷ / D_tail(t))` (`outerAprime`), where
 `μ_0` is the modified functional (`ZetaSeven.muZeroFunctional`) applied to the partial-fraction
-data of the rational function over `D_tail` (`muZeroTail`). Then every entry satisfies
+data of the rational function over `D_tail` (`muZeroTail`), a polynomial of degree at most one
+in `X` (`outerAprime_natDegree_le`). Then every entry satisfies
 `v^G_p(A'_{rs}) ≥ w_r + w_s` for the weights `w` of the outer weight family
 (`outer_entry_valuations`); `outer_entry_valuations_dbl` is the same bound with the doubled
 integer weights `ZetaSeven.outerFamWeightDbl`, the form `ZetaSeven.gauss_rank_lemma` takes.
@@ -34,6 +35,15 @@ divisible by `D_tail`; within a class `c ≥ 1` the product has the form `R Q` w
 `ρ_b = Q(-b²)/T_S'(-b²)` (`ZetaSeven.poleResidue`) and the pole values
 `π_b = μ_X(1/(t + b²))` (`ZetaSeven.muPole`). Valuations of possibly zero rationals are handled
 with `OuterEntry.vGe p k x`, which says `p^{-k} x` is `p`-integral.
+
+The four cases: cross-class entries are `p`-integral (`OuterEntry.muZeroTail_mem_cross`); within
+a class `c ≥ 1`, an index at least `ℓ - 2` gives a `p`-integral entry
+(`OuterEntry.muZeroTail_mem_high`, through `ZetaSeven.paired_residues`); two indices below `ℓ - 2`
+give valuation at least `min(0, i + j + 8δ - ℓ - 6)` (`OuterEntry.muZeroTail_coeff_ge_low`); two
+zero-class rows give valuation at least `min(0, 2(i + j) - 2⌊K/p⌋ + 1)`
+(`OuterEntry.muZeroTail_coeff_ge_zero`). Under (52) the class `S_c` has `ℓ_K(c) - δ_c` elements
+(`OuterEntry.card_outerClassSet_add`), and `μ_0` is `p`-integral on `p`-integral polynomials
+(`OuterEntry.muZeroMonomial_mem_pInt`, `OuterEntry.muZeroFunctional_mem_pIntPoly`).
 -/
 
 namespace ZetaSeven
@@ -73,6 +83,25 @@ noncomputable def outerAprime (p n : ℕ) : Matrix (outerIdx n p) (outerIdx n p)
 theorem outerAprime_apply (p n : ℕ) (ρ σ : outerIdx n p) :
     outerAprime p n ρ σ = muZeroTail p n ((outerRowPoly n p ρ.1 ρ.2 *
       outerRowPoly n p σ.1 σ.2).map (Int.castRingHom ℚ) * Dpoly (N n) ^ 7) := rfl
+
+/-- `μ_0` takes values of degree at most one in `X`: the monomial values are constants and the
+pole values (6) are affine in `X`. -/
+theorem natDegree_muZeroFunctional_le (p : ℕ) (P : ℚ[X]) (c : ℕ →₀ ℚ) :
+    (muZeroFunctional p P c).natDegree ≤ 1 := by
+  unfold muZeroFunctional
+  rw [Polynomial.sum_def, Finsupp.sum]
+  refine natDegree_add_le_of_degree_le (natDegree_sum_le_of_forall_le _ fun e _ => ?_)
+    (natDegree_sum_le_of_forall_le _ fun j _ => ?_)
+  · exact (natDegree_C_mul_le _ _).trans (by rw [natDegree_C]; exact zero_le_one)
+  · refine (natDegree_C_mul_le _ _).trans ?_
+    rw [muPole_eq]
+    exact natDegree_linear_le
+
+/-- Every entry `A'_{rs}` is a polynomial of degree at most one in `X`. -/
+theorem outerAprime_natDegree_le (p n : ℕ) (ρ σ : outerIdx n p) :
+    (outerAprime p n ρ σ).natDegree ≤ 1 := by
+  rw [outerAprime_apply]
+  exact natDegree_muZeroFunctional_le _ _ _
 
 namespace OuterEntry
 
@@ -303,7 +332,7 @@ theorem muZeroMonomial_mem_pInt (hp7 : 7 ≤ p) (e : ℕ) : muZeroMonomial p e �
   by_cases he : e < 3 * p - 4
   · rw [outerCe_of_lt he, Nat.cast_zero, zero_div, sub_zero]
     exact mem_pInt_iff_padicValRat.mpr (muMonomial_padicValRat_nonneg hp7 he)
-  · push_neg at he
+  · rw [not_lt] at he
     have hp0 : (p : ℚ) ≠ 0 := natCast_p_ne_zero
     have hxmem : (p : ℚ) * muMonomial e ∈ pInt p := by
       rw [mem_pInt_iff_padicValRat]
@@ -457,12 +486,15 @@ theorem Dtail_eq_prod_outerClassSet (hm : 2 * mHalf p + 1 = p) :
   rw [← biUnion_outerClassSet hm]
   exact prod_biUnion hdisj
 
+theorem map_X_add_C_sq (b : ℕ) :
+    (X + C ((b : ℤ) ^ 2)).map (Int.castRingHom ℚ) = X + C ((b : ℚ) ^ 2) := by
+  rw [Polynomial.map_add, Polynomial.map_X, Polynomial.map_C]
+  simp
+
 theorem map_prod_X_add_C (s : Finset ℕ) :
     (∏ b ∈ s, (X + C ((b : ℤ) ^ 2))).map (Int.castRingHom ℚ) = ∏ b ∈ s, (X + C ((b : ℚ) ^ 2)) := by
   rw [Polynomial.map_prod]
-  refine prod_congr rfl fun b _ => ?_
-  rw [Polynomial.map_add, Polynomial.map_X, Polynomial.map_C]
-  simp
+  exact prod_congr rfl fun b _ => map_X_add_C_sq b
 
 /-- `∏_{0 ≤ d ≤ m} F_d = D_tail`. -/
 theorem map_prod_outerClassPoly (hm : 2 * mHalf p + 1 = p) :
@@ -533,12 +565,12 @@ theorem outerFamWeightDbl_low {c i : ℕ} (hc0 : c ≠ 0) (hi : i < ell p (K n) 
     outerFamWeightDbl n p c i =
       min 0 (2 * (i : ℤ) + 8 * classDelta n c - ell p (K n) c - 6) := by
   unfold outerFamWeightDbl outerWeightDbl
-  rw [if_neg hc0, if_pos hi]
+  rw [ite_eq_right hc0, ite_eq_left hi]
 
 theorem outerFamWeightDbl_zero_class (i : ℕ) :
     outerFamWeightDbl n p 0 i = outerZeroWeightDbl n p i := by
   unfold outerFamWeightDbl
-  rw [if_pos rfl]
+  rw [ite_eq_left rfl]
 
 /-! ### Class facts under the outer-range hypothesis (52) -/
 
@@ -587,7 +619,7 @@ theorem card_outerClassSet_add (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) 
     have hc : c ∉ outerClassSet n p c := fun h => by
       have := (mem_outerClassSet.mp h).1.1
       omega
-    rw [hX, card_insert_of_notMem hc, if_pos hcN]
+    rw [hX, card_insert_of_notMem hc, ite_eq_left hcN]
   · have hX : (Icc 1 (K n)).filter
         (fun j : ℕ => (p : ℤ) ∣ (j : ℤ) - c ∨ (p : ℤ) ∣ (j : ℤ) + c) = outerClassSet n p c := by
       ext j
@@ -599,7 +631,7 @@ theorem card_outerClassSet_add (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) 
         · exact ⟨⟨by omega, hjK⟩, h⟩
       · rintro ⟨⟨hj1, hjK⟩, h⟩
         exact ⟨⟨by omega, hjK⟩, h⟩
-    rw [hX, if_neg hcN, add_zero]
+    rw [hX, ite_eq_right hcN, add_zero]
 
 /-- Under (52), the poles of a class `1 ≤ c ≤ m` not cancelled by `E_c` are among `c`, `p - c`. -/
 theorem filter_not_lt_subset (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) {c : ℕ}
@@ -675,6 +707,12 @@ end Classes
 section Bounds
 
 variable [hp : Fact p.Prime]
+
+/-- A prime `p ≥ 11` is odd: `2m + 1 = p`. -/
+theorem two_mul_mHalf_add_one (hR : OuterRange n p) : 2 * mHalf p + 1 = p := by
+  obtain ⟨t, ht⟩ := hp.out.odd_of_ne_two (by have := hR.eleven_le; omega)
+  unfold mHalf
+  omega
 
 theorem padicValNat_le_one {a : ℕ} (ha : 0 < a) (hap : a < p ^ 2) : padicValNat p a ≤ 1 := by
   by_contra h
@@ -915,10 +953,12 @@ variable [hp : Fact p.Prime]
 /-- **Cross-class entries.** For two classes `c ≠ d`, the product `r s` of a row of class `c`
 and a row of class `d` is divisible by `D_tail`, so the entry `μ_0(r s D_N⁷/D_tail)` is `μ_0` of
 an integer polynomial and is `p`-integral. -/
-theorem muZeroTail_mem_cross (hm : 2 * mHalf p + 1 = p) (hp7 : 7 ≤ p) {c d : ℕ}
-    (hd : d ≤ mHalf p) (hcd : c ≠ d) (x y : ℤ[X]) :
+theorem muZeroTail_mem_cross (hR : OuterRange n p) {c d : ℕ} (hd : d ≤ mHalf p) (hcd : c ≠ d)
+    (x y : ℤ[X]) :
     muZeroTail p n ((outerCofactor n p c * x * (outerCofactor n p d * y)).map
       (Int.castRingHom ℚ) * Dpoly (N n) ^ 7) ∈ pIntPoly p := by
+  have hm := two_mul_mHalf_add_one hR
+  have hp7 : 7 ≤ p := by have := hR.eleven_le; omega
   have hF : (outerCofactor n p c * x * (outerCofactor n p d * y)).map (Int.castRingHom ℚ) *
       Dpoly (N n) ^ 7 = Dtail n * (((∏ e ∈ ((range (mHalf p + 1)).erase c).erase d,
         outerClassPoly n p e) * x * y).map (Int.castRingHom ℚ) * Dpoly (N n) ^ 7) := by
@@ -936,10 +976,11 @@ theorem muZeroTail_mem_cross (hm : 2 * mHalf p + 1 = p) (hp7 : 7 ≤ p) {c d : �
 /-- **A row index at least `ℓ - 2`.** For a class `1 ≤ c ≤ m`, a row `P_c E_c x` and a row
 `P_c y`: the factor `E_c` cancels the poles with `b > p`, the remaining poles are `p - c` and,
 when `δ_c = 0`, `c` (`filter_not_lt_subset`), and the entry is `p`-integral. -/
-theorem muZeroTail_mem_high (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) {c : ℕ}
-    (hc1 : 1 ≤ c) (hcm : c ≤ mHalf p) (x y : ℤ[X]) :
+theorem muZeroTail_mem_high (hR : OuterRange n p) {c : ℕ} (hc1 : 1 ≤ c) (hcm : c ≤ mHalf p)
+    (x y : ℤ[X]) :
     muZeroTail p n ((outerCofactor n p c * (outerHighPoly n p c * x) *
       (outerCofactor n p c * y)).map (Int.castRingHom ℚ) * Dpoly (N n) ^ 7) ∈ pIntPoly p := by
+  have hm := two_mul_mHalf_add_one hR
   have hp7 : 7 ≤ p := by have := hR.eleven_le; omega
   have hD : Dtail n = (outerCofactor n p c * outerHighPoly n p c).map (Int.castRingHom ℚ) *
       ∏ b ∈ (outerClassSet n p c).filter (fun j => ¬ p < j), (X + C ((b : ℚ) ^ 2)) := by
@@ -962,12 +1003,13 @@ theorem muZeroTail_mem_high (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) {c 
 (from `(t + c²)^{i+j}`, from the factor `t + c²` of `D_N` when `δ = 1`, and from the derivative
 of `F_c`), and the pole value has valuation at least `-7`, so the entry has valuation at least
 `min(0, i + j + 8δ - ℓ - 6)`. -/
-theorem muZeroTail_coeff_ge_low (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) {c : ℕ}
-    (hc1 : 1 ≤ c) (hcm : c ≤ mHalf p) (i j k : ℕ) :
+theorem muZeroTail_coeff_ge_low (hR : OuterRange n p) {c : ℕ} (hc1 : 1 ≤ c) (hcm : c ≤ mHalf p)
+    (i j k : ℕ) :
     min 0 ((i : ℤ) + j + 8 * classDelta n c - ell p (K n) c - 6) ≤
       padicValRat p ((muZeroTail p n ((outerCofactor n p c * (X + C ((c : ℤ) ^ 2)) ^ i *
         (outerCofactor n p c * (X + C ((c : ℤ) ^ 2)) ^ j)).map (Int.castRingHom ℚ) *
           Dpoly (N n) ^ 7)).coeff k) := by
+  have hm := two_mul_mHalf_add_one hR
   have hp7 : 7 ≤ p := by have := hR.eleven_le; omega
   have hK3 := hR.K_lt
   have hD : Dtail n = (outerCofactor n p c).map (Int.castRingHom ℚ) *
@@ -979,8 +1021,7 @@ theorem muZeroTail_coeff_ge_low (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p)
         Dpoly (N n) ^ 7 = (outerCofactor n p c).map (Int.castRingHom ℚ) *
       ((outerCofactor n p c).map (Int.castRingHom ℚ) * (X + C ((c : ℚ) ^ 2)) ^ (i + j) *
         Dpoly (N n) ^ 7) := by
-    simp only [Polynomial.map_mul, Polynomial.map_pow, Polynomial.map_add, Polynomial.map_X,
-      Polynomial.map_C, eq_intCast, Int.cast_pow, Int.cast_natCast]
+    simp only [Polynomial.map_mul, Polynomial.map_pow, map_X_add_C_sq]
     ring
   have hcard := card_outerClassSet_add hR hm hc1 hcm
   refine muZeroTail_coeff_ge hp7 (outerClassSet_subset c) hF hD (entryNum_mem_pIntPoly _ _)
@@ -1018,10 +1059,11 @@ theorem muZeroTail_coeff_ge_low (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p)
 /-- **Two zero-class rows.** The poles are `-(kp)²` with `1 ≤ k ≤ ⌊K/p⌋`; the residues of
 `P_0 t^{i+j} D_N⁷/F_0` have valuation at least `2(i + j) - 2(⌊K/p⌋ - 1)` and the pole values at
 least `-1`, so the entry has valuation at least `min(0, 2(i + j) - 2⌊K/p⌋ + 1)`. -/
-theorem muZeroTail_coeff_ge_zero (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) (i j k : ℕ) :
+theorem muZeroTail_coeff_ge_zero (hR : OuterRange n p) (i j k : ℕ) :
     min 0 (2 * ((i : ℤ) + j) - 2 * mK n p + 1) ≤
       padicValRat p ((muZeroTail p n ((outerCofactor n p 0 * X ^ i *
         (outerCofactor n p 0 * X ^ j)).map (Int.castRingHom ℚ) * Dpoly (N n) ^ 7)).coeff k) := by
+  have hm := two_mul_mHalf_add_one hR
   have hp7 : 7 ≤ p := by have := hR.eleven_le; omega
   have hD : Dtail n = (outerCofactor n p 0).map (Int.castRingHom ℚ) *
       ∏ b ∈ outerClassSet n p 0, (X + C ((b : ℚ) ^ 2)) := by
@@ -1073,12 +1115,11 @@ theorem muZeroTail_coeff_ge_zero (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p
 
 /-- The entry bound on the rows of two pairs `(c, i)`, `(d, j)` with `c, d ≤ m`, by the four
 cases of the article. -/
-theorem entry_bound (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) {c d : ℕ}
-    (hc : c ≤ mHalf p) (hd : d ≤ mHalf p) (i j k : ℕ) :
+theorem entry_bound (hR : OuterRange n p) {c d : ℕ} (hc : c ≤ mHalf p) (hd : d ≤ mHalf p)
+    (i j k : ℕ) :
     outerFamWeightDbl n p c i + outerFamWeightDbl n p d j ≤
       2 * padicValRat p ((muZeroTail p n ((outerRowPoly n p c i * outerRowPoly n p d j).map
         (Int.castRingHom ℚ) * Dpoly (N n) ^ 7)).coeff k) := by
-  have hp7 : 7 ≤ p := by have := hR.eleven_le; omega
   have hint : ∀ A : ℚ[X], A ∈ pIntPoly p →
       outerFamWeightDbl n p c i + outerFamWeightDbl n p d j ≤ 2 * padicValRat p (A.coeff k) := by
     intro A hA
@@ -1090,7 +1131,7 @@ theorem entry_bound (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) {c d : ℕ}
   · rcases Nat.eq_zero_or_pos c with rfl | hc1
     · rw [outerRowPoly_zero, outerRowPoly_zero, outerFamWeightDbl_zero_class,
         outerFamWeightDbl_zero_class]
-      have hB := muZeroTail_coeff_ge_zero hR hm (n := n) i j k
+      have hB := muZeroTail_coeff_ge_zero hR i j k
       unfold outerZeroWeightDbl
       by_cases h2 : K n < 2 * p
       · rw [hR.mK_eq_one h2] at hB
@@ -1101,21 +1142,21 @@ theorem entry_bound (hR : OuterRange n p) (hm : 2 * mHalf p + 1 = p) {c d : ℕ}
       by_cases hi : ell p (K n) c - 2 ≤ i
       · obtain ⟨y, hy⟩ := outerRowPoly_eq_cofactor_mul (n := n) (p := p) c j
         rw [outerRowPoly_of_ne_zero n p hc0 i, outerQ_of_le hi, hy]
-        exact hint _ (muZeroTail_mem_high hR hm (by omega) hc _ _)
+        exact hint _ (muZeroTail_mem_high hR (by omega) hc _ _)
       · by_cases hj : ell p (K n) c - 2 ≤ j
         · obtain ⟨y, hy⟩ := outerRowPoly_eq_cofactor_mul (n := n) (p := p) c i
           rw [mul_comm (outerRowPoly n p c i), outerRowPoly_of_ne_zero n p hc0 j, outerQ_of_le hj,
             hy]
-          exact hint _ (muZeroTail_mem_high hR hm (by omega) hc _ _)
-        · push_neg at hi hj
+          exact hint _ (muZeroTail_mem_high hR (by omega) hc _ _)
+        · rw [not_le] at hi hj
           rw [outerRowPoly_of_ne_zero n p hc0 i, outerQ_of_lt hi, outerRowPoly_of_ne_zero n p hc0 j,
             outerQ_of_lt hj, outerFamWeightDbl_low hc0 hi, outerFamWeightDbl_low hc0 hj]
-          have hB := muZeroTail_coeff_ge_low hR hm (by omega) hc i j k
+          have hB := muZeroTail_coeff_ge_low hR (by omega) hc i j k
           omega
   · obtain ⟨x, hx⟩ := outerRowPoly_eq_cofactor_mul (n := n) (p := p) c i
     obtain ⟨y, hy⟩ := outerRowPoly_eq_cofactor_mul (n := n) (p := p) d j
     rw [hx, hy]
-    exact hint _ (muZeroTail_mem_cross hm hp7 hd hcd x y)
+    exact hint _ (muZeroTail_mem_cross hR hd hcd x y)
 
 end Entries
 
@@ -1133,14 +1174,10 @@ theorem outer_entry_valuations_dbl {n p : ℕ} [Fact p.Prime] (hR : OuterRange n
     (ρ σ : outerIdx n p) (k : ℕ) :
     outerFamWeightDbl n p ρ.1 ρ.2 + outerFamWeightDbl n p σ.1 σ.2 ≤
       2 * padicValRat p ((outerAprime p n ρ σ).coeff k) := by
-  have hm : 2 * mHalf p + 1 = p := by
-    obtain ⟨t, ht⟩ := (Fact.out : p.Prime).odd_of_ne_two (by have := hR.eleven_le; omega)
-    unfold mHalf
-    omega
   have hc := ρ.1.isLt
   have hd := σ.1.isLt
   rw [outerAprime_apply]
-  exact OuterEntry.entry_bound hR hm (by omega) (by omega) ρ.2 σ.2 k
+  exact OuterEntry.entry_bound hR (by omega) (by omega) ρ.2 σ.2 k
 
 /-- **Outer entry valuations.** Let `p` be a prime satisfying the outer-range hypothesis (52).
 For two outer class rows `r`, `s` with weights `w_r`, `w_s` of the outer weight family
