@@ -22,10 +22,12 @@ and proves **Proposition 5.4** (`prime_sum_bound`): for `M ∈ 40ℤ_{>0}` and e
 
 `log m_{K,M} = ∑_{p ≤ 2h} (-L_p) log p` (`log_mKM`) splits into four prime ranges:
 
-* small primes `p ≤ √(5K)`: each contributes at most `8h log(5K) + h log 720`, in total
-  `O(K^{3/2} log K) = o(K²)` (`crude_term_le`, `crude_sum_le`, `tendsto_crude_bound`);
-* the crude range `√(5K) < p ≤ K/M`: `-L_p = 8h`, in total `8h θ(K/M) ~ 8λK²/M` by the prime
-  number theorem (`tendsto_crude_bound`);
+* small primes `p ≤ √(5K)`: each contributes at most `8h log p + 8h log(5K) + h log 720`,
+  and the excess over `8h log p` totals `O(K^{3/2} log K) = o(K²)` (`crude_term_le`,
+  `crude_sum_le`, `tendsto_crude_bound`);
+* the crude range `√(5K) < p ≤ K/M`: `-L_p ≤ 8h`, so the whole range `p ≤ K/M` contributes at
+  most `8h θ(K/M)` plus the small-prime excess, that is `8λK²/M + o(K²)` by the prime number
+  theorem (`crude_sum_le`, `tendsto_crude_bound`);
 * the inner range `K/M < p ≤ K/3`: `-L_p = p R(K/p) + O_M(1)` by (70) (`LpKM_inner_approx`),
   and the prime Riemann sum with weight `y R(1/y)` on `[1/M, 1/3]` gives
   `∫_3^M R(x)/x³ dx` (`tendsto_inner_sum`, `integral_innerWeight`);
@@ -233,8 +235,8 @@ theorem tendsto_weighted_prime_sum {a b : ℝ} (ha : 0 < a) (hab : a < b) {G : �
 /-! ## Small primes and the crude range `p ≤ K/M` -/
 
 /-- The crude branch of (60): for a prime `p` with `pM ≤ K`, `-L_p log p ≤ 8h log p`, plus
-`8h log(5K) + h log 720` when `p² ≤ 5K`. For `p² > 5K`, `⌊log_p(5K)⌋ = 1` and `p ∤ 720`, so
-`-L_p = 8h`. -/
+`8h log(5K) + h log 720` when `p² ≤ 5K`. For `p² > 5K`, `⌊log_p(5K)⌋ ≤ 1` and `p ∤ 720`, so
+`-L_p ≤ 8h`. -/
 theorem crude_term_le {n M p : ℕ} (hp : p.Prime) (hn : 0 < n) (hMp : M * p ≤ K n) :
     (-(LpKM n M p : ℝ)) * Real.log p ≤ 8 * (hDim n : ℝ) * Real.log p +
       if p * p ≤ 5 * K n then
@@ -383,8 +385,9 @@ theorem small_prime_error_nonneg {n : ℕ} (hn : 1 ≤ n) :
       (mul_nonneg hh (Real.log_nonneg (by norm_num)))
   exact div_nonneg (mul_nonneg (Nat.cast_nonneg _) hc) (sq_nonneg _)
 
-/-- The small primes contribute `o(K²)` and the crude range `8λ/M + o(1)` to `K⁻² log m_{K,M}`:
-the bound of `crude_sum_le`, divided by `K²`, tends to `8λ/M`. This uses `θ(x) ~ x`. -/
+/-- The primes `p ≤ K/M` contribute at most `8λ/M + o(1)` to `K⁻² log m_{K,M}`: the bound of
+`crude_sum_le`, divided by `K²`, tends to `8λ/M` (its small-prime term is `o(K²)`). This uses
+`θ(x) ~ x`. -/
 theorem tendsto_crude_bound (M : ℕ) :
     Tendsto (fun n : ℕ => (8 * (hDim n : ℝ) * Chebyshev.theta (1 / (M : ℝ) * K n)
         + (Nat.sqrt (5 * K n) : ℝ) * (8 * (hDim n : ℝ) * Real.log (5 * (K n : ℝ))

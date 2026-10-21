@@ -38,6 +38,7 @@ import ZetaSeven.PairedPoleCongruence
 import ZetaSeven.PositiveIntegral
 import ZetaSeven.PotentialInequality
 import ZetaSeven.PrimeNumberTheorem
+import ZetaSeven.PrimeSumBound
 import ZetaSeven.RankLemma
 import ZetaSeven.RealBound
 import ZetaSeven.ReflectionDifference
