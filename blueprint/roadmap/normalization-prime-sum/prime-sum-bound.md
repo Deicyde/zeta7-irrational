@@ -6,7 +6,7 @@ origin: cited
 
 # Prime-sum bound
 
-For fixed `M`, `lim sup_{K→∞} K^{-2} log m_{K,M} ≤ A_M`, by
+For each fixed `M ∈ 40ℤ_{>0}`, `lim sup_{K→∞} K^{-2} log m_{K,M} ≤ A_M`, by
 combining the three prime ranges: the negligible small-prime
 contribution, the `8λ/M` term from the crude middle range, the
 inner integral via the prime number theorem, and the outer

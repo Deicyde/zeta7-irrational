@@ -9,7 +9,8 @@ origin: cited
 For each admissible `M` and `K`, the polynomial `Q_{K,M}` is
 integral of degree `h`, positive at `ζ(7)`, and for large `n`
 satisfies `0 < Q_{40n,200}(ζ(7)) < exp(-19000n^2)` and the
-same bound at cutoff `100000`.
+same bound at cutoff `100000`. Here admissible means
+`M, K ∈ 40ℤ_{>0}` with `K ≥ 200M^2`, as in Proposition 5.1.
 
 The proof combines integrality, degree, and positivity with
 the decay inequality from the prime-sum and real bounds,

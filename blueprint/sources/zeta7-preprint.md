@@ -296,7 +296,7 @@ route to Theorems 1.1-1.2 does not close (open question 5).
     only `-5/8` for the lower bound, and its upper-bound arithmetic
     `25/8 + 1/4` is not a valid termwise bound either; with `16` the
     termwise upper bound is `1/8 + 2 + 1/2 = 21/8`, and the lower
-    bound needs `|∫AB| ≤ ∫B^2` from (78)-(79). (86) holds for
+    bound follows from `|∫AB| ≤ ∫B^2` from (78)-(79). (86) holds for
     `M ∈ 40ℤ_{>0}`, as the paper assumes; the hypothesis cannot be
     dropped: (86) fails at every `M ≡ 20 (mod 40)`, for example at
     `M = 20`, `60`, and `100`. The

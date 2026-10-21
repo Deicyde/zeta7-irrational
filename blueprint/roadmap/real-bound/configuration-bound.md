@@ -18,7 +18,8 @@ This is (100) in product form: taking logarithms gives (100) as
 printed, whose left side is `-∞` when two points coincide.
 
 The proof applies the zero-mass lemma to the circle-regularized
-empirical measure minus the comparison measure, bounds the
+empirical measure minus the comparison measure (using the finiteness
+of the energy integral of `ρ`), bounds the
 regularization error by the arcsine mass estimate and the
 circle-average identity, and checks the retained-factor
 inequality on `[0,2]` and past 2 by elementary bounds.
