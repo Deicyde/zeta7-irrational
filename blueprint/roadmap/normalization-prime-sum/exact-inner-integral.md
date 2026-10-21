@@ -2,6 +2,9 @@
 article_id: af_d3b3fd1eb0800824df8ce97c
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.innerIntegral_value ZetaSeven.intervalIntegrable_innerR_div_cube ZetaSeven.innerRPieces ZetaSeven.innerR_eq_of_mem_innerRPieces ZetaSeven.integral_gammaIntegrand_of_le ZetaSeven.integral_gammaIntegrand_of_ge ZetaSeven.innerR_eq_of_le ZetaSeven.innerR_eq_of_ge ZetaSeven.innerR_jump_4 ZetaSeven.innerR_jump_5 ZetaSeven.innerR_jump_6 ZetaSeven.innerR_jump_7 ZetaSeven.innerR_jump_8 ZetaSeven.innerR_jump_9 ZetaSeven.innerR_jump_10 ZetaSeven.innerR_jump_11 ZetaSeven.innerR_jump_12 ZetaSeven.innerR_jump_13 ZetaSeven.innerR_jump_40_3 ZetaSeven.innerR_jump_14 ZetaSeven.innerR_jump_15 ZetaSeven.innerR_jump_16 ZetaSeven.innerR_jump_17 ZetaSeven.innerR_jump_18 ZetaSeven.innerR_jump_19 ZetaSeven.innerR_at_twenty
 ---
 
 # Exact inner integral
