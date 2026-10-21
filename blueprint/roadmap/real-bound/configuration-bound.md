@@ -2,6 +2,9 @@
 article_id: af_628271880f5a353f0020ba51
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.configuration_bound ZetaSeven.configuration_bound_log ZetaSeven.configuration_bound_core ZetaSeven.two_mul_Ulog_sub_Vfield_add_sqrt_div_le ZetaSeven.antitoneOn_tail_add_sqrt_div ZetaSeven.tail_add_sqrt_div_two_lt ZetaSeven.not_two_mul_Ulog_sub_Vfield_le_printed
 ---
 
 # Configuration energy bound
@@ -16,6 +19,9 @@ field `V`, and the energy `I(ρ)` of the comparison measure, every
 `∏_{i<j} (t_i - t_j)^2 · ∏_i e^{-K V(t_i)} ≤ e^{(λM_0 - I(ρ))K^2 + (120 + √2)h + 2h log K} · ∏_i e^{-√t_i}`.
 This is (100) in product form: taking logarithms gives (100) as
 printed, whose left side is `-∞` when two points coincide.
+The Lean statements allow any real `K ≥ 1` with `h = λK` a natural
+number, which includes `K = 40n` for every `n ≥ 1`, and prove (98)
+for every `K ≥ 1`.
 
 The proof applies the zero-mass lemma to the circle-regularized
 empirical measure minus the comparison measure (using the finiteness
