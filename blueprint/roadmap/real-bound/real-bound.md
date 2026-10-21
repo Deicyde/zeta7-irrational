@@ -6,7 +6,7 @@ origin: cited
 
 # Real bound
 
-For every admissible `K`, `F_K(ζ(7))` is positive with
+For every `K = 40n` with `n ≥ 1`, `F_K(ζ(7))` is positive with
 `log F_K(ζ(7)) ≤ UK^2 + 24K log K + 220K` for `U = 44/25`.
 
 The proof takes logarithms of the scaled integral, cancels
