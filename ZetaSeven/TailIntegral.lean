@@ -12,13 +12,17 @@ Prince Anand, "Zeta 7 is Irrational", Section 5.4. With `f = {x}`, `g = {αx}`, 
 * (80)-(82) `R(x) = xF(x) + Q(x)` (`innerR_eq_tail`) with `F = 6λ + 2λf - 16λg` (`tailF`) and
   `Q = [τ(τ - σ) - (τ - σ)₊ + η(1 - η)]/2 + 16∫_0^{1/2} B² - 4∫_0^{1/2} AB` (`tailQ`); the
   coefficient `16` corrects the printed `25` (source-map erratum 11);
-* (83) `-1/2 ≤ Q ≤ 27/8` (`tailQ_bounds`);
+* (83) `-1/2 ≤ Q ≤ 27/8` (`tailQ_bounds`), via the sharper `-1/8 ≤ Q ≤ 21/8`
+  (`tailQ_sharp_bounds`) and `|∫_0^{1/2} AB| ≤ ∫_0^{1/2} B²` (`abs_integral_tailA_mul_tailB_le`);
 * (84) the periodic primitives `P` (`tailP`) and `C` (`tailC`) built from
   `G(v) = v(1 - v)(2v - 1)` (`tailG`), with `P' = F + λ`, `C' = P - 11729/720` off the
   breakpoints (`hasDerivAt_tailP`, `hasDerivAt_tailC`) and `|C| < 22` (`abs_tailC_lt`);
-* (85) the double integration by parts (`integral_innerR_div_cube_eq`);
+* (85) the double integration by parts (`integral_innerR_div_cube_eq`) for `T > 0`, where
+  `R/x³`, `C/x⁴` and `Q/x³` are integrable on `(T, ∞)` (`integrableOn_innerR_div_cube`,
+  `integrableOn_tailC_div`, `integrableOn_tailQ_div`);
 * (86) for `M ∈ 40ℤ_{>0}`, `∫_M^∞ R(x)/x³ dx ≥ -λ/M + 11549/(720M²) - 44/M³`
-  (`tail_integral_bound`).
+  (`tail_integral_bound`); the estimate fails at every `M ≡ 20 (mod 40)`
+  (`tail_integral_bound_fails`).
 
 ## Proof
 
@@ -684,13 +688,10 @@ theorem fract_of_mod_forty_eq_twenty {M : ℕ} (h : M % 40 = 20) :
     Int.fract (M : ℝ) = 0 ∧ Int.fract ((alpha : ℝ) * M) = 1 / 2 := by
   constructor
   · exact Int.fract_natCast M
-  · have hM : (M : ℝ) = 40 * ((M / 40 : ℕ) : ℝ) + 20 := by
-      have h' := Nat.div_add_mod M 40
-      rw [h] at h'
-      exact_mod_cast h'.symm
+  · obtain ⟨q, hq⟩ : ∃ q : ℕ, M = 40 * q + 20 := ⟨M / 40, by omega⟩
     rw [Int.fract_eq_iff]
-    refine ⟨by norm_num, by norm_num, 3 * ((M / 40 : ℕ) : ℤ) + 1, ?_⟩
-    rw [hM, alpha_real]
+    refine ⟨by norm_num, by norm_num, 3 * (q : ℤ) + 1, ?_⟩
+    rw [hq, alpha_real]
     push_cast
     ring
 
