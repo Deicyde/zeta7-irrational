@@ -126,7 +126,8 @@ private lemma scaled_integrand_le (n : ℕ) (hn : 1 ≤ n) (t : Fin (hDim n) →
       exact_mod_cast this
     have hh : (hDim n : ℝ) = 37 / 40 * (K n : ℝ) := by
       unfold hDim K
-      push_cast <;> ring
+      push_cast
+      ring
     have hc := configuration_bound hK1 hh t ht
     have hP : 0 ≤ (∏ i, (Real.sqrt (t i))⁻¹) * ∏ i, (1 + Real.sqrt (t i)) ^ 7 :=
       mul_nonneg (Finset.prod_nonneg fun i _ => inv_nonneg.2 (Real.sqrt_nonneg _))
@@ -134,9 +135,8 @@ private lemma scaled_integrand_le (n : ℕ) (hn : 1 ≤ n) (t : Fin (hDim n) →
     have key := mul_le_mul_of_nonneg_right hc hP
     simp only [Finset.prod_mul_distrib]
     linarith [key]
-  · push_neg at ht
-    obtain ⟨i, hi⟩ := ht
-    have hs : Real.sqrt (t i) = 0 := Real.sqrt_eq_zero'.2 hi.le
+  · obtain ⟨i, hi⟩ := Classical.not_forall.mp ht
+    have hs : Real.sqrt (t i) = 0 := Real.sqrt_eq_zero'.2 (not_le.mp hi).le
     have h0 : ∏ i, (Real.exp (-(K n : ℝ) * Vfield (t i)) * (Real.sqrt (t i))⁻¹ *
         (1 + Real.sqrt (t i)) ^ 7) = 0 :=
       Finset.prod_eq_zero (Finset.mem_univ i) (by simp [hs])
@@ -221,12 +221,14 @@ theorem log_aeval_DeltaK_zeta_le (n : ℕ) (hn : 1 ≤ n) :
     rw [show (4096 : ℝ) = 2 ^ 12 by norm_num, Real.log_pow, Nat.cast_ofNat]
   have he : ((2 * hDim n * (21 * n) + 16 * hDim n : ℕ) : ℝ) =
       2 * (hDim n : ℝ) * (21 * (n : ℝ)) + 16 * (hDim n : ℝ) := by
-    push_cast <;> ring
+    push_cast
+    ring
   rw [Real.log_mul (by norm_num : (4096 : ℝ) ≠ 0) (Real.exp_pos 12).ne', Real.log_exp, h4096,
     hsub, he] at hlog
   have hsubR : (hDim n : ℝ) + 8 * (N n : ℝ) - (K n : ℝ) = 21 * (n : ℝ) := by
     unfold hDim N K
-    push_cast <;> ring
+    push_cast
+    ring
   rw [hsubR]
   have hh0 : (0 : ℝ) ≤ (hDim n : ℝ) := Nat.cast_nonneg _
   have hl2 : Real.log 2 ≤ 1 := by
@@ -251,7 +253,8 @@ theorem SK_cast_eq (n : ℕ) :
     refine Finset.prod_congr rfl fun i _ => ?_
     rw [Nat.add_comm 1 i]
   rw [SK, hprod, ZetaSeven.Stirling.SK]
-  push_cast <;> ring
+  push_cast
+  ring
 
 /-- Equation (107) for the factor `S_K` of (8): for `n ≥ 1`,
 `log S_K ≤ (2λ - 16αλ - 2λ²)K² log K + C* K² + 6h log K + 6h`, with `C* = cStar`. -/
@@ -264,10 +267,12 @@ theorem log_SK_le (n : ℕ) (hn : 1 ≤ n) :
   have hN1 : 1 ≤ N n := by unfold N; omega
   have hh : (hDim n : ℝ) = 37 / 40 * (K n : ℝ) := by
     unfold hDim K
-    push_cast <;> ring
+    push_cast
+    ring
   have hN : (N n : ℝ) = 3 / 40 * (K n : ℝ) := by
     unfold N K
-    push_cast <;> ring
+    push_cast
+    ring
   have h107 := ZetaSeven.Stirling.stirling_107 hK hh hN hN1
   have hc : cStar = -2 * (37 / 40 : ℝ) + 16 * (3 / 40 : ℝ) * (37 / 40 : ℝ) *
       (1 - Real.log (3 / 40 : ℝ)) + 3 * (37 / 40 : ℝ) ^ 2 -
@@ -293,13 +298,16 @@ theorem real_bound (n : ℕ) (hn : 1 ≤ n) :
   have hD := log_aeval_DeltaK_zeta_le n hn
   have hKr : (K n : ℝ) = 40 * (n : ℝ) := by
     unfold K
-    push_cast <;> ring
+    push_cast
+    ring
   have hhr : (hDim n : ℝ) = 37 * (n : ℝ) := by
     unfold hDim
-    push_cast <;> ring
+    push_cast
+    ring
   have hNr : (N n : ℝ) = 3 * (n : ℝ) := by
     unfold N
-    push_cast <;> ring
+    push_cast
+    ring
   have hn0 : (0 : ℝ) ≤ (n : ℝ) := Nat.cast_nonneg n
   have hL : 0 ≤ Real.log (K n : ℝ) := by
     apply Real.log_nonneg
