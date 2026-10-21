@@ -2,6 +2,9 @@
 article_id: af_86ae9ab95a54586118a282f5
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.real_bound ZetaSeven.log_aeval_DeltaK_zeta_le ZetaSeven.log_SK_le ZetaSeven.SK_cast_eq ZetaSeven.scaled_integral_le ZetaSeven.integral_residual_density_le
 ---
 
 # Real bound
