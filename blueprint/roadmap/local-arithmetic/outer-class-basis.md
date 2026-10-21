@@ -33,7 +33,9 @@ reduced rows are triangular with unit diagonal, hence an
 
 ## Depends on
 
+- [Local range data](local-range-data.md)
 - [Outer range data](outer-range-data.md)
+- [Outer weight family](outer-weight-family.md)
 - [Outer class rows](outer-class-rows.md)
 
 ## Sources

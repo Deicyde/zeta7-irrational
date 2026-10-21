@@ -30,11 +30,11 @@ can have valuation `-1`.
 ## Depends on
 
 - [Matrix and determinant](../determinant-construction/matrix-determinant.md)
+- [Paired-pole congruence](paired-pole-congruence.md)
 
 ## Proof depends on
 
 - [Outer moment integrality](outer-moment-integrality.md)
-- [Paired-pole congruence](paired-pole-congruence.md)
 
 ## Sources
 

@@ -4,7 +4,7 @@ declaration: lemma
 origin: bridged
 statement: formalized
 proof: formalized
-lean: ZetaSeven.muPole_paired_congruence ZetaSeven.paired_residues ZetaSeven.poleResidue ZetaSeven.H7_reflect_congruence
+lean: ZetaSeven.muPole_paired_congruence ZetaSeven.paired_residues ZetaSeven.poleResidue ZetaSeven.H7_reflect_congruence ZetaSeven.pInt ZetaSeven.pIntPoly
 ---
 
 # Paired-pole congruence
