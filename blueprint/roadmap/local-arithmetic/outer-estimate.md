@@ -2,6 +2,9 @@
 article_id: af_f6d7fb0e399a74224e96827b
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.outer_estimate ZetaSeven.outer_estimate_of_K_lt ZetaSeven.DeltaK_mem_pIntPoly ZetaSeven.OuterRange.outerUmat_gram_eq ZetaSeven.det_outerUmat_gram ZetaSeven.outerUmat_mul_outerLmat_integral ZetaSeven.rank_outerUmat_mul_outerLmat_le ZetaSeven.OuterRange.outerAprime_reindex_eq ZetaSeven.OuterRange.outerAprime_eq_sum ZetaSeven.OuterRange.map_outerRow_eq_sum ZetaSeven.outerUmat_det ZetaSeven.muZeroTail_add ZetaSeven.muZeroTail_smul ZetaSeven.outerUmat
 ---
 
 # Outer range estimate
