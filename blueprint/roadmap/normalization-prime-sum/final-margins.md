@@ -20,6 +20,7 @@ With the recomputed outer integral the inequality fails:
 
 ## Depends on
 
+- [Prime-sum bound](prime-sum-bound.md)
 - [Exact inner integral](exact-inner-integral.md)
 - [Exact outer integral](exact-outer-integral.md)
 - [Tail integral bound](tail-integral.md)

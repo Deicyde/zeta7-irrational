@@ -151,7 +151,7 @@ in article citations disambiguate them.
 
 Only items confirmed independently of the paper's own text are listed:
 by exact or high-precision recomputation from the paper's definitions
-and Tables 1-4, or by a Lean proof. Items 1-8 and 10-13 do not break the
+and Tables 1-4, or by a Lean proof. Items 1-8 and 10-14 do not break the
 main theorem as far as the formalization has checked; item 8 is resolved
 in favor of the reading that the proof of Proposition 5.4 uses. Item 9
 does: with the recomputed outer integral, (118) fails and the v1
@@ -324,3 +324,13 @@ route to Theorems 1.1-1.2 does not close (open question 5).
     [small-prime estimate](../roadmap/local-arithmetic/small-prime-estimate.md)
     node applies the bound with the logarithm at `5K ≥ max(2K, d)`,
     so (41) holds as stated for every `n ≥ 1`.
+14. Section 5.5, (87)-(88) and the proof of Proposition 5.4: the
+    proof writes `B_0 = A_0 + I_out + ∫_3^20 R/x^3 dx` "with
+    `A_0 = ∫_20^∞ R/x^3 dx` bounded in Appendix A", but the printed
+    rational `A_0 ≈ 1.3175` is not that integral, which is about
+    `-0.0642`, and Appendix A gives no bound. The proof only needs
+    `∫_20^∞ R(x)/x^3 dx ≤ A_0`, which holds: (85) at `T = 20`, with
+    `P(20) = 74/3`, `C(20) = 0`, `|C| < 22`, and `Q ≤ 27/8`, gives
+    `∫_20^∞ R(x)/x^3 dx ≤ -2069/36000`. The
+    [prime-sum bound](../roadmap/normalization-prime-sum/prime-sum-bound.md)
+    node proves this inequality.
