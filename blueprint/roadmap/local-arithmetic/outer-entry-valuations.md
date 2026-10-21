@@ -28,8 +28,8 @@ integer polynomial is `p`-integral. For rows of different classes,
 polynomial and is `p`-integral. For two rows of class `c`, with
 `ℓ = ℓ_K(c)` and `δ = δ_c`, the poles are the `-b^2` with
 `b ∈ S_c`, a set of `ℓ - δ` elements under (52); the factor
-`P_c(-b^2)` is a `p`-unit, and each factor `b'^2 - b^2` of the
-derivative of `F_c` has valuation exactly one because
+`P_c(-b^2)` is `p`-integral, and each factor `b'^2 - b^2` of the
+derivative of `F_c` has valuation at most one because
 `b + b' ≤ 2K < p^2`. If either row index is at least `ℓ - 2`, the
 factor `E_c` cancels the poles with `b > p`, which leaves an
 integer polynomial over `t + (p - c)^2` when `δ = 1` and over
@@ -61,11 +61,11 @@ zero-class weights. Every weight is at most `0`, so the
 - [Outer class rows](outer-class-rows.md)
 - [Outer weight family](outer-weight-family.md)
 - [Outer modified functional](outer-modified-functional.md)
+- [Paired-pole congruence](paired-pole-congruence.md)
 
 ## Proof depends on
 
 - [Outer moment integrality](outer-moment-integrality.md)
-- [Paired-pole congruence](paired-pole-congruence.md)
 
 ## Sources
 

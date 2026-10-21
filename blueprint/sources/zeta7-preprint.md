@@ -149,7 +149,7 @@ in article citations disambiguate them.
 
 Only items confirmed independently of the paper's own text are listed:
 by exact or high-precision recomputation from the paper's definitions
-and Tables 1-4, or by a Lean proof. Items 1-8 and 10-12 do not break the
+and Tables 1-4, or by a Lean proof. Items 1-8 and 10-13 do not break the
 main theorem as far as the formalization has checked; item 8 is resolved
 in favor of the reading that the proof of Proposition 5.4 uses. Item 9
 does: with the recomputed outer integral, (118) fails and the v1
@@ -311,3 +311,12 @@ route to Theorems 1.1-1.2 does not close (open question 5).
     exactly. The
     [exact inner integral](../roadmap/normalization-prime-sum/exact-inner-integral.md)
     node states the identities on open intervals.
+13. Section 3.5, before (41): the pullback numerator `A_ij` in the
+    `f`-basis has degree `16N + 4h + 4` (the paper says at most
+    `16N + 4h + 5`), and the paper's inequality `max(2K, d+1) ≤ 5K`
+    fails at `n = 1`, where `d + 1 = 201 > 200 = 5K`. The slip is
+    harmless: `⌊log_p⌋` takes the same value at 200, 201 and 202 for
+    every prime `p`, and the
+    [small-prime estimate](../roadmap/local-arithmetic/small-prime-estimate.md)
+    node applies the bound with the logarithm at `5K ≥ max(2K, d)`,
+    so (41) holds as stated for every `n ≥ 1`.

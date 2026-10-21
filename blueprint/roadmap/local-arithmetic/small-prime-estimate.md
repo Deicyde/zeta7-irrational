@@ -17,11 +17,14 @@ yielding the crude global bound
 `v^G_p(F_K) ≥ -8h⌊log_p(5K)⌋ - h v_p(720)` at every prime.
 The global bound is stated for every `n ≥ 0`; at the degenerate
 `n = 0` (`h = K = 0`, `F_K = 1`) it holds trivially, and for
-`n ≥ 1` it is exactly (41).
+`n ≥ 1` it is exactly (41). The bound (37) is formalized for
+rational `A` (`A ∈ ℚ[x]`), which is all that (41) uses; the paper
+allows `A ∈ ℚ_p[x]` with `A(ℤ_p) ⊆ ℤ_p`.
 
 The proof bounds residues by Legendre's formula, controls the
-polynomial part on and off the root balls, applies `τ` to the
-polynomial part, and bounds pole contributions by harmonic
+polynomial part (the formal proof does this through the binomial
+basis `C(x+K, k)` instead of the paper's root-ball argument),
+applies `τ` to the polynomial part, and bounds pole contributions by harmonic
 denominators. The binomial identities making `q_i(-x^2)` and
 `f_i(-x^2)` integer-valued are part of this node. The constant
 8 in (37) absorbs the per-term constant 6, since
@@ -33,9 +36,6 @@ scope by design, and no separate node is planned for it.
 
 - [Tau pullback identity](tau-pullback.md)
 - [Matrix and determinant](../determinant-construction/matrix-determinant.md)
-
-## Proof depends on
-
 - [Integer-valued polynomial estimates](integer-valued-estimates.md)
 
 ## Sources
