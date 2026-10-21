@@ -22,9 +22,9 @@ these definitions belong to this node. Then for each fixed
 
 The proof combines four prime ranges: the small primes
 `p ≤ √(5K)`, whose contribution is `o(K^2)`; the crude range
-`√(5K) < p ≤ K/M`, which contributes `8λ/M`; the inner range
-`K/M < p ≤ K/3`, through (70) and the prime number theorem; and
-the outer range `K/3 < p ≤ 2h`. It then splits the inner integral
+`√(5K) < p ≤ K/M`, which contributes at most `8λK^2/M + o(K^2)`; the
+inner range `K/M < p ≤ K/3`, through (70) and the prime number
+theorem; and the outer range `K/3 < p ≤ 2h`. It then splits the inner integral
 at `20`, bounds `∫_20^M` through `∫_20^∞` and the tail bound (86),
 which is where `40 ∣ M` is used, and uses
 `∫_20^∞ R(x)/x^3 dx ≤ A_0`, which follows from (85) at `T = 20`
@@ -41,7 +41,8 @@ prime number theorem needs each weight to be bounded with finitely
 many discontinuities on its interval: `R` jumps only where `cx` is
 an integer for some `c ∈ {2, 2α, 2H, 2λ}` (with `α = 3/40` and
 `H = 49/40`), and on `[1/3, 2λ]` the outer integrand jumps only
-where `⌊1/y⌋` changes, at `y = 1/2` and `y = 1`.
+where `⌊1/y⌋` changes: at `y = 1/2` and `y = 1`, and at the
+endpoint `y = 1/3`.
 
 ## Depends on
 
