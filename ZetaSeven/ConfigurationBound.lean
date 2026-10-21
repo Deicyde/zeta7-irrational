@@ -1051,7 +1051,7 @@ theorem antitoneOn_tail_add_sqrt_div {K : ℝ} (hK : 1 ≤ K) :
     have h4 := (Real.hasDerivAt_sqrt hx.ne').div_const K
     convert ((h1.add h2).sub h3).add h4 using 1
     funext t
-    simp only [div_eq_mul_inv]
+    simp only [div_eq_mul_inv, Pi.add_apply, Pi.sub_apply]
   refine antitoneOn_of_deriv_nonpos (convex_Ici 2) ?_ ?_ ?_
   · intro x hx
     exact (hderiv x (lt_of_lt_of_le two_pos hx)).continuousAt.continuousWithinAt
@@ -1064,9 +1064,7 @@ theorem antitoneOn_tail_add_sqrt_div {K : ℝ} (hK : 1 ≤ K) :
     rw [(hderiv x hx0).deriv]
     have hs : 7 / 5 ≤ Real.sqrt x :=
       Real.le_sqrt_of_sq_le (by norm_num; linarith [Set.mem_Ioi.1 hx])
-    have hu0 : 0 < 1 / Real.sqrt x := by
-      have := Real.sqrt_pos.2 hx0
-      positivity
+    have hu0 : 0 < 1 / Real.sqrt x := one_div_pos.2 (Real.sqrt_pos.2 hx0)
     have hu57 : 1 / Real.sqrt x ≤ 5 / 7 := by
       have h := one_div_le_one_div_of_le (by norm_num : (0 : ℝ) < 7 / 5) hs
       norm_num at h ⊢
