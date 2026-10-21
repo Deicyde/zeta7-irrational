@@ -22,6 +22,7 @@ import ZetaSeven.InnerLimiting
 import ZetaSeven.IntegerValued
 import ZetaSeven.LargePrimeIntegrality
 import ZetaSeven.MatrixDet
+import ZetaSeven.NormalizationIntegrality
 import ZetaSeven.OuterClassBasis
 import ZetaSeven.OuterClassRows
 import ZetaSeven.OuterEntryValuations
@@ -38,6 +39,7 @@ import ZetaSeven.PositiveIntegral
 import ZetaSeven.PotentialInequality
 import ZetaSeven.PrimeNumberTheorem
 import ZetaSeven.RankLemma
+import ZetaSeven.RealBound
 import ZetaSeven.ReflectionDifference
 import ZetaSeven.SmallPrimeEstimate
 import ZetaSeven.Stirling
