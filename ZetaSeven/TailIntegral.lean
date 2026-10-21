@@ -413,6 +413,44 @@ theorem tailQ_eq (x : ℝ) :
             - 2 * tailD (Int.fract x) * tailD (Int.fract ((alpha : ℝ) * x)))) := by
   rw [tailQ, integral_tailB_sq, integral_tailA_mul_tailB]
 
+/-- `0 ≤ min(d, d') - 2dd' ≤ d'(1 - 2d')` for `d, d' ∈ [0, 1/2]`. -/
+theorem min_sub_mem {df dg : ℝ} (hdf0 : 0 ≤ df) (hdf1 : df ≤ 1 / 2) (hdg0 : 0 ≤ dg)
+    (hdg1 : dg ≤ 1 / 2) :
+    0 ≤ min df dg - 2 * df * dg ∧ min df dg - 2 * df * dg ≤ dg * (1 - 2 * dg) := by
+  rcases le_total df dg with h | h
+  · rw [min_eq_left h]
+    constructor
+    · nlinarith [mul_nonneg hdf0 (show (0 : ℝ) ≤ 1 - 2 * dg by linarith)]
+    · nlinarith [mul_nonneg (show (0 : ℝ) ≤ dg - df by linarith)
+        (show (0 : ℝ) ≤ 1 - 2 * dg by linarith)]
+  · rw [min_eq_right h]
+    constructor
+    · nlinarith [mul_nonneg hdg0 (show (0 : ℝ) ≤ 1 - 2 * df by linarith)]
+    · nlinarith [mul_nonneg hdg0 (show (0 : ℝ) ≤ df - dg by linarith)]
+
+/-- The correlation bound `|∫_0^{1/2} A(z)B(z) dz| ≤ ∫_0^{1/2} B(z)² dz`, from (78)-(79). -/
+theorem abs_integral_tailA_mul_tailB_le (x : ℝ) :
+    |∫ z in (0 : ℝ)..(1 / 2), tailA x z * tailB x z| ≤ ∫ z in (0 : ℝ)..(1 / 2), tailB x z ^ 2 := by
+  obtain ⟨h1, h2⟩ := min_sub_mem (tailD_fract_mem x).1 (tailD_fract_mem x).2
+    (tailD_fract_mem ((alpha : ℝ) * x)).1 (tailD_fract_mem ((alpha : ℝ) * x)).2
+  have hm : |tailEps (Int.fract x) * tailEps (Int.fract ((alpha : ℝ) * x))| = 1 := by
+    rcases tailEps_mul_cases (Int.fract x) (Int.fract ((alpha : ℝ) * x)) with h | h <;>
+      rw [h] <;> norm_num
+  rw [integral_tailA_mul_tailB, integral_tailB_sq, abs_mul, hm, one_mul, abs_of_nonneg h1]
+  exact h2
+
+/-- Hence `16 ∫_0^{1/2} B² - 4 ∫_0^{1/2} AB ≥ 0`. -/
+theorem sixteen_integral_sq_sub_nonneg (x : ℝ) :
+    0 ≤ 16 * (∫ z in (0 : ℝ)..(1 / 2), tailB x z ^ 2)
+      - 4 * ∫ z in (0 : ℝ)..(1 / 2), tailA x z * tailB x z := by
+  have h := abs_integral_tailA_mul_tailB_le x
+  have h0 : 0 ≤ ∫ z in (0 : ℝ)..(1 / 2), tailB x z ^ 2 := by
+    rw [integral_tailB_sq]
+    obtain ⟨d0, d1⟩ := tailD_fract_mem ((alpha : ℝ) * x)
+    exact mul_nonneg d0 (by linarith)
+  have h1 := le_abs_self (∫ z in (0 : ℝ)..(1 / 2), tailA x z * tailB x z)
+  linarith
+
 theorem tailQ_aux {τ σ η df dg e : ℝ} (hτ0 : 0 ≤ τ) (hτ1 : τ < 1) (hσ0 : 0 ≤ σ) (hσ1 : σ < 1)
     (hη0 : 0 ≤ η) (hη1 : η < 1) (hdf0 : 0 ≤ df) (hdf1 : df ≤ 1 / 2) (hdg0 : 0 ≤ dg)
     (hdg1 : dg ≤ 1 / 2) (he : e = 1 ∨ e = -1) :
@@ -434,17 +472,7 @@ theorem tailQ_aux {τ σ η df dg e : ℝ} (hτ0 : 0 ≤ τ) (hτ1 : τ < 1) (h�
     ⟨mul_nonneg hη0 (by linarith), by nlinarith [sq_nonneg (η - 1 / 2)]⟩
   have h3 : 0 ≤ dg * (1 - 2 * dg) ∧ dg * (1 - 2 * dg) ≤ 1 / 8 :=
     ⟨mul_nonneg hdg0 (by linarith), by nlinarith [sq_nonneg (dg - 1 / 4)]⟩
-  have h4 : 0 ≤ min df dg - 2 * df * dg ∧ min df dg - 2 * df * dg ≤ dg * (1 - 2 * dg) := by
-    rcases le_total df dg with h | h
-    · rw [min_eq_left h]
-      constructor
-      · nlinarith [mul_nonneg hdf0 (show (0 : ℝ) ≤ 1 - 2 * dg by linarith)]
-      · nlinarith [mul_nonneg (show (0 : ℝ) ≤ dg - df by linarith)
-          (show (0 : ℝ) ≤ 1 - 2 * dg by linarith)]
-    · rw [min_eq_right h]
-      constructor
-      · nlinarith [mul_nonneg hdg0 (show (0 : ℝ) ≤ 1 - 2 * df by linarith)]
-      · nlinarith [mul_nonneg hdg0 (show (0 : ℝ) ≤ df - dg by linarith)]
+  have h4 := min_sub_mem hdf0 hdf1 hdg0 hdg1
   obtain ⟨h1a, h1b⟩ := h1
   obtain ⟨h2a, h2b⟩ := h2
   obtain ⟨h3a, h3b⟩ := h3
@@ -453,9 +481,9 @@ theorem tailQ_aux {τ σ η df dg e : ℝ} (hτ0 : 0 ≤ τ) (hτ1 : τ < 1) (h�
   · constructor <;> linarith
   · constructor <;> linarith
 
-/-- (83): `-1/2 ≤ Q(x) ≤ 27/8` for every real `x`. The proof gives `-1/8 ≤ Q ≤ 21/8`; the lower
-bound uses `|∫AB| ≤ ∫B²` from (78)-(79) (source-map erratum 11). -/
-theorem tailQ_bounds (x : ℝ) : -1 / 2 ≤ tailQ x ∧ tailQ x ≤ 27 / 8 := by
+/-- The sharper bounds `-1/8 ≤ Q(x) ≤ 21/8`; the lower bound uses `|∫AB| ≤ ∫B²` from (78)-(79)
+(source-map erratum 11). -/
+theorem tailQ_sharp_bounds (x : ℝ) : -1 / 8 ≤ tailQ x ∧ tailQ x ≤ 21 / 8 := by
   obtain ⟨h1, h2⟩ := tailQ_aux (Int.fract_nonneg (2 * (bigH : ℝ) * x))
     (Int.fract_lt_one (2 * (bigH : ℝ) * x)) (Int.fract_nonneg (2 * x)) (Int.fract_lt_one (2 * x))
     (Int.fract_nonneg (2 * (lam : ℝ) * x)) (Int.fract_lt_one (2 * (lam : ℝ) * x))
@@ -463,6 +491,11 @@ theorem tailQ_bounds (x : ℝ) : -1 / 2 ≤ tailQ x ∧ tailQ x ≤ 27 / 8 := by
     (tailD_fract_mem ((alpha : ℝ) * x)).2
     (tailEps_mul_cases (Int.fract x) (Int.fract ((alpha : ℝ) * x)))
   rw [tailQ_eq]
+  constructor <;> linarith
+
+/-- (83): `-1/2 ≤ Q(x) ≤ 27/8` for every real `x`. -/
+theorem tailQ_bounds (x : ℝ) : -1 / 2 ≤ tailQ x ∧ tailQ x ≤ 27 / 8 := by
+  obtain ⟨h1, h2⟩ := tailQ_sharp_bounds x
   constructor <;> linarith
 
 end QBounds
@@ -647,6 +680,32 @@ theorem tailC_of_forty_dvd {M : ℕ} (h40 : 40 ∣ M) : tailC M = 0 := by
   simp only [tailC, h1, h2, tailG]
   ring
 
+theorem fract_of_mod_forty_eq_twenty {M : ℕ} (h : M % 40 = 20) :
+    Int.fract (M : ℝ) = 0 ∧ Int.fract ((alpha : ℝ) * M) = 1 / 2 := by
+  constructor
+  · exact Int.fract_natCast M
+  · have hM : (M : ℝ) = 40 * ((M / 40 : ℕ) : ℝ) + 20 := by
+      have h' := Nat.div_add_mod M 40
+      rw [h] at h'
+      exact_mod_cast h'.symm
+    rw [Int.fract_eq_iff]
+    refine ⟨by norm_num, by norm_num, 3 * ((M / 40 : ℕ) : ℤ) + 1, ?_⟩
+    rw [hM, alpha_real]
+    push_cast
+    ring
+
+/-- For `M ≡ 20 (mod 40)`, `P(M) = P(20) = 74/3`. -/
+theorem tailP_of_mod_forty {M : ℕ} (h : M % 40 = 20) : tailP M = 74 / 3 := by
+  obtain ⟨h1, h2⟩ := fract_of_mod_forty_eq_twenty h
+  simp only [tailP, h1, h2, lam_real]
+  norm_num
+
+/-- For `M ≡ 20 (mod 40)`, `C(M) = 0`. -/
+theorem tailC_of_mod_forty {M : ℕ} (h : M % 40 = 20) : tailC M = 0 := by
+  obtain ⟨h1, h2⟩ := fract_of_mod_forty_eq_twenty h
+  simp only [tailC, h1, h2, tailG]
+  norm_num
+
 end Primitives
 
 /-! ## Measurability and integrability on `(T, ∞)` -/
@@ -766,7 +825,7 @@ theorem integrableOn_innerR_div_cube {T : ℝ} (hT : 0 < T) :
 theorem integrableOn_tailPhi_deriv {T : ℝ} (hT : 0 < T) :
     IntegrableOn (fun x => tailF x / x ^ 2 - 6 * tailC x / x ^ 4) (Ioi T) := by
   have h6 : IntegrableOn (fun x => 6 * tailC x / x ^ 4) (Ioi T) :=
-    integrableOn_div_pow (K := 132) (continuous_const.mul continuous_tailC).measurable
+    integrableOn_div_pow (K := 132) (continuous_tailC.measurable.const_mul 6)
       (fun x => by
         rw [abs_mul, abs_of_pos (by norm_num : (0 : ℝ) < 6)]
         linarith [(abs_tailC_lt x).le]) (by norm_num) hT
@@ -795,7 +854,8 @@ theorem hasDerivAt_tailPhi {x : ℝ} (hx : 0 < x) (hf : Int.fract x ≠ 0)
   refine ((h1.add h2).add h3).congr_deriv ?_
   simp only [Nat.cast_ofNat, show (2 - 1 : ℕ) = 1 from rfl, show (3 - 1 : ℕ) = 2 from rfl,
     pow_one]
-  field_simp <;> ring
+  field_simp
+  ring
 
 theorem continuousOn_tailPhi {T : ℝ} (hT : 0 < T) : ContinuousOn tailPhi (Ici T) := by
   have hx : ∀ x ∈ Ici T, x ≠ 0 := fun x hx => (lt_of_lt_of_le hT hx).ne'
@@ -855,7 +915,7 @@ theorem integral_tailPhi_deriv {T X : ℝ} (hT : 0 < T) (hTX : T ≤ X) :
   · exact (continuousOn_tailPhi hT).mono Icc_subset_Ici_self
   · intro x hx
     obtain ⟨⟨hx1, _⟩, hxS⟩ := hx
-    simp only [Set.mem_union, Set.mem_setOf_eq, not_or] at hxS
+    simp only [Set.mem_union, Set.mem_ofPred_eq, not_or] at hxS
     exact hasDerivAt_tailPhi (lt_trans hT hx1) hxS.1 hxS.2
   · rw [intervalIntegrable_iff_integrableOn_Ioc_of_le hTX]
     exact (integrableOn_tailPhi_deriv hT).mono_set Ioc_subset_Ioi_self
@@ -883,7 +943,8 @@ theorem integral_innerR_div_cube_eq {T : ℝ} (hT : 0 < T) :
     show innerR x / x ^ 3
       = (tailF x / x ^ 2 - 6 * tailC x / x ^ 4) + 6 * (tailC x / x ^ 4) + tailQ x / x ^ 3
     rw [innerR_eq_tail]
-    field_simp <;> ring
+    field_simp
+    ring
   have i1 := integrableOn_tailPhi_deriv hT
   have i2 : IntegrableOn (fun x => 6 * (tailC x / x ^ 4)) (Ioi T) :=
     Integrable.const_mul (integrableOn_tailC_div hT) 6
@@ -928,6 +989,52 @@ theorem tail_integral_bound {M : ℕ} (hM : 0 < M) (h40 : 40 ∣ M) :
         + ((∫ x in Ioi (M : ℝ), tailQ x / x ^ 3) - -1 / 2 * (((M : ℝ) ^ 2)⁻¹ / 2)) := by
     ring
   linarith [key, hC, hQ]
+
+/-- The hypothesis `M ∈ 40ℤ_{>0}` of (86) cannot be dropped: the estimate fails at every
+`M ≡ 20 (mod 40)` (for example `M = 20`, `60`, `100`). By (85) with `P(M) = 74/3`, `C(M) = 0`,
+`Q ≤ 27/8` and `C < 22`, the integral is at most `-λ/M + (11729/720 - 74/3 + 27/16)/M² + 44/M³`. -/
+theorem tail_integral_bound_fails {M : ℕ} (h : M % 40 = 20) :
+    ∫ x in Ioi (M : ℝ), innerR x / x ^ 3
+      < -(lam : ℝ) / M + 11549 / (720 * (M : ℝ) ^ 2) - 44 / (M : ℝ) ^ 3 := by
+  have hM20 : (20 : ℝ) ≤ M := by
+    have : 20 ≤ M := by omega
+    exact_mod_cast this
+  have hM0 : (0 : ℝ) < M := by linarith
+  rw [integral_innerR_div_cube_eq hM0, tailP_of_mod_forty h, tailC_of_mod_forty h]
+  have hC : ∫ x in Ioi (M : ℝ), tailC x / x ^ 4 ≤ 22 * (((M : ℝ) ^ 3)⁻¹ / 3) := by
+    have h' := setIntegral_mono_on (integrableOn_tailC_div hM0)
+      (Integrable.const_mul (integrableOn_Ioi_inv_pow (n := 4) (by norm_num) hM0) 22)
+      measurableSet_Ioi (fun x hx => by
+        have hx0 : 0 < x := lt_trans hM0 hx
+        have hc := (abs_lt.mp (abs_tailC_lt x)).2
+        show tailC x / x ^ 4 ≤ 22 * (x ^ 4)⁻¹
+        rw [div_eq_mul_inv (tailC x) (x ^ 4)]
+        exact mul_le_mul_of_nonneg_right hc.le (inv_nonneg.mpr (pow_pos hx0 4).le))
+    rwa [integral_const_mul, integral_Ioi_inv_pow_four hM0] at h'
+  have hQ : ∫ x in Ioi (M : ℝ), tailQ x / x ^ 3 ≤ 27 / 8 * (((M : ℝ) ^ 2)⁻¹ / 2) := by
+    have h' := setIntegral_mono_on (integrableOn_tailQ_div hM0)
+      (Integrable.const_mul (integrableOn_Ioi_inv_pow (n := 3) (by norm_num) hM0) (27 / 8))
+      measurableSet_Ioi (fun x hx => by
+        have hx0 : 0 < x := lt_trans hM0 hx
+        have hq := (tailQ_bounds x).2
+        show tailQ x / x ^ 3 ≤ 27 / 8 * (x ^ 3)⁻¹
+        rw [div_eq_mul_inv (tailQ x) (x ^ 3)]
+        exact mul_le_mul_of_nonneg_right hq (inv_nonneg.mpr (pow_pos hx0 3).le))
+    rwa [integral_const_mul, integral_Ioi_inv_pow_three hM0] at h'
+  have hMi : (M : ℝ)⁻¹ ≤ 1 / 20 := by
+    rw [inv_eq_one_div]
+    exact one_div_le_one_div_of_le (by norm_num) hM20
+  have hpos : 0 < ((M : ℝ) ^ 2)⁻¹ * (1091 / 48 - 88 * (M : ℝ)⁻¹) :=
+    mul_pos (by positivity) (by linarith)
+  have key : (-(lam : ℝ) / M + 11549 / (720 * (M : ℝ) ^ 2) - 44 / (M : ℝ) ^ 3)
+      - (-(lam : ℝ) / M - 74 / 3 / (M : ℝ) ^ 2 + 11729 / 720 / (M : ℝ) ^ 2
+        - 2 * 0 / (M : ℝ) ^ 3 + 6 * (∫ x in Ioi (M : ℝ), tailC x / x ^ 4)
+        + ∫ x in Ioi (M : ℝ), tailQ x / x ^ 3)
+      = 6 * (22 * (((M : ℝ) ^ 3)⁻¹ / 3) - ∫ x in Ioi (M : ℝ), tailC x / x ^ 4)
+        + (27 / 8 * (((M : ℝ) ^ 2)⁻¹ / 2) - ∫ x in Ioi (M : ℝ), tailQ x / x ^ 3)
+        + ((M : ℝ) ^ 2)⁻¹ * (1091 / 48 - 88 * (M : ℝ)⁻¹) := by
+    ring
+  linarith [key, hC, hQ, hpos]
 
 end Tail
 
