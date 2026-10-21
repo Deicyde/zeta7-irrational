@@ -2,6 +2,9 @@
 article_id: af_27b2cb3a6dbebdde2b7696d7
 declaration: theorem
 origin: cited
+statement: formalized
+proof: formalized
+lean: ZetaSeven.prime_sum_bound ZetaSeven.primeSumA ZetaSeven.primeSumB0 ZetaSeven.primeSumA0 ZetaSeven.prime_sum_bound_integrals ZetaSeven.integral_three_le ZetaSeven.integral_Ioi_twenty_le_A0 ZetaSeven.integral_Ioi_twenty_le ZetaSeven.log_mKM ZetaSeven.log_mKM_split ZetaSeven.crude_term_le ZetaSeven.crude_sum_le ZetaSeven.tendsto_crude_bound ZetaSeven.LpKM_inner_approx ZetaSeven.tendsto_inner_sum ZetaSeven.integral_innerWeight ZetaSeven.innerR_continuousAt ZetaSeven.innerWeight_bounded ZetaSeven.innerWeight_disc_finite ZetaSeven.gammaOut_approx ZetaSeven.padicValRat_SK_add_outerScalar ZetaSeven.LpKM_outer_approx ZetaSeven.outerIntegrand_continuousAt ZetaSeven.outerIntegrand_disc_finite ZetaSeven.abs_outerIntegrand_le ZetaSeven.tendsto_outer_sum ZetaSeven.tendsto_weighted_prime_sum
 ---
 
 # Prime-sum bound

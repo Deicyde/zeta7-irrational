@@ -258,7 +258,7 @@ theorem crude_term_le {n M p : ℕ} (hp : p.Prime) (hn : 0 < n) (hMp : M * p ≤
     have e1 := mul_le_mul_of_nonneg_left h1 hh
     have e2 := mul_le_mul_of_nonneg_left h2 hh
     have e3 := mul_nonneg hh hlogp
-    push_cast
+    simp only [Int.cast_sub, Int.cast_neg, Int.cast_mul, Int.cast_ofNat, Int.cast_natCast]
     linarith
   · have hlt' : 5 * K n < p * p := Nat.lt_of_not_le hsq
     have hlt : 5 * K n < p ^ 2 := by rw [pow_two]; exact hlt'
@@ -281,10 +281,11 @@ theorem crude_term_le {n M p : ℕ} (hp : p.Prime) (hn : 0 < n) (hMp : M * p ≤
           omega
         · have := Nat.le_of_dvd (by norm_num) h
           omega
-    rw [padicValNat.eq_zero_of_not_dvd hnd]
+    have hv0 : (hDim n : ℝ) * (padicValNat p 720 : ℝ) * Real.log p = 0 := by
+      rw [padicValNat.eq_zero_of_not_dvd hnd, Nat.cast_zero, mul_zero, zero_mul]
     have hL : (Nat.log p (5 * K n) : ℝ) ≤ 1 := by exact_mod_cast hlog
     have e1 := mul_le_mul_of_nonneg_right hL (mul_nonneg hh hlogp)
-    push_cast
+    simp only [Int.cast_sub, Int.cast_neg, Int.cast_mul, Int.cast_ofNat, Int.cast_natCast]
     linarith
 
 /-- The crude range: `∑_{p ≤ K/M} (-L_p) log p ≤ 8h θ(K/M) + ⌊√(5K)⌋ (8h log(5K) + h log 720)`. -/
@@ -329,7 +330,7 @@ theorem crude_sum_le {n M : ℕ} (hn : 0 < n) (hM : 0 < M) :
         rw [Finset.sum_add_distrib, ← Finset.mul_sum]
         unfold Chebyshev.theta
         rfl
-    _ ≤ _ := add_le_add_left hsum _
+    _ ≤ _ := add_le_add le_rfl hsum
 
 /-- The small-prime error: for `n ≥ 1`,
 `⌊√(5K)⌋ (8h log(5K) + h log 720)/K² ≤ 5λ (8 log(5K) + log 720) √(5K)/(5K)`. -/
@@ -519,7 +520,7 @@ theorem innerR_continuousAt {x : ℝ} (h1 : ∀ k : ℤ, 2 * x ≠ k)
   have cef : ContinuousAt (fun y : ℝ => tailEps (Int.fract y)) x :=
     (psb_tailEps_continuousAt hfx).comp cf
   have cea : ContinuousAt (fun y : ℝ => tailEps (Int.fract ((alpha : ℝ) * y))) x :=
-    (psb_tailEps_continuousAt hfa).comp ca
+    (psb_tailEps_continuousAt hfa).comp (f := fun y : ℝ => Int.fract ((alpha : ℝ) * y)) ca
   have cF : ContinuousAt tailF x := by
     rw [show tailF = fun y => 6 * (lam : ℝ) + 2 * (lam : ℝ) * Int.fract y
       - 16 * (lam : ℝ) * Int.fract ((alpha : ℝ) * y) from rfl]
@@ -941,9 +942,9 @@ theorem padicValRat_SK_add_outerScalar {n p : ℕ} (hp : p.Prime) (hn : 0 < n)
       simp
   have hv : (padicValRat p (SK n) : ℝ) = 2 * (hDim n : ℝ) * ((K n / p : ℕ) : ℝ)
       - 2 * ∑ i ∈ Finset.range (hDim n), ((2 * i / p : ℕ) : ℝ) := by
-    rw [padicValRat_SK h4 hsq hK2, hNp]
-    push_cast
-    rw [hrange]
+    rw [padicValRat_SK h4 hsq hK2, hNp, ← hrange]
+    simp only [Int.cast_sub, Int.cast_mul, Int.cast_ofNat, Int.cast_natCast, Int.cast_sum,
+      Nat.cast_zero, Int.cast_zero]
     ring
   have hKs := K_mul_outerScalar hn hp0
   have hm5 : 2 * hDim n / p ≤ 5 := by
@@ -1091,15 +1092,18 @@ theorem outerIntegrand_continuousAt {y : ℝ} (h1 : 1 / 3 < y) (h2 : y ≠ 1 / 2
     filter_upwards [Ioo_mem_nhds h1 h2] with z hz
     rw [outerIntegrand_eq, outerG_of_le_half hz.1 hz.2.le, outerScalar,
       psb_floor_one_div_eq_two hz.1 hz.2.le]
+    rfl
   · rcases lt_or_gt_of_ne h3 with h3 | h3
     · refine ContinuousAt.congr ((continuous_outerGHigh 1).add (hS 1)).continuousAt ?_
       filter_upwards [Ioo_mem_nhds h2 h3] with z hz
       rw [outerIntegrand_eq, outerG_of_half_lt hz.1 hz.2.le, outerScalar,
         psb_floor_one_div_eq_one hz.1 hz.2.le]
+      rfl
     · refine ContinuousAt.congr
         ((continuous_const : Continuous fun _ : ℝ => (0 : ℝ)).add (hS 0)).continuousAt ?_
       filter_upwards [Ioi_mem_nhds h3] with z hz
       rw [outerIntegrand_eq, outerG_of_one_lt hz, outerScalar, psb_floor_one_div_eq_zero hz]
+      rfl
 
 /-- The integrand `T` of (73) has finitely many discontinuities in `[1/3, 2λ]`: they lie in
 `{1/3, 1/2, 1}`. -/
