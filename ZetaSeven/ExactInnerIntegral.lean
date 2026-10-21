@@ -2321,7 +2321,7 @@ private theorem innerR_piece_130 (x : ℝ) (h0 : 960 / 49 < x) (h1 : x < 20) :
 are the points of `[3, 20]` where `cx` is an integer for some
 `c ∈ {1, 2, α, 2α, 2H, 2λ, 1 - α, 1 + α, 9/20}`. Each piece is the union of the rows of
 Tables 2-4 noted beside it, which all have these coefficients. -/
-noncomputable def innerRPieces : List (ℝ × ℝ × ℝ × ℝ) :=
+def innerRPieces : List (ℚ × ℚ × ℚ × ℚ) :=
   ([(3, 120 / 37, 51 / 20, 1), -- rows 0-1
     (120 / 37, 160 / 49, 81 / 10, -17), -- rows 2-3
     (160 / 49, 7 / 2, 55 / 8, -13), -- rows 4-6
@@ -2346,7 +2346,7 @@ noncomputable def innerRPieces : List (ℝ × ℝ × ℝ × ℝ) :=
     (40 / 7, 220 / 37, 5 / 2, -10), -- row 32
     (220 / 37, 6, 87 / 20, -21), -- row 33
     (6, 300 / 49, 7 / 2, -27), -- rows 34-36
-    (300 / 49, 240 / 37, 91 / 40, -39 / 2)] : List (ℝ × ℝ × ℝ × ℝ)) ++ -- row 37
+    (300 / 49, 240 / 37, 91 / 40, -39 / 2)] : List (ℚ × ℚ × ℚ × ℚ)) ++ -- row 37
   ([(240 / 37, 13 / 2, 313 / 40, -111 / 2), -- row 38
     (13 / 2, 280 / 43, 353 / 40, -62), -- row 39
     (280 / 43, 320 / 49, 181 / 40, -34), -- rows 40-41
@@ -2371,7 +2371,7 @@ noncomputable def innerRPieces : List (ℝ × ℝ × ℝ × ℝ) :=
     (440 / 49, 9, 22 / 5, -61), -- row 69
     (9, 340 / 37, 71 / 20, -70), -- rows 70-71
     (340 / 37, 400 / 43, 27 / 5, -87), -- row 72
-    (400 / 43, 460 / 49, 11 / 10, -47)] : List (ℝ × ℝ × ℝ × ℝ)) ++ -- row 73
+    (400 / 43, 460 / 49, 11 / 10, -47)] : List (ℚ × ℚ × ℚ × ℚ)) ++ -- row 73
   ([(460 / 49, 19 / 2, -1 / 8, -71 / 2), -- row 74
     (19 / 2, 360 / 37, 7 / 8, -45), -- rows 75-76
     (360 / 37, 480 / 49, 257 / 40, -99), -- rows 77-78
@@ -2396,7 +2396,7 @@ noncomputable def innerRPieces : List (ℝ × ℝ × ℝ × ℝ) :=
     (520 / 43, 600 / 49, 1 / 5, -94), -- rows 104-105
     (600 / 49, 460 / 37, -41 / 40, -79), -- row 106
     (460 / 37, 25 / 2, 33 / 40, -102), -- row 107
-    (25 / 2, 620 / 49, 73 / 40, -229 / 2)] : List (ℝ × ℝ × ℝ × ℝ)) ++ -- rows 108-110
+    (25 / 2, 620 / 49, 73 / 40, -229 / 2)] : List (ℚ × ℚ × ℚ × ℚ)) ++ -- rows 108-110
   ([(620 / 49, 480 / 37, 3 / 5, -99), -- row 111
     (480 / 37, 13, 123 / 20, -171), -- row 112
     (13, 560 / 43, 53 / 10, -184), -- row 113
@@ -2421,7 +2421,7 @@ noncomputable def innerRPieces : List (ℝ × ℝ × ℝ × ℝ) :=
     (31 / 2, 760 / 49, 145 / 8, -216), -- row 141
     (760 / 49, 140 / 9, 169 / 10, -197), -- row 142
     (140 / 9, 580 / 37, 667 / 40, -387 / 2), -- rows 143-144
-    (580 / 37, 680 / 43, 741 / 40, -445 / 2)] : List (ℝ × ℝ × ℝ × ℝ)) ++ -- row 145
+    (580 / 37, 680 / 43, 741 / 40, -445 / 2)] : List (ℚ × ℚ × ℚ × ℚ)) ++ -- row 145
   ([(680 / 43, 780 / 49, 569 / 40, -309 / 2), -- row 146
     (780 / 49, 16, 13, -135), -- row 147
     (16, 600 / 37, 243 / 20, -151), -- rows 148-149
@@ -2446,21 +2446,22 @@ noncomputable def innerRPieces : List (ℝ × ℝ × ℝ × ℝ) :=
     (37 / 2, 800 / 43, 141 / 8, -311), -- row 178
     (800 / 43, 920 / 49, 533 / 40, -231), -- rows 179-180
     (920 / 49, 700 / 37, 121 / 10, -208), -- row 181
-    (700 / 37, 19, 279 / 20, -243)] : List (ℝ × ℝ × ℝ × ℝ)) ++ -- row 182
+    (700 / 37, 19, 279 / 20, -243)] : List (ℚ × ℚ × ℚ × ℚ)) ++ -- row 182
   ([(19, 940 / 49, 131 / 10, -262), -- rows 183-185
     (940 / 49, 720 / 37, 95 / 8, -477 / 2), -- row 186
     (720 / 37, 39 / 2, 697 / 40, -693 / 2), -- row 187
     (39 / 2, 840 / 43, 737 / 40, -366), -- row 188
     (840 / 43, 960 / 49, 113 / 8, -282), -- rows 189-190
-    (960 / 49, 20, 129 / 10, -258)] : List (ℝ × ℝ × ℝ × ℝ)) -- row 191
+    (960 / 49, 20, 129 / 10, -258)] : List (ℚ × ℚ × ℚ × ℚ)) -- row 191
 
 /-- **`R` on the pieces** (Tables 2-4, on open intervals as in source-map erratum 12): for each
 piece `(l, u, a, b)` of `ZetaSeven.innerRPieces`, `R(x) = ax + b` for `l < x < u`. -/
-theorem innerR_eq_of_mem_innerRPieces {l u a b : ℝ} (hp : (l, u, a, b) ∈ innerRPieces) {x : ℝ}
-    (h0 : l < x) (h1 : x < u) : innerR x = a * x + b := by
-  have key : ∀ p ∈ innerRPieces, ∀ y : ℝ, p.1 < y → y < p.2.1 →
+theorem innerR_eq_of_mem_innerRPieces {l u a b : ℚ} (hp : (l, u, a, b) ∈ innerRPieces) {x : ℝ}
+    (h0 : (l : ℝ) < x) (h1 : x < u) : innerR x = a * x + b := by
+  have key : ∀ p ∈ innerRPieces, ∀ y : ℝ, (p.1 : ℝ) < y → y < p.2.1 →
       innerR y = p.2.2.1 * y + p.2.2.2 := by
     simp only [innerRPieces, List.cons_append, List.nil_append, List.forall_mem_cons]
+    push_cast
     exact ⟨innerR_piece_000, innerR_piece_001, innerR_piece_002, innerR_piece_003, innerR_piece_004,
       innerR_piece_005, innerR_piece_006, innerR_piece_007, innerR_piece_008, innerR_piece_009,
       innerR_piece_010, innerR_piece_011, innerR_piece_012, innerR_piece_013, innerR_piece_014,
@@ -2476,18 +2477,19 @@ theorem innerR_eq_of_mem_innerRPieces {l u a b : ℝ} (hp : (l, u, a, b) ∈ inn
       innerR_piece_060, innerR_piece_061, innerR_piece_062, innerR_piece_063, innerR_piece_064,
       innerR_piece_065, innerR_piece_066, innerR_piece_067, innerR_piece_068, innerR_piece_069,
       innerR_piece_070, innerR_piece_071, innerR_piece_072, innerR_piece_073, innerR_piece_074,
-      innerR_piece_075, innerR_piece_076, innerR_piece_077, innerR_piece_078, innerR_piece_079,
-      innerR_piece_080, innerR_piece_081, innerR_piece_082, innerR_piece_083, innerR_piece_084,
-      innerR_piece_085, innerR_piece_086, innerR_piece_087, innerR_piece_088, innerR_piece_089,
-      innerR_piece_090, innerR_piece_091, innerR_piece_092, innerR_piece_093, innerR_piece_094,
-      innerR_piece_095, innerR_piece_096, innerR_piece_097, innerR_piece_098, innerR_piece_099,
-      innerR_piece_100, innerR_piece_101, innerR_piece_102, innerR_piece_103, innerR_piece_104,
-      innerR_piece_105, innerR_piece_106, innerR_piece_107, innerR_piece_108, innerR_piece_109,
-      innerR_piece_110, innerR_piece_111, innerR_piece_112, innerR_piece_113, innerR_piece_114,
-      innerR_piece_115, innerR_piece_116, innerR_piece_117, innerR_piece_118, innerR_piece_119,
-      innerR_piece_120, innerR_piece_121, innerR_piece_122, innerR_piece_123, innerR_piece_124,
-      innerR_piece_125, innerR_piece_126, innerR_piece_127, innerR_piece_128, innerR_piece_129,
-      innerR_piece_130, by simp⟩
+      innerR_piece_075, innerR_piece_076, innerR_piece_077,
+      fun y h0 h1 => (innerR_piece_078 y h0 h1).trans (by ring), innerR_piece_079, innerR_piece_080,
+      innerR_piece_081, innerR_piece_082, innerR_piece_083, innerR_piece_084, innerR_piece_085,
+      innerR_piece_086, innerR_piece_087, innerR_piece_088, innerR_piece_089, innerR_piece_090,
+      innerR_piece_091, innerR_piece_092, innerR_piece_093, innerR_piece_094, innerR_piece_095,
+      innerR_piece_096, innerR_piece_097, innerR_piece_098, innerR_piece_099, innerR_piece_100,
+      innerR_piece_101, innerR_piece_102, innerR_piece_103, innerR_piece_104, innerR_piece_105,
+      innerR_piece_106, innerR_piece_107, innerR_piece_108, innerR_piece_109, innerR_piece_110,
+      innerR_piece_111, innerR_piece_112, innerR_piece_113, innerR_piece_114, innerR_piece_115,
+      innerR_piece_116, innerR_piece_117, innerR_piece_118, innerR_piece_119, innerR_piece_120,
+      innerR_piece_121, innerR_piece_122, innerR_piece_123, innerR_piece_124, innerR_piece_125,
+      innerR_piece_126, innerR_piece_127, innerR_piece_128, innerR_piece_129, innerR_piece_130,
+      by simp⟩
   exact key _ hp x h0 h1
 
 /-! ### The integral of `R(x)/x^3` over the pieces -/
