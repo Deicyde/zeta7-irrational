@@ -150,7 +150,12 @@ in article citations disambiguate them.
    DECIDED (2026-10-21): the `final-margins` node now states the
    failure with exact arithmetic: `B0` and `A200 + U` as exact
    rationals, and `A_M + U > 0` for every `M > 0`, so no choice of
-   cutoff makes the right side of (117) negative. `main-estimates`
+   cutoff makes the right side of (117) negative. Lean proves this
+   (`ZetaSeven.final_margins_fail`, `ZetaSeven.primeSumA_add_U_pos`,
+   `ZetaSeven.primeSumA_two_hundred_add_U`). Substituting the printed
+   (122) for `I_out` in the same formulas (87)-(89) reproduces the
+   printed `A200` and `A100000` exactly, so the outer integral is the
+   only discrepancy. `main-estimates`
    and `main-theorem` get no Lean statement: they record
    `not_ready: true`, with notes that they have no known proof
    route.
