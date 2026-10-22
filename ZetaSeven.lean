@@ -14,6 +14,7 @@ import ZetaSeven.EnergyComputation
 import ZetaSeven.ExactInnerIntegral
 import ZetaSeven.ExactOuterIntegral
 import ZetaSeven.ExternalField
+import ZetaSeven.FinalMargins
 import ZetaSeven.FunctionalMu
 import ZetaSeven.GaussRankLemma
 import ZetaSeven.HermiteHurwitz
