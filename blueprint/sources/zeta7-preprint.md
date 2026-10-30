@@ -13,11 +13,14 @@ above and are given only to speed up lookup.
 
 ## Version note
 
-The v1 record carries an author note: the proof of Theorem 1.2 at (118)
-establishes `A200 + U < -11`, i.e. decay faster than `exp(-17600n^2)`
-for `M = 200`, while the abstract claims `exp(-19000n^2)`. The author
-states the `-19000` bound follows with `-11.99` in place of `-11`
-(giving `-19184` after the `1600x` scaling) and will be fixed in v2.
+Until 2026-10-17 the v1 record carried an author note: the proof of
+Theorem 1.2 at (118) establishes `A200 + U < -11`, i.e. decay faster than
+`exp(-17600n^2)` for `M = 200`, while the abstract claims
+`exp(-19000n^2)`. The author stated that the `-19000` bound follows with
+`-11.99` in place of `-11` (giving `-19184` after the `1600x` scaling)
+and would be fixed in v2. On 2026-10-17 the author replaced that note
+with the one quoted in open question 5; when the record was last
+checked (2026-10-22) it had no later version.
 The main polynomial estimates node keeps the abstract's `-19000` for
 `M = 200` in its prose (open question 1, now superseded) but has no
 Lean statement (`not_ready: true`). The final-margins node states, with
@@ -158,7 +161,10 @@ in article citations disambiguate them.
    only discrepancy. `main-estimates`
    and `main-theorem` get no Lean statement: they record
    `not_ready: true`, with notes that they have no known proof
-   route.
+   route. On 2026-10-17 the author replaced the note on the
+   Zenodo record with: "There is an error in the argument in its
+   current state,the data tables have few wrong entries. There
+   also seems to be an exponential growth instead of a decay."
 
 ## Errata found during formalization
 
