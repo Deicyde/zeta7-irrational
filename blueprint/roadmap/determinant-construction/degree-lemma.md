@@ -11,7 +11,10 @@ lean: ZetaSeven.degreeLemma ZetaSeven.Gmat_eq_affine ZetaSeven.Bmat_eq ZetaSeven
 
 For every `K` in `40ℤ_{>0}`, the determinant `Δ_K(X)` is a
 polynomial of degree exactly `h`, with the explicit nonzero leading
-coefficient `(-1)^{h(h-1)/2} ∏_{j=N+1}^K j^6 D_N(-j^2)^7`.
+coefficient `(-1)^{h(h-1)/2} ∏_{j=N+1}^K j^6 D_N(-j^2)^7`. The
+lemma's last sentence, that `Q_{K,M}` also has degree `h`, needs the
+normalization factor `m_{K,M}` and is stated with it, in the
+normalization and integrality node.
 
 The proof writes each entry as affine in `X`, so `G_K(X) = A + XB`,
 factors the coefficient matrix as `B = V diag(γ) Vᵀ` with Vandermonde

@@ -1,4 +1,5 @@
 import ZetaSeven.MatrixDet
+import ZetaSeven.DegreeLemma
 import ZetaSeven.InnerEstimate
 import ZetaSeven.OuterRangeData
 import ZetaSeven.SmallPrimeEstimate
@@ -19,7 +20,8 @@ local estimates of Section 4 combine into a positive rational factor `m_{K,M}` f
   rational (`mKM_pos`) with `v_p(m_{K,M}) = -L_p(K,M)` for `p ≤ 2h` and `0` for `p > 2h`
   (`padicValRat_mKM`).
 * `padicValRat_SK_legendre`: Legendre's formula (62) for `v_p(S_K)`, at every prime.
-* `QKM`: the polynomial `Q_{K,M} = m_{K,M} F_K = m_{K,M} S_K Δ_K` of (63) (`QKM_eq`).
+* `QKM`: the polynomial `Q_{K,M} = m_{K,M} F_K = m_{K,M} S_K Δ_K` of (63) (`QKM_eq`), of degree
+  exactly `h` for `K > 0` (`natDegree_QKM`, the last sentence of Lemma 2.3).
 * `outerRange_of_K_lt_three_mul`: a prime `p ≤ K` with `3p > K` satisfies (52).
 * **Proposition 5.1**: `v_p(Q_{K,M}) ≥ 0` coefficientwise at every prime
   (`padicValRat_QKM_nonneg`), hence `Q_{K,M} ∈ ℤ[X]` (`normalization_integrality`).
@@ -203,6 +205,15 @@ theorem padicValRat_SK_of_lt {n p : ℕ} [Fact p.Prime] (h : 2 * hDim n < p) :
 theorem mKM_pos (n M : ℕ) : 0 < mKM n M := by
   rw [mKM]
   exact Finset.prod_pos fun q hq => zpow_pos (Nat.cast_pos.mpr (Finset.mem_filter.mp hq).2.pos) _
+
+/-- Lemma 2.3, last sentence: `Q_{K,M} = m_{K,M} S_K Δ_K` also has degree exactly `h`, since
+`m_{K,M} S_K ≠ 0`. -/
+theorem natDegree_QKM (n M : ℕ) (hn : 0 < n) : (QKM n M).natDegree = hDim n := by
+  have hS : 0 < SK n := by
+    unfold SK
+    positivity
+  rw [QKM_eq, natDegree_C_mul (mul_pos (mKM_pos n M) hS).ne']
+  exact (degreeLemma n hn).1
 
 /-- `v_p(m_{K,M}) = -L_p(K, M)` for a prime `p ≤ 2h`, and `p ∤ m_{K,M}` for a prime `p > 2h`. -/
 theorem padicValRat_mKM (n M p : ℕ) [hp : Fact p.Prime] :

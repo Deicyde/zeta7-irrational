@@ -4,7 +4,7 @@ declaration: theorem
 origin: cited
 statement: formalized
 proof: formalized
-lean: ZetaSeven.normalization_integrality ZetaSeven.padicValRat_QKM_nonneg ZetaSeven.padicValRat_SK_legendre ZetaSeven.mKM_pos ZetaSeven.outerRange_of_K_lt_three_mul ZetaSeven.padicValRat_mKM ZetaSeven.padicValRat_SK_of_lt ZetaSeven.innerExtraRows_spec ZetaSeven.QKM_eq ZetaSeven.LpKM_of_le ZetaSeven.LpKM_of_inner ZetaSeven.LpKM_of_outer ZetaSeven.LpKM ZetaSeven.mKM ZetaSeven.QKM ZetaSeven.innerExtraRows
+lean: ZetaSeven.normalization_integrality ZetaSeven.padicValRat_QKM_nonneg ZetaSeven.padicValRat_SK_legendre ZetaSeven.mKM_pos ZetaSeven.outerRange_of_K_lt_three_mul ZetaSeven.padicValRat_mKM ZetaSeven.padicValRat_SK_of_lt ZetaSeven.innerExtraRows_spec ZetaSeven.QKM_eq ZetaSeven.natDegree_QKM ZetaSeven.LpKM_of_le ZetaSeven.LpKM_of_inner ZetaSeven.LpKM_of_outer ZetaSeven.LpKM ZetaSeven.mKM ZetaSeven.QKM ZetaSeven.innerExtraRows
 ---
 
 # Normalization and integrality
@@ -14,7 +14,9 @@ Define the branch exponents `L_p(K,M)` from the inner exponent
 ((59) for `K/3 < p ≤ K`, and `0` for `p > K`), and the crude
 bound, the positive rational normalization factor `m_{K,M}` as the
 product of `p^{-L_p}` over `p ≤ 2h`, and the final polynomial
-`Q_{K,M} = m_{K,M} F_K`. Then `Q_{K,M}` has integer coefficients.
+`Q_{K,M} = m_{K,M} F_K`. Then `Q_{K,M}` has integer coefficients,
+and it has degree exactly `h`, as the last sentence of Lemma 2.3
+states, because `m_{K,M} S_K ≠ 0`.
 The formalization assumes only `M ≥ 40`, which contains the stated
 case `M ∈ 40ℤ_{>0}`, and its check of (52) uses no bound on `K`.
 
@@ -37,6 +39,7 @@ is part of this node.
 
 ## Proof depends on
 
+- [Degree lemma](../determinant-construction/degree-lemma.md)
 - [Outer range estimate](../local-arithmetic/outer-estimate.md)
 
 ## Sources
