@@ -20,10 +20,7 @@ because a pole `1/x` contributes zero to both sides.
 
 Both proofs reduce to monomials plus Bernoulli-polynomial endpoint
 values (`B_n(1) = B_n` for `n ≠ 1`, with the `k = 6` case computed
-directly). The pinned Mathlib checkout has adjacent endpoint
-identities for `bernoulliFun`
-(`bernoulliFun_endpoints_eq_of_ne_one`, `bernoulliFun_eval_one`);
-bridging them to the polynomial form over `ℚ` is part of this node.
+directly).
 
 ## Depends on
 

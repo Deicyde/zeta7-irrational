@@ -4,7 +4,7 @@ declaration: theorem
 origin: cited
 statement: formalized
 proof: formalized
-lean: ZetaSeven.tau_pullback ZetaSeven.tauFunctional ZetaSeven.tauPoly ZetaSeven.bernoulliL ZetaSeven.dIndex ZetaSeven.tauPole ZetaSeven.tauRatFunc ZetaSeven.pullbackRatFunc ZetaSeven.tauRatFunc_inj ZetaSeven.tauRatFunc_pullbackData
+lean: ZetaSeven.tau_pullback ZetaSeven.tauFunctional ZetaSeven.tauPoly ZetaSeven.bernoulliL ZetaSeven.dIndex ZetaSeven.tauPole ZetaSeven.tauRatFunc ZetaSeven.pullbackRatFunc ZetaSeven.pullbackPoly ZetaSeven.pullbackPoles ZetaSeven.tauRatFunc_inj ZetaSeven.tauRatFunc_pullbackData
 ---
 
 # Tau pullback identity
@@ -13,7 +13,10 @@ Define the auxiliary functional `τ_X` from the Bernoulli functional
 `L` and fifth derivatives on polynomials, extended to simple integer
 poles by harmonic values minus `X`. Then the pullback identity:
 for every rational function in the domain of `μ_X`,
-`μ_X(R) = τ_X(x^7 R(-x^2))`.
+`μ_X(R) = τ_X(x^7 R(-x^2))`. The Lean statement also allows a pole
+at `t = 0`, the case `j = 0` of `1/(t + j^2)`, which the paper
+excludes (it states (6) for `j ≥ 1`); reading `1/(2j)` as `0`, (6)
+gives `μ_X(1/t) = -1/6`, and the identity still holds.
 
 The proof checks monomials (direct from the Bernoulli values) and
 simple poles (the division identity for `x^7/(j^2-x^2)` plus the

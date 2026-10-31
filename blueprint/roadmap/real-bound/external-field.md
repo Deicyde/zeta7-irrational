@@ -9,9 +9,11 @@ lean: ZetaSeven.eAlpha ZetaSeven.Jfield ZetaSeven.Vfield ZetaSeven.Ulog ZetaSeve
 # External field
 
 Define the external field `V(t)` on `[0,∞)` from the square-root
-term and the two logarithmic integrals, its closed form through
-`J_a`, and the potential/energy notation `U_ρ`, `I(ρ)` for
-measures on `[0,∞)`.
+term and the two logarithmic integrals
+`J_a(t) = ∫_0^a log(t + u^2) du` of (92), and the potential/energy
+notation `U_ρ`, `I(ρ)` for measures on `[0,∞)`. The closed form of
+`J_a` in (92) is not part of this node; it is proved where it is
+used, in the potential inequality.
 
 ## Depends on
 

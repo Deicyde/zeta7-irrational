@@ -3,8 +3,9 @@ import Mathlib
 /-!
 # External field (paper Section 6.1, equations (91)-(93))
 
-The external field `V(t)` on `[0,∞)`, its closed form through `J_a`,
-and the logarithmic potential/energy notation `U_ρ`, `I(ρ)`.
+The external field `V(t)` on `[0,∞)`, defined through the integrals `J_a` of (92), and the
+logarithmic potential/energy notation `U_ρ`, `I(ρ)`. The closed form of `J_a` in (92) is
+`ZetaSeven.Jfield_eq` (potential inequality).
 -/
 
 namespace ZetaSeven

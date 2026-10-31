@@ -126,8 +126,12 @@ in article citations disambiguate them.
    zeta formula exists in the pinned Mathlib checkout (only special
    values in `HurwitzZetaValues`), so the `s = 7` instance is project
    work to prove directly (see the `hermite-hurwitz` node).
-4. Decide whether the 192-piece exact integral tables are recomputed in
-   Lean or verified as certificates.
+4. ANSWERED (2026-10-21): neither is taken from the tables.
+   `ZetaSeven.innerIntegral_value` proves (121) in Lean from
+   Definition 5.2, checking `R(x) = ax + b` on each of 131 pieces
+   (unions of consecutive rows of Tables 2-4; erratum 12), and
+   `ZetaSeven.outerIntegral_value` recomputes the outer integral as
+   `453803/288000`, which replaces Table 5 and (122) (errata 8-9).
 5. VERIFIED (2026-10-18): an external reader report (gmDevi/zeta-7-21-lean
    issue #1, 2026-10-03) and an independent exact-arithmetic audit
    (Toledo cert-machine, record archived at Zenodo 23171167) recompute

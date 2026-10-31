@@ -24,9 +24,12 @@ other proof route is known.
 
 ## Depends on
 
+- [Normalization and integrality](../normalization-prime-sum/normalization-integrality.md)
+
+## Proof depends on
+
 - [Degree lemma](../determinant-construction/degree-lemma.md)
 - [Positive integral representation](../determinant-construction/positive-integral-representation.md)
-- [Normalization and integrality](../normalization-prime-sum/normalization-integrality.md)
 - [Prime-sum bound](../normalization-prime-sum/prime-sum-bound.md)
 - [Real bound](../real-bound/real-bound.md)
 - [Final rational margins](../normalization-prime-sum/final-margins.md)

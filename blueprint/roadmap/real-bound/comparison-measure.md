@@ -10,7 +10,8 @@ lean: ZetaSeven.compMeasure ZetaSeven.arcsineMeasure ZetaSeven.Ulog_arcsineMeasu
 
 Define the comparison measure `ρ` as the sum of sixteen arcsine
 components on the nested intervals of Table 1, with total mass
-`λ = 37/40` and every interval longer than `1/225`, plus the
+`λ = 37/40`, support in `(0, 2)`, and every interval longer than
+`1/225`, plus the
 arcsine potential formula used to evaluate it.
 
 ## Depends on
