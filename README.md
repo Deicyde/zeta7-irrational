@@ -22,7 +22,7 @@ that failure in Lean. Work has stopped.
   Recomputed from the paper's definitions it is 453803/288000
   (`ZetaSeven.outerIntegral_value`; errata 8 and 9 discuss the reading). The paper's (118)
   claims A₂₀₀ + U < −11; the corrected value is about +4.86, and the argument needs a
-  negative one. `ZetaSeven.primeSumA_add_U_pos` proves A_M + U > 0 for every integer
+  negative one. `ZetaSeven.primeSumA_add_u_pos` proves A_M + U > 0 for every integer
   cutoff M ≥ 1, and [`ZetaSeven.final_margins_fail`](ZetaSeven/FinalMargins.lean) proves
   that (118) and (119) fail, so Theorems 1.1 and 1.2 do not follow.
 - The [source map](blueprint/sources/zeta7-preprint.md) records 14 errata; as far as the

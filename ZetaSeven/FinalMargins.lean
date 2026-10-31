@@ -13,10 +13,10 @@ exact arithmetic that the paper's final margin fails (source map, open question 
 * `B_0 = 166929451792375913959739/54488694580149392640000`, about `3.0636`
   (`ZetaSeven.primeSumB0_value`, `ZetaSeven.primeSumB0_approx`);
 * `A_200 + U = 6626902387705935050696033/1362217364503734816000000`, about `4.8648`
-  (`ZetaSeven.primeSumA_two_hundred_add_U`, `ZetaSeven.primeSumA_two_hundred_add_U_approx`);
+  (`ZetaSeven.primeSumA_two_hundred_add_u`, `ZetaSeven.primeSumA_two_hundred_add_u_approx`);
 * `A_M > B_0` for every integer `M > 0` (`ZetaSeven.primeSumB0_lt_primeSumA`);
-* `B_0 + U > 0` (`ZetaSeven.primeSumB0_add_U_pos`), so `A_M + U > 0` for every integer `M > 0`
-  (`ZetaSeven.primeSumA_add_U_pos`);
+* `B_0 + U > 0` (`ZetaSeven.primeSumB0_add_u_pos`), so `A_M + U > 0` for every integer `M > 0`
+  (`ZetaSeven.primeSumA_add_u_pos`);
 * hence the margin `A_200 + U < -95/8` (that is, `1600(A_200 + U) < -19000`), the paper's (118),
   `A_200 + U < -11`, and its (119), `A_100000 + U < -12`, all fail
   (`ZetaSeven.final_margins_fail`).
@@ -52,15 +52,15 @@ theorem primeSumB0_approx : |primeSumB0 - 30636 / 10000| < 5 / 100000 := by
 
 /-- (89) at `M = 200` with `U = 44/25`:
 `A_200 + U = 6626902387705935050696033/1362217364503734816000000`. -/
-theorem primeSumA_two_hundred_add_U :
+theorem primeSumA_two_hundred_add_u :
     primeSumA 200 + 44 / 25 = 6626902387705935050696033 / 1362217364503734816000000 := by
   rw [primeSumA, primeSumB0_value, lam_real]
   norm_num
 
 /-- `A_200 + U` is about `4.8648`: `|A_200 + U - 4.8648| < 5 · 10⁻⁵`. -/
-theorem primeSumA_two_hundred_add_U_approx :
+theorem primeSumA_two_hundred_add_u_approx :
     |primeSumA 200 + 44 / 25 - 48648 / 10000| < 5 / 100000 := by
-  rw [primeSumA_two_hundred_add_U, abs_lt]
+  rw [primeSumA_two_hundred_add_u, abs_lt]
   constructor <;> norm_num
 
 /-! ## `A_M > B_0` for every `M > 0` -/
@@ -87,13 +87,13 @@ theorem primeSumB0_lt_primeSumA {M : ℕ} (hM : 0 < M) : primeSumB0 < primeSumA 
 /-! ## The margins fail -/
 
 /-- `B_0 + U > 0` with `U = 44/25`. -/
-theorem primeSumB0_add_U_pos : 0 < primeSumB0 + 44 / 25 := by
+theorem primeSumB0_add_u_pos : 0 < primeSumB0 + 44 / 25 := by
   rw [primeSumB0_value]
   norm_num
 
 /-- `A_M + U > 0` with `U = 44/25`, for every integer `M > 0`. -/
-theorem primeSumA_add_U_pos {M : ℕ} (hM : 0 < M) : 0 < primeSumA M + 44 / 25 := by
-  linarith [primeSumB0_lt_primeSumA hM, primeSumB0_add_U_pos]
+theorem primeSumA_add_u_pos {M : ℕ} (hM : 0 < M) : 0 < primeSumA M + 44 / 25 := by
+  linarith [primeSumB0_lt_primeSumA hM, primeSumB0_add_u_pos]
 
 /-- The final margins fail: with `U = 44/25`, neither `A_200 + U < -95/8` (that is,
 `1600(A_200 + U) < -19000`), nor the paper's (118), `A_200 + U < -11`, nor its (119),
@@ -101,8 +101,8 @@ theorem primeSumA_add_U_pos {M : ℕ} (hM : 0 < M) : 0 < primeSumA M + 44 / 25 :
 theorem final_margins_fail :
     ¬primeSumA 200 + 44 / 25 < -95 / 8 ∧ ¬1600 * (primeSumA 200 + 44 / 25) < -19000 ∧
       ¬primeSumA 200 + 44 / 25 < -11 ∧ ¬primeSumA 100000 + 44 / 25 < -12 := by
-  have h200 := primeSumA_add_U_pos (M := 200) (by norm_num)
-  have h100000 := primeSumA_add_U_pos (M := 100000) (by norm_num)
+  have h200 := primeSumA_add_u_pos (M := 200) (by norm_num)
+  have h100000 := primeSumA_add_u_pos (M := 100000) (by norm_num)
   exact ⟨not_lt.mpr (by linarith), not_lt.mpr (by linarith), not_lt.mpr (by linarith),
     not_lt.mpr (by linarith)⟩
 

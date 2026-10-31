@@ -4,7 +4,7 @@ declaration: theorem
 origin: cited
 statement: formalized
 proof: formalized
-lean: ZetaSeven.final_margins_fail ZetaSeven.primeSumB0_value ZetaSeven.primeSumA_two_hundred_add_U ZetaSeven.primeSumB0_lt_primeSumA ZetaSeven.primeSumA_add_U_pos ZetaSeven.primeSumB0_add_U_pos ZetaSeven.primeSumB0_approx ZetaSeven.primeSumA_two_hundred_add_U_approx ZetaSeven.primeSumA_numerator_pos
+lean: ZetaSeven.final_margins_fail ZetaSeven.primeSumB0_value ZetaSeven.primeSumA_two_hundred_add_u ZetaSeven.primeSumB0_lt_primeSumA ZetaSeven.primeSumA_add_u_pos ZetaSeven.primeSumB0_add_u_pos ZetaSeven.primeSumB0_approx ZetaSeven.primeSumA_two_hundred_add_u_approx ZetaSeven.primeSumA_numerator_pos
 ---
 
 # Final rational margins
