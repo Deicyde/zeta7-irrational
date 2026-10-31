@@ -846,11 +846,6 @@ theorem aeval_DeltaK_zeta_pos (n : ℕ) : 0 < aeval (riemannZeta 7).re (DeltaK n
   rw [DeltaK, AlgHom.map_det, AlgHom.mapMatrix_apply]
   exact (posDef_Gmat_zeta n).det_pos
 
-/-- The factorial scalar `S_K` is positive. -/
-theorem SK_pos (n : ℕ) : 0 < SK n := by
-  unfold SK
-  positivity
-
 /-- Proposition 2.4: `F_K(ζ(7)) = S_K Δ_K(ζ(7)) > 0`. -/
 theorem aeval_FK_zeta_pos (n : ℕ) : 0 < aeval (riemannZeta 7).re (FK n) := by
   rw [FK, map_mul, aeval_C, eq_ratCast]

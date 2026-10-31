@@ -209,10 +209,7 @@ theorem mKM_pos (n M : ℕ) : 0 < mKM n M := by
 /-- Lemma 2.3, last sentence: `Q_{K,M} = m_{K,M} S_K Δ_K` also has degree exactly `h`, since
 `m_{K,M} S_K ≠ 0`. -/
 theorem natDegree_QKM (n M : ℕ) (hn : 0 < n) : (QKM n M).natDegree = hDim n := by
-  have hS : 0 < SK n := by
-    unfold SK
-    positivity
-  rw [QKM_eq, natDegree_C_mul (mul_pos (mKM_pos n M) hS).ne']
+  rw [QKM_eq, natDegree_C_mul (mul_pos (mKM_pos n M) (SK_pos n)).ne']
   exact (degreeLemma n hn).1
 
 /-- `v_p(m_{K,M}) = -L_p(K, M)` for a prime `p ≤ 2h`, and `p ∤ m_{K,M}` for a prime `p > 2h`. -/

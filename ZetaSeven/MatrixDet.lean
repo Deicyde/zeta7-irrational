@@ -57,6 +57,11 @@ def SK (n : ℕ) : ℚ :=
     / ((Nat.factorial (N n) : ℚ) ^ (16 * hDim n)
       * ∏ i ∈ Finset.Icc 1 (hDim n - 1), (Nat.factorial (2 * i) : ℚ) ^ 2)
 
+/-- The factorial scalar `S_K` is positive. -/
+theorem SK_pos (n : ℕ) : 0 < SK n := by
+  unfold SK
+  positivity
+
 /-- Equation (8): the normalized determinant `F_K = S_K Δ_K`. -/
 noncomputable def FK (n : ℕ) : Polynomial ℚ := C (SK n) * DeltaK n
 

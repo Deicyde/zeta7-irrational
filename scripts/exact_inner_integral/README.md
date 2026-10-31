@@ -1,7 +1,8 @@
 # Exact inner integral generator
 
-Generates the 131 per-piece declarations of `ZetaSeven/ExactInnerIntegral.lean`, after
-checking each piece in exact rational arithmetic. The table rows in `tables.json` are only
+Regenerates everything after the hand-written head of `ZetaSeven/ExactInnerIntegral.lean`
+(the 131 pieces, `innerRPieces`, the integral blocks, `innerIntegral_value` and the jump
+lemmas), after checking each piece in exact rational arithmetic. The table rows in `tables.json` are only
 used to label pieces and cross-check them; the Lean proof does not depend on them.
 
 ```

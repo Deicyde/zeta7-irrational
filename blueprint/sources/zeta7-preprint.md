@@ -126,7 +126,8 @@ in article citations disambiguate them.
    zeta formula exists in the pinned Mathlib checkout (only special
    values in `HurwitzZetaValues`), so the `s = 7` instance is project
    work to prove directly (see the `hermite-hurwitz` node).
-4. ANSWERED (2026-10-21): neither is taken from the tables.
+4. ANSWERED (2026-10-21): recomputed in Lean; neither integral rests
+   on the tables.
    `ZetaSeven.innerIntegral_value` proves (121) in Lean from
    Definition 5.2, checking `R(x) = ax + b` on each of 131 pieces
    (unions of consecutive rows of Tables 2-4; erratum 12), and

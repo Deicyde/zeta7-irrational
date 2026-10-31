@@ -46,4 +46,5 @@ is part of this node.
 
 - [Zeta 7 preprint source map](../../sources/zeta7-preprint.md):
   Section 5.1, Proposition 5.1, equations (60)-(63), and the first
-  sentence of Section 5.1, which puts `γ^out_p = 0` for `p > K`.
+  sentence of Section 5.1, which puts `γ^out_p = 0` for `p > K`;
+  Section 2.4, the last sentence of Lemma 2.3.
