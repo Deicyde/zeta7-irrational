@@ -2,3 +2,4 @@
 site/
 site-src/
 *.log
+__pycache__/
