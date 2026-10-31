@@ -81,7 +81,7 @@ theorem log_mKM (n M : ℕ) :
   rw [Real.log_zpow, Int.cast_neg]
 
 /-- A sum over the primes `p ≤ c` splits at `a ≤ b ≤ c`. -/
-theorem sum_Iic_prime_split (F : ℕ → ℝ) {a b c : ℕ} (hab : a ≤ b) (hbc : b ≤ c) :
+private theorem sum_Iic_prime_split (F : ℕ → ℝ) {a b c : ℕ} (hab : a ≤ b) (hbc : b ≤ c) :
     ∑ p ∈ (Finset.Iic c).filter Nat.Prime, F p =
       (∑ p ∈ Finset.Ioc 0 a with p.Prime, F p) + (∑ p ∈ Finset.Ioc a b with p.Prime, F p)
         + ∑ p ∈ Finset.Ioc b c with p.Prime, F p := by
@@ -97,16 +97,16 @@ theorem sum_Iic_prime_split (F : ℕ → ℝ) {a b c : ℕ} (hab : a ≤ b) (hbc
     ← PrimeSum.sum_Ioc_prime_consecutive F (Nat.zero_le a) hab]
 
 /-- `⌊K/M⌋₊ = K/M`. -/
-theorem floor_one_div_mul_K (M n : ℕ) : ⌊1 / (M : ℝ) * K n⌋₊ = K n / M := by
+private theorem floor_one_div_mul_K (M n : ℕ) : ⌊1 / (M : ℝ) * K n⌋₊ = K n / M := by
   rw [show 1 / (M : ℝ) * K n = (K n : ℝ) / M by ring, Nat.floor_div_eq_div]
 
 /-- `⌊K/3⌋₊ = K/3`. -/
-theorem floor_one_third_mul_K (n : ℕ) : ⌊1 / 3 * (K n : ℝ)⌋₊ = K n / 3 := by
+private theorem floor_one_third_mul_K (n : ℕ) : ⌊1 / 3 * (K n : ℝ)⌋₊ = K n / 3 := by
   rw [show 1 / 3 * (K n : ℝ) = (K n : ℝ) / ((3 : ℕ) : ℝ) by rw [Nat.cast_ofNat]; ring,
     Nat.floor_div_eq_div]
 
 /-- `⌊2λK⌋₊ = 2h`. -/
-theorem floor_two_lam_mul_K (n : ℕ) : ⌊2 * (lam : ℝ) * K n⌋₊ = 2 * hDim n := by
+private theorem floor_two_lam_mul_K (n : ℕ) : ⌊2 * (lam : ℝ) * K n⌋₊ = 2 * hDim n := by
   rw [show 2 * (lam : ℝ) * K n = ((2 * hDim n : ℕ) : ℝ) by
     rw [lam_real]; simp only [K, hDim]; push_cast; ring, Nat.floor_natCast]
 
@@ -129,21 +129,25 @@ theorem log_mKM_split {n M : ℕ} (hM : 3 ≤ M) :
 
 /-! ## Scaling by `K` -/
 
-theorem K_pos {n : ℕ} (hn : 0 < n) : (0 : ℝ) < K n := by
+private theorem K_pos {n : ℕ} (hn : 0 < n) : (0 : ℝ) < K n := by
   have : 0 < K n := by unfold K; omega
   exact_mod_cast this
 
-theorem K_mul_div_K (p : ℕ) {n : ℕ} (hn : 0 < n) : (K n : ℝ) * ((p : ℝ) / K n) = p :=
+private theorem one_le_five_mul_K {n : ℕ} (hn : 0 < n) : (1 : ℝ) ≤ 5 * (K n : ℝ) := by
+  have : (1 : ℝ) ≤ K n := by exact_mod_cast (show 1 ≤ K n by unfold K; omega)
+  linarith
+
+private theorem K_mul_div_K (p : ℕ) {n : ℕ} (hn : 0 < n) : (K n : ℝ) * ((p : ℝ) / K n) = p :=
   mul_div_cancel₀ _ (K_pos hn).ne'
 
-theorem K_mul_alpha (n : ℕ) : (K n : ℝ) * (alpha : ℝ) = N n := by
+private theorem K_mul_alpha (n : ℕ) : (K n : ℝ) * (alpha : ℝ) = N n := by
   rw [alpha_real]; simp only [K, N]; push_cast; ring
 
-theorem K_mul_lam (n : ℕ) : (K n : ℝ) * (lam : ℝ) = hDim n := by
+private theorem K_mul_lam (n : ℕ) : (K n : ℝ) * (lam : ℝ) = hDim n := by
   rw [lam_real]; simp only [K, hDim]; push_cast; ring
 
 /-- `K = 40n → ∞`. -/
-theorem tendsto_K_atTop : Tendsto (fun n : ℕ => (K n : ℝ)) atTop atTop := by
+private theorem tendsto_K_atTop : Tendsto (fun n : ℕ => (K n : ℝ)) atTop atTop := by
   have h : (fun n : ℕ => (K n : ℝ)) = fun n : ℕ => 40 * (n : ℝ) := by
     funext n
     rw [K, Nat.cast_mul, Nat.cast_ofNat]
@@ -153,7 +157,7 @@ theorem tendsto_K_atTop : Tendsto (fun n : ℕ => (K n : ℝ)) atTop atTop := by
 /-! ## Weighted prime sums -/
 
 /-- `|∑_{a < p ≤ b} f(p) log p| ≤ C θ(x)` for `b = ⌊x⌋₊` and `|f| ≤ C` on the primes. -/
-theorem abs_sum_prime_le {a b : ℕ} {f : ℕ → ℝ} {C x : ℝ} (hb : b = ⌊x⌋₊) (hC : 0 ≤ C)
+private theorem abs_sum_prime_le {a b : ℕ} {f : ℕ → ℝ} {C x : ℝ} (hb : b = ⌊x⌋₊) (hC : 0 ≤ C)
     (hf : ∀ p ∈ Finset.Ioc a b, p.Prime → |f p| ≤ C) :
     |∑ p ∈ Finset.Ioc a b with p.Prime, f p * Real.log p| ≤ C * Chebyshev.theta x := by
   calc |∑ p ∈ Finset.Ioc a b with p.Prime, f p * Real.log p|
@@ -178,7 +182,7 @@ theorem abs_sum_prime_le {a b : ℕ} {f : ℕ → ℝ} {C x : ℝ} (hb : b = ⌊
         rw [← hb]
 
 /-- If `g → L` and `|f - g| ≤ e → 0`, then `f → L`. -/
-theorem tendsto_of_abs_sub_le {f g e : ℕ → ℝ} {L : ℝ} (hg : Tendsto g atTop (𝓝 L))
+private theorem tendsto_of_abs_sub_le {f g e : ℕ → ℝ} {L : ℝ} (hg : Tendsto g atTop (𝓝 L))
     (he : Tendsto e atTop (𝓝 0)) (h : ∀ᶠ n in atTop, |f n - g n| ≤ e n) :
     Tendsto f atTop (𝓝 L) := by
   have h0 : Tendsto (fun n => f n - g n) atTop (𝓝 0) :=
@@ -295,11 +299,8 @@ theorem crude_sum_le {n M : ℕ} (hn : 0 < n) (hM : 0 < M) :
     ∑ p ∈ Finset.Ioc 0 ⌊1 / (M : ℝ) * K n⌋₊ with p.Prime, (-(LpKM n M p : ℝ)) * Real.log p ≤
       8 * (hDim n : ℝ) * Chebyshev.theta (1 / (M : ℝ) * K n) + (Nat.sqrt (5 * K n) : ℝ) *
         (8 * (hDim n : ℝ) * Real.log (5 * (K n : ℝ)) + (hDim n : ℝ) * Real.log 720) := by
-  have hKdef : K n = 40 * n := rfl
   have hc : 0 ≤ 8 * (hDim n : ℝ) * Real.log (5 * (K n : ℝ)) + (hDim n : ℝ) * Real.log 720 := by
-    have h1 : (1 : ℝ) ≤ 5 * (K n : ℝ) := by
-      have : (1 : ℝ) ≤ K n := by exact_mod_cast (show 1 ≤ K n by omega)
-      linarith
+    have h1 := one_le_five_mul_K hn
     have hh : (0 : ℝ) ≤ hDim n := Nat.cast_nonneg _
     exact add_nonneg (mul_nonneg (mul_nonneg (by norm_num) hh) (Real.log_nonneg h1))
       (mul_nonneg hh (Real.log_nonneg (by norm_num)))
@@ -348,11 +349,7 @@ theorem small_prime_error_le {n : ℕ} (hn : 1 ≤ n) :
     have h := Real.nat_sqrt_le_real_sqrt (a := 5 * K n)
     push_cast at h
     exact h
-  have h1 : (1 : ℝ) ≤ 5 * (K n : ℝ) := by
-    have : (1 : ℝ) ≤ K n := by
-      have : 1 ≤ K n := by unfold K; omega
-      exact_mod_cast this
-    linarith
+  have h1 := one_le_five_mul_K hn
   have hL : 0 ≤ 8 * Real.log (5 * (K n : ℝ)) + Real.log 720 :=
     add_nonneg (mul_nonneg (by norm_num) (Real.log_nonneg h1)) (Real.log_nonneg (by norm_num))
   have hlam : (0 : ℝ) ≤ lam := by rw [lam_real]; norm_num
@@ -374,11 +371,7 @@ theorem small_prime_error_le {n : ℕ} (hn : 1 ≤ n) :
 theorem small_prime_error_nonneg {n : ℕ} (hn : 1 ≤ n) :
     0 ≤ (Nat.sqrt (5 * K n) : ℝ) * (8 * (hDim n : ℝ) * Real.log (5 * (K n : ℝ))
         + (hDim n : ℝ) * Real.log 720) / (K n : ℝ) ^ 2 := by
-  have h1 : (1 : ℝ) ≤ 5 * (K n : ℝ) := by
-    have : (1 : ℝ) ≤ K n := by
-      have : 1 ≤ K n := by unfold K; omega
-      exact_mod_cast this
-    linarith
+  have h1 := one_le_five_mul_K hn
   have hh : (0 : ℝ) ≤ hDim n := Nat.cast_nonneg _
   have hc : 0 ≤ 8 * (hDim n : ℝ) * Real.log (5 * (K n : ℝ)) + (hDim n : ℝ) * Real.log 720 :=
     add_nonneg (mul_nonneg (mul_nonneg (by norm_num) hh) (Real.log_nonneg h1))
@@ -454,11 +447,11 @@ theorem abs_innerR_le (x : ℝ) : |innerR x| ≤ 24 * |x| + 27 / 8 := by
         add_le_add (mul_le_mul_of_nonneg_left (abs_tailF_le x) (abs_nonneg x)) (abs_tailQ_le x)
     _ = 24 * |x| + 27 / 8 := by ring
 
-private theorem psb_continuous_tailD : Continuous tailD := by
+private theorem continuous_tailD : Continuous tailD := by
   unfold tailD
   exact continuous_id.min (continuous_const.sub continuous_id)
 
-private theorem psb_tailEps_continuousAt {u : ℝ} (hu : u ≠ 1 / 2) :
+private theorem tailEps_continuousAt {u : ℝ} (hu : u ≠ 1 / 2) :
     ContinuousAt tailEps u := by
   rcases lt_or_gt_of_ne hu with h | h
   · refine (continuousAt_const : ContinuousAt (fun _ : ℝ => (1 : ℝ)) u).congr ?_
@@ -472,17 +465,17 @@ private theorem psb_tailEps_continuousAt {u : ℝ} (hu : u ≠ 1 / 2) :
     show (-1 : ℝ) = tailEps v
     rw [tailEps, ite_eq_right hv']
 
-private theorem psb_fract_mul_continuousAt {c x : ℝ} (h : ∀ k : ℤ, c * x ≠ k) :
+private theorem fract_mul_continuousAt {c x : ℝ} (h : ∀ k : ℤ, c * x ≠ k) :
     ContinuousAt (fun y : ℝ => Int.fract (c * y)) x :=
   ContinuousAt.comp (g := Int.fract) (f := fun y : ℝ => c * y)
     (continuousAt_fract (h ⌊c * x⌋)) (by fun_prop)
 
-private theorem psb_tailF_shape_continuousAt {F G : ℝ → ℝ} {x : ℝ} (hF : ContinuousAt F x)
+private theorem tailF_shape_continuousAt {F G : ℝ → ℝ} {x : ℝ} (hF : ContinuousAt F x)
     (hG : ContinuousAt G x) (a b c : ℝ) :
     ContinuousAt (fun y => a + b * F y - c * G y) x := by
   fun_prop
 
-private theorem psb_tailQ_shape_continuousAt {F1 F2 F3 Df Da Ef Ea : ℝ → ℝ} {x : ℝ}
+private theorem tailQ_shape_continuousAt {F1 F2 F3 Df Da Ef Ea : ℝ → ℝ} {x : ℝ}
     (h1 : ContinuousAt F1 x) (h2 : ContinuousAt F2 x) (h3 : ContinuousAt F3 x)
     (h4 : ContinuousAt Df x) (h5 : ContinuousAt Da x) (h6 : ContinuousAt Ef x)
     (h7 : ContinuousAt Ea x) :
@@ -510,27 +503,27 @@ theorem innerR_continuousAt {x : ℝ} (h1 : ∀ k : ℤ, 2 * x ≠ k)
     linarith)
   have cf : ContinuousAt Int.fract x := continuousAt_fract (hx ⌊x⌋)
   have ca : ContinuousAt (fun y : ℝ => Int.fract ((alpha : ℝ) * y)) x :=
-    psb_fract_mul_continuousAt hax
-  have c2 : ContinuousAt (fun y : ℝ => Int.fract (2 * y)) x := psb_fract_mul_continuousAt h1
+    fract_mul_continuousAt hax
+  have c2 : ContinuousAt (fun y : ℝ => Int.fract (2 * y)) x := fract_mul_continuousAt h1
   have c2H : ContinuousAt (fun y : ℝ => Int.fract (2 * (bigH : ℝ) * y)) x :=
-    psb_fract_mul_continuousAt h3
+    fract_mul_continuousAt h3
   have c2l : ContinuousAt (fun y : ℝ => Int.fract (2 * (lam : ℝ) * y)) x :=
-    psb_fract_mul_continuousAt h4
+    fract_mul_continuousAt h4
   have cdf : ContinuousAt (fun y : ℝ => tailD (Int.fract y)) x :=
-    psb_continuous_tailD.continuousAt.comp cf
+    continuous_tailD.continuousAt.comp cf
   have cda : ContinuousAt (fun y : ℝ => tailD (Int.fract ((alpha : ℝ) * y))) x :=
-    psb_continuous_tailD.continuousAt.comp ca
+    continuous_tailD.continuousAt.comp ca
   have cef : ContinuousAt (fun y : ℝ => tailEps (Int.fract y)) x :=
-    (psb_tailEps_continuousAt hfx).comp cf
+    (tailEps_continuousAt hfx).comp cf
   have cea : ContinuousAt (fun y : ℝ => tailEps (Int.fract ((alpha : ℝ) * y))) x :=
-    (psb_tailEps_continuousAt hfa).comp (f := fun y : ℝ => Int.fract ((alpha : ℝ) * y)) ca
+    (tailEps_continuousAt hfa).comp (f := fun y : ℝ => Int.fract ((alpha : ℝ) * y)) ca
   have cF : ContinuousAt tailF x := by
     rw [show tailF = fun y => 6 * (lam : ℝ) + 2 * (lam : ℝ) * Int.fract y
       - 16 * (lam : ℝ) * Int.fract ((alpha : ℝ) * y) from rfl]
-    exact psb_tailF_shape_continuousAt cf ca _ _ _
+    exact tailF_shape_continuousAt cf ca _ _ _
   have cQ : ContinuousAt tailQ x := by
     rw [show tailQ = _ from funext tailQ_eq]
-    exact psb_tailQ_shape_continuousAt c2H c2 c2l cdf cda cef cea
+    exact tailQ_shape_continuousAt c2H c2 c2l cdf cda cef cea
   rw [show innerR = _ from funext innerR_eq_tail]
   exact (continuousAt_id.mul cF).add cQ
 
@@ -547,7 +540,7 @@ theorem innerWeight_bounded {M : ℕ} (hM : 0 < M) :
   have h3 : y * (24 * y⁻¹ + 27 / 8) = 24 + 27 / 8 * y := by linear_combination 24 * hyy
   linarith [hy.2]
 
-private theorem psb_mul_inv_ne_int {M : ℕ} (hM : 0 < M) {c y : ℝ} (hc : 0 < c)
+private theorem mul_inv_ne_int {M : ℕ} (hM : 0 < M) {c y : ℝ} (hc : 0 < c)
     (hy : y ∈ Set.Icc (1 / (M : ℝ)) (1 / 3))
     (hF : y ∉ (fun k : ℤ => c / k) '' Set.Icc ⌈3 * c⌉ ⌊(M : ℝ) * c⌋) :
     ∀ k : ℤ, c * y⁻¹ ≠ k := by
@@ -590,10 +583,10 @@ theorem innerWeight_disc_finite {M : ℕ} (hM : 0 < M) :
   apply hdisc
   have hy0 : 0 < y := lt_of_lt_of_le (one_div_pos.mpr (by exact_mod_cast hM)) hy.1
   have hR : ContinuousAt innerR y⁻¹ :=
-    innerR_continuousAt (psb_mul_inv_ne_int hM (by norm_num) hy hF1)
-      (psb_mul_inv_ne_int hM (by rw [alpha_real]; norm_num) hy hF2)
-      (psb_mul_inv_ne_int hM (by rw [bigH_real]; norm_num) hy hF3)
-      (psb_mul_inv_ne_int hM (by rw [lam_real]; norm_num) hy hF4)
+    innerR_continuousAt (mul_inv_ne_int hM (by norm_num) hy hF1)
+      (mul_inv_ne_int hM (by rw [alpha_real]; norm_num) hy hF2)
+      (mul_inv_ne_int hM (by rw [bigH_real]; norm_num) hy hF3)
+      (mul_inv_ne_int hM (by rw [lam_real]; norm_num) hy hF4)
   exact (continuousAt_id.mul (hR.comp (continuousAt_inv₀ hy0.ne'))).continuousWithinAt
 
 /-- The change of variables pointwise: `R(1/y)/(1/y)³ · (-1/y²) = -y R(1/y)`. -/
@@ -663,33 +656,6 @@ theorem tendsto_inner_sum {M : ℕ} (hM : 40 ≤ M) :
   exact hC n p hpp hR
 
 /-! ## The outer range `K/3 < p ≤ 2h` -/
-
-private theorem psb_floor_one_div_eq_two {y : ℝ} (h1 : 1 / 3 < y) (h2 : y ≤ 1 / 2) :
-    ⌊1 / y⌋ = 2 := by
-  have hy : 0 < y := by linarith
-  rw [Int.floor_eq_iff]
-  push_cast
-  constructor
-  · rw [le_div_iff₀ hy]
-    linarith
-  · rw [div_lt_iff₀ hy]
-    linarith
-
-private theorem psb_floor_one_div_eq_one {y : ℝ} (h1 : 1 / 2 < y) (h2 : y ≤ 1) :
-    ⌊1 / y⌋ = 1 := by
-  have hy : 0 < y := by linarith
-  rw [Int.floor_eq_iff]
-  push_cast
-  constructor
-  · rw [le_div_iff₀ hy]
-    linarith
-  · rw [div_lt_iff₀ hy]
-    linarith
-
-private theorem psb_floor_one_div_eq_zero {y : ℝ} (h : 1 < y) : ⌊1 / y⌋ = 0 := by
-  have hy : 0 < y := by linarith
-  rw [Int.floor_eq_zero_iff]
-  exact Set.mem_Ico.mpr ⟨div_nonneg zero_le_one hy.le, (div_lt_one hy).mpr h⟩
 
 /-- `K v(k, p/K) = K - kp`. -/
 theorem K_mul_outerV {n : ℕ} (p : ℕ) (hn : 0 < n) (k : ℤ) :
@@ -847,7 +813,7 @@ theorem gammaOut_approx (n p : ℕ) (h3 : K n < 3 * p) :
     exact_mod_cast hZ
 
 /-- `2 ∑_{j=1}^{m} (a - jb) = 2ma - bm(m+1)`. -/
-theorem sum_Icc_sub_mul (a b : ℝ) (m : ℕ) :
+private theorem sum_Icc_sub_mul (a b : ℝ) (m : ℕ) :
     2 * ∑ j ∈ Finset.Icc 1 m, (a - (j : ℝ) * b) = 2 * m * a - b * m * (m + 1) := by
   induction m with
   | zero =>
@@ -860,7 +826,7 @@ theorem sum_Icc_sub_mul (a b : ℝ) (m : ℕ) :
 
 /-- If `mb ≤ a < (m+1)b` with `b > 0` and `m ≤ 7`, then
 `2 ∑_{j=1}^{7} (a - jb)₊ = 2ma - bm(m+1)`. -/
-theorem sum_max_sub_mul {a b : ℝ} (hb : 0 < b) {m : ℕ} (hm : m ≤ 7) (h1 : (m : ℝ) * b ≤ a)
+private theorem sum_max_sub_mul {a b : ℝ} (hb : 0 < b) {m : ℕ} (hm : m ≤ 7) (h1 : (m : ℝ) * b ≤ a)
     (h2 : a < ((m : ℝ) + 1) * b) :
     2 * ∑ j ∈ Finset.Icc (1 : ℕ) 7, max (a - (j : ℝ) * b) 0 = 2 * m * a - b * m * (m + 1) := by
   have hterm : ∀ j ∈ Finset.Icc (1 : ℕ) 7,
@@ -988,9 +954,16 @@ theorem LpKM_outer_approx {n M p : ℕ} (hp : p.Prime) (hn : 0 < n) (hM : 3 ≤ 
 
 /-- `|g(y)| ≤ 10` for every `y`. -/
 theorem abs_outerG_le (y : ℝ) : |outerG y| ≤ 10 := by
+  have hR0 : 0 ≤ outerR y := by
+    unfold outerR
+    exact le_min (by rw [lam_real]; norm_num) (le_max_left _ _)
+  have hR1 : outerR y ≤ 37 / 40 := by
+    unfold outerR
+    rw [lam_real]
+    exact min_le_left _ _
   by_cases h1 : 1 / 3 < y ∧ y ≤ 1 / 2
   · obtain ⟨hy0, hy1⟩ := h1
-    rw [outerG_of_le_half hy0 hy1, psb_floor_one_div_eq_two hy0 hy1]
+    rw [outerG_of_le_half hy0 hy1, floor_one_div_eq_two hy0 hy1]
     have hV : outerV 2 y = 1 - 2 * y := by norm_num [outerV]
     have hU0 : 0 ≤ outerU 2 y := le_max_left _ _
     have hU1 : outerU 2 y ≤ 3 / 40 := by
@@ -1003,13 +976,6 @@ theorem abs_outerG_le (y : ℝ) : |outerG y| ≤ 10 := by
     have hA1 : min (alpha : ℝ) (outerV 2 y) ≤ 3 / 40 := by
       rw [alpha_real]
       exact min_le_left _ _
-    have hR0 : 0 ≤ outerR y := by
-      unfold outerR
-      exact le_min (by rw [lam_real]; norm_num) (le_max_left _ _)
-    have hR1 : outerR y ≤ 37 / 40 := by
-      unfold outerR
-      rw [lam_real]
-      exact min_le_left _ _
     have hm0 : 0 ≤ min (outerR y) (y + outerU 2 y) := le_min hR0 (by linarith)
     have hm1 : min (outerR y) (y + outerU 2 y) ≤ 37 / 40 := (min_le_left _ _).trans hR1
     unfold outerGLow outerT
@@ -1018,7 +984,7 @@ theorem abs_outerG_le (y : ℝ) : |outerG y| ≤ 10 := by
     constructor <;> linarith
   by_cases h2 : 1 / 2 < y ∧ y ≤ 1
   · obtain ⟨hy0, hy1⟩ := h2
-    rw [outerG_of_half_lt hy0 hy1, psb_floor_one_div_eq_one hy0 hy1]
+    rw [outerG_of_half_lt hy0 hy1, floor_one_div_eq_one hy0 hy1]
     have hV : outerV 1 y = 1 - y := by norm_num [outerV]
     have hU0 : 0 ≤ outerU 1 y := le_max_left _ _
     have hU1 : outerU 1 y ≤ 3 / 40 := by
@@ -1030,13 +996,6 @@ theorem abs_outerG_le (y : ℝ) : |outerG y| ≤ 10 := by
       exact le_min (by norm_num) (by linarith)
     have hA1 : min (alpha : ℝ) (outerV 1 y) ≤ 3 / 40 := by
       rw [alpha_real]
-      exact min_le_left _ _
-    have hR0 : 0 ≤ outerR y := by
-      unfold outerR
-      exact le_min (by rw [lam_real]; norm_num) (le_max_left _ _)
-    have hR1 : outerR y ≤ 37 / 40 := by
-      unfold outerR
-      rw [lam_real]
       exact min_le_left _ _
     have hm0 : 0 ≤ min (outerR y) (y - (alpha : ℝ) + outerU 1 y) :=
       le_min hR0 (by rw [alpha_real]; linarith)
@@ -1094,18 +1053,18 @@ theorem outerIntegrand_continuousAt {y : ℝ} (h1 : 1 / 3 < y) (h2 : y ≠ 1 / 2
   · refine ContinuousAt.congr ((continuous_outerGLow 2).add (hS 2)).continuousAt ?_
     filter_upwards [Ioo_mem_nhds h1 h2] with z hz
     rw [outerIntegrand_eq, outerG_of_le_half hz.1 hz.2.le, outerScalar,
-      psb_floor_one_div_eq_two hz.1 hz.2.le]
+      floor_one_div_eq_two hz.1 hz.2.le]
     rfl
   · rcases lt_or_gt_of_ne h3 with h3 | h3
     · refine ContinuousAt.congr ((continuous_outerGHigh 1).add (hS 1)).continuousAt ?_
       filter_upwards [Ioo_mem_nhds h2 h3] with z hz
       rw [outerIntegrand_eq, outerG_of_half_lt hz.1 hz.2.le, outerScalar,
-        psb_floor_one_div_eq_one hz.1 hz.2.le]
+        floor_one_div_eq_one hz.1 hz.2.le]
       rfl
     · refine ContinuousAt.congr
         ((continuous_const : Continuous fun _ : ℝ => (0 : ℝ)).add (hS 0)).continuousAt ?_
       filter_upwards [Ioi_mem_nhds h3] with z hz
-      rw [outerIntegrand_eq, outerG_of_one_lt hz, outerScalar, psb_floor_one_div_eq_zero hz]
+      rw [outerIntegrand_eq, outerG_of_one_lt hz, outerScalar, floor_one_div_eq_zero hz]
       rfl
 
 /-- The integrand `T` of (73) has finitely many discontinuities in `[1/3, 2λ]`: they lie in

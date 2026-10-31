@@ -121,7 +121,8 @@ theorem outerIntegral_eq :
 On each of `(1/3, 1/2)`, `(1/2, 1)` and `(1, 2λ)` the floor `⌊1/y⌋` and the branch of
 `g` are constant, so `g` and the scalar term agree there with continuous functions. -/
 
-private theorem floor_one_div_eq_two {y : ℝ} (h1 : 1 / 3 < y) (h2 : y ≤ 1 / 2) :
+/-- `⌊1/y⌋ = 2` for `1/3 < y ≤ 1/2`. -/
+theorem floor_one_div_eq_two {y : ℝ} (h1 : 1 / 3 < y) (h2 : y ≤ 1 / 2) :
     ⌊1 / y⌋ = 2 := by
   have hy : 0 < y := by linarith
   rw [Int.floor_eq_iff]
@@ -132,7 +133,8 @@ private theorem floor_one_div_eq_two {y : ℝ} (h1 : 1 / 3 < y) (h2 : y ≤ 1 / 
   · rw [div_lt_iff₀ hy]
     linarith
 
-private theorem floor_one_div_eq_one {y : ℝ} (h1 : 1 / 2 < y) (h2 : y ≤ 1) :
+/-- `⌊1/y⌋ = 1` for `1/2 < y ≤ 1`. -/
+theorem floor_one_div_eq_one {y : ℝ} (h1 : 1 / 2 < y) (h2 : y ≤ 1) :
     ⌊1 / y⌋ = 1 := by
   have hy : 0 < y := by linarith
   rw [Int.floor_eq_iff]
@@ -143,7 +145,8 @@ private theorem floor_one_div_eq_one {y : ℝ} (h1 : 1 / 2 < y) (h2 : y ≤ 1) :
   · rw [div_lt_iff₀ hy]
     linarith
 
-private theorem floor_one_div_eq_zero {y : ℝ} (h : 1 < y) : ⌊1 / y⌋ = 0 := by
+/-- `⌊1/y⌋ = 0` for `y > 1`. -/
+theorem floor_one_div_eq_zero {y : ℝ} (h : 1 < y) : ⌊1 / y⌋ = 0 := by
   have hy : 0 < y := by linarith
   rw [Int.floor_eq_zero_iff]
   exact Set.mem_Ico.mpr ⟨div_nonneg zero_le_one hy.le, (div_lt_one hy).mpr h⟩

@@ -83,6 +83,12 @@ noncomputable def gridSup (G : ℝ → ℝ) (a b : ℝ) (N k : ℕ) : ℝ :=
 noncomputable def gridInf (G : ℝ → ℝ) (a b : ℝ) (N k : ℕ) : ℝ :=
   sInf (G '' Set.Ioc (gridPt a b N k) (gridPt a b N (k + 1)))
 
+/-- The infimum of `G` over a piece is minus the supremum of `-G`, so every bound below is proved
+for `gridSup` and transferred to `gridInf`. -/
+theorem gridInf_eq_neg (G : ℝ → ℝ) (a b : ℝ) (N k : ℕ) :
+    gridInf G a b N k = -gridSup (fun y => -G y) a b N k := by
+  rw [gridInf, gridSup, Real.sInf_def, ← Set.image_neg_eq_neg, Set.image_image]
+
 theorem gridPt_zero (a b : ℝ) (N : ℕ) : gridPt a b N 0 = a := by
   simp [gridPt]
 
@@ -210,13 +216,6 @@ theorem bddAbove_piece {a b : ℝ} (hab : a ≤ b) {G : ℝ → ℝ} {C : ℝ}
     rintro _ ⟨z, hz, rfl⟩
     exact (abs_le.1 (hC z (piece_subset hab hN hk hz))).2⟩
 
-theorem bddBelow_piece {a b : ℝ} (hab : a ≤ b) {G : ℝ → ℝ} {C : ℝ}
-    (hC : ∀ y ∈ Set.Icc a b, |G y| ≤ C) {N k : ℕ} (hN : 0 < N) (hk : k < N) :
-    BddBelow (G '' Set.Ioc (gridPt a b N k) (gridPt a b N (k + 1))) :=
-  ⟨-C, by
-    rintro _ ⟨z, hz, rfl⟩
-    exact (abs_le.1 (hC z (piece_subset hab hN hk hz))).1⟩
-
 theorem abs_sSup_image_le {G : ℝ → ℝ} {I : Set ℝ} {C y : ℝ} (hy : y ∈ I)
     (hC : ∀ z ∈ I, |G z| ≤ C) : |sSup (G '' I)| ≤ C := by
   have hbdd : BddAbove (G '' I) := ⟨C, by
@@ -227,17 +226,6 @@ theorem abs_sSup_image_le {G : ℝ → ℝ} {I : Set ℝ} {C y : ℝ} (hy : y �
   refine csSup_le ⟨G y, Set.mem_image_of_mem G hy⟩ ?_
   rintro _ ⟨z, hz, rfl⟩
   exact (abs_le.1 (hC z hz)).2
-
-theorem abs_sInf_image_le {G : ℝ → ℝ} {I : Set ℝ} {C y : ℝ} (hy : y ∈ I)
-    (hC : ∀ z ∈ I, |G z| ≤ C) : |sInf (G '' I)| ≤ C := by
-  have hbdd : BddBelow (G '' I) := ⟨-C, by
-    rintro _ ⟨z, hz, rfl⟩
-    exact (abs_le.1 (hC z hz)).1⟩
-  rw [abs_le]
-  refine ⟨?_, (csInf_le hbdd (Set.mem_image_of_mem G hy)).trans (abs_le.1 (hC y hy)).2⟩
-  refine le_csInf ⟨G y, Set.mem_image_of_mem G hy⟩ ?_
-  rintro _ ⟨z, hz, rfl⟩
-  exact (abs_le.1 (hC z hz)).1
 
 theorem div_mem_Ioc {u v X : ℝ} (hu : 0 ≤ u) (hv : 0 ≤ v) (hX : 0 < X) {p : ℕ}
     (hp : p ∈ Finset.Ioc ⌊u * X⌋₊ ⌊v * X⌋₊) : (p : ℝ) / X ∈ Set.Ioc u v := by
@@ -264,23 +252,6 @@ theorem piece_sum_le {a b : ℝ} (ha : 0 ≤ a) (hab : a < b) {G : ℝ → ℝ} 
   have hlog : 0 ≤ Real.log p := Real.log_nonneg (by exact_mod_cast hp.2.one_lt.le)
   exact mul_le_mul_of_nonneg_right
     (le_csSup (bddAbove_piece hab.le hC hN hk) (Set.mem_image_of_mem G hmem)) hlog
-
-theorem piece_sum_ge {a b : ℝ} (ha : 0 ≤ a) (hab : a < b) {G : ℝ → ℝ} {C : ℝ}
-    (hC : ∀ y ∈ Set.Icc a b, |G y| ≤ C) {N k : ℕ} (hN : 0 < N) (hk : k < N) {X : ℝ}
-    (hX : 0 < X) :
-    gridInf G a b N k * (θ (gridPt a b N (k + 1) * X) - θ (gridPt a b N k * X))
-      ≤ ∑ p ∈ Finset.Ioc ⌊gridPt a b N k * X⌋₊ ⌊gridPt a b N (k + 1) * X⌋₊ with p.Prime,
-        G (p / X) * Real.log p := by
-  have h0 : 0 ≤ gridPt a b N k := ha.trans (le_gridPt hab.le)
-  have h1 : 0 ≤ gridPt a b N (k + 1) := ha.trans (le_gridPt hab.le)
-  rw [theta_sub_theta_eq_sum (mul_le_mul_of_nonneg_right (gridPt_le_succ hab.le) hX.le),
-    Finset.mul_sum]
-  refine Finset.sum_le_sum fun p hp => ?_
-  rw [Finset.mem_filter] at hp
-  have hmem := div_mem_Ioc h0 h1 hX hp.1
-  have hlog : 0 ≤ Real.log p := Real.log_nonneg (by exact_mod_cast hp.2.one_lt.le)
-  exact mul_le_mul_of_nonneg_right
-    (csInf_le (bddBelow_piece hab.le hC hN hk) (Set.mem_image_of_mem G hmem)) hlog
 
 /-! ## Bounds on the whole prime sum -/
 
@@ -318,16 +289,10 @@ theorem lower_le_primeSum {a b : ℝ} (ha : 0 ≤ a) (hab : a < b) {G : ℝ → 
     ∑ k ∈ Finset.range N,
         gridInf G a b N k * ((θ (gridPt a b N (k + 1) * X) - θ (gridPt a b N k * X)) / X)
       ≤ X⁻¹ * ∑ p ∈ Finset.Ioc ⌊a * X⌋₊ ⌊b * X⌋₊ with p.Prime, G (p / X) * Real.log p := by
-  have hdec := sum_prime_grid (fun p : ℕ => G (p / X) * Real.log p) hab.le hX.le N N
-  beta_reduce at hdec
-  rw [gridPt_self a b hN] at hdec
-  rw [← hdec, Finset.mul_sum]
-  refine Finset.sum_le_sum fun k hk => ?_
-  have hk' : k < N := Finset.mem_range.1 hk
-  calc gridInf G a b N k * ((θ (gridPt a b N (k + 1) * X) - θ (gridPt a b N k * X)) / X)
-      = X⁻¹ * (gridInf G a b N k *
-          (θ (gridPt a b N (k + 1) * X) - θ (gridPt a b N k * X))) := by ring
-    _ ≤ _ := mul_le_mul_of_nonneg_left (piece_sum_ge ha hab hC hN hk' hX) (inv_nonneg.2 hX.le)
+  have h := primeSum_le_upper ha hab (G := fun y => -G y)
+    (fun y hy => (abs_neg (G y)).trans_le (hC y hy)) hN hX
+  simp only [gridInf_eq_neg, neg_mul, Finset.sum_neg_distrib, mul_neg] at h ⊢
+  linarith
 
 theorem tendsto_grid_sum (hθ : θ ~[atTop] id) {a b : ℝ} (ha : 0 ≤ a) (hab : a ≤ b) (N : ℕ)
     (V : ℕ → ℝ) :
@@ -391,21 +356,10 @@ theorem tendsto_gridInf {a b : ℝ} (hab : a < b) {G : ℝ → ℝ} {C : ℝ}
     (hC : ∀ y ∈ Set.Icc a b, |G y| ≤ C) {y : ℝ} (hy : y ∈ Set.Ioc a b)
     (hcont : ContinuousWithinAt G (Set.Icc a b) y) :
     Tendsto (fun N : ℕ => gridInf G a b N (gridIdx a b N y)) atTop (𝓝 (G y)) := by
-  rw [Metric.tendsto_nhds]
-  intro ε hε
-  filter_upwards [eventually_piece_close hab hy hcont (half_pos hε)] with N hN
-  obtain ⟨hNpos, hz⟩ := hN
-  obtain ⟨hk, h1, h2⟩ := gridIdx_spec hab hNpos hy
-  have hymem : y ∈ Set.Ioc (gridPt a b N (gridIdx a b N y))
-      (gridPt a b N (gridIdx a b N y + 1)) := Set.mem_Ioc.2 ⟨h1, h2⟩
-  have hlo : G y - ε / 2 ≤ gridInf G a b N (gridIdx a b N y) := by
-    refine le_csInf ⟨G y, Set.mem_image_of_mem G hymem⟩ ?_
-    rintro _ ⟨z, hz', rfl⟩
-    linarith [(abs_lt.1 (hz z hz')).1]
-  have hup : gridInf G a b N (gridIdx a b N y) ≤ G y :=
-    csInf_le (bddBelow_piece hab.le hC hNpos hk) (Set.mem_image_of_mem G hymem)
-  rw [Real.dist_eq, abs_lt]
-  constructor <;> linarith
+  have h := (tendsto_gridSup hab (G := fun y => -G y)
+    (fun y hy => (abs_neg (G y)).trans_le (hC y hy)) hy hcont.neg).neg
+  rw [neg_neg] at h
+  exact h.congr fun N => (gridInf_eq_neg G a b N _).symm
 
 theorem tendsto_integral_gridSup {a b : ℝ} (hab : a < b) {G : ℝ → ℝ} {C : ℝ}
     (hC : ∀ y ∈ Set.Icc a b, |G y| ≤ C)
@@ -435,23 +389,12 @@ theorem tendsto_integral_gridInf {a b : ℝ} (hab : a < b) {G : ℝ → ℝ} {C 
     (hGc : {y ∈ Set.Icc a b | ¬ContinuousWithinAt G (Set.Icc a b) y}.Finite) :
     Tendsto (fun N : ℕ => ∫ y in a..b, gridInf G a b N (gridIdx a b N y)) atTop
       (𝓝 (∫ y in a..b, G y)) := by
-  refine intervalIntegral.tendsto_integral_filter_of_dominated_convergence (fun _ => C)
-    (Eventually.of_forall fun N =>
-      (measurable_grid_step a b N (gridInf G a b N)).aestronglyMeasurable)
-    ?_ intervalIntegrable_const ?_
-  · filter_upwards [eventually_gt_atTop 0] with N hN
-    refine Eventually.of_forall fun y hy => ?_
-    rw [Set.uIoc_of_le hab.le] at hy
-    obtain ⟨hk, h1, h2⟩ := gridIdx_spec hab hN hy
-    rw [Real.norm_eq_abs]
-    exact abs_sInf_image_le (Set.mem_Ioc.2 ⟨h1, h2⟩)
-      fun z hz => hC z (piece_subset hab.le hN hk hz)
-  · filter_upwards [hGc.countable.ae_notMem volume] with y hyS hy
-    rw [Set.uIoc_of_le hab.le] at hy
-    have hcont : ContinuousWithinAt G (Set.Icc a b) y := by
-      by_contra hc
-      exact hyS ⟨Set.Ioc_subset_Icc_self hy, hc⟩
-    exact tendsto_gridInf hab hC hy hcont
+  have h := (tendsto_integral_gridSup hab (G := fun y => -G y)
+    (fun y hy => (abs_neg (G y)).trans_le (hC y hy))
+    (hGc.subset fun y hy => ⟨hy.1, fun hc => hy.2 hc.neg⟩)).neg
+  rw [intervalIntegral.integral_neg, neg_neg] at h
+  refine h.congr fun N => ?_
+  simp only [gridInf_eq_neg, intervalIntegral.integral_neg]
 
 end PrimeSum
 

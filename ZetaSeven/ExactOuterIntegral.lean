@@ -39,33 +39,6 @@ private theorem lam_cast : (lam : ℝ) = 37 / 40 := by
 private theorem two_mul_lam : 2 * (lam : ℝ) = 37 / 20 := by
   norm_num [lam]
 
-private theorem floor_one_div_eq_two {y : ℝ} (h1 : 1 / 3 < y) (h2 : y ≤ 1 / 2) :
-    ⌊1 / y⌋ = 2 := by
-  have hy : 0 < y := by linarith
-  rw [Int.floor_eq_iff]
-  push_cast
-  constructor
-  · rw [le_div_iff₀ hy]
-    linarith
-  · rw [div_lt_iff₀ hy]
-    linarith
-
-private theorem floor_one_div_eq_one {y : ℝ} (h1 : 1 / 2 < y) (h2 : y ≤ 1) :
-    ⌊1 / y⌋ = 1 := by
-  have hy : 0 < y := by linarith
-  rw [Int.floor_eq_iff]
-  push_cast
-  constructor
-  · rw [le_div_iff₀ hy]
-    linarith
-  · rw [div_lt_iff₀ hy]
-    linarith
-
-private theorem floor_one_div_eq_zero {y : ℝ} (h : 1 < y) : ⌊1 / y⌋ = 0 := by
-  have hy : 0 < y := by linarith
-  rw [Int.floor_eq_zero_iff]
-  exact Set.mem_Ico.mpr ⟨div_nonneg zero_le_one hy.le, (div_lt_one hy).mpr h⟩
-
 /-- The sum over `j ∈ [1, 7]` written out. -/
 private theorem sum_Icc_one_seven (f : ℕ → ℝ) :
     ∑ j ∈ Finset.Icc (1 : ℕ) 7, f j = f 1 + f 2 + f 3 + f 4 + f 5 + f 6 + f 7 := by
